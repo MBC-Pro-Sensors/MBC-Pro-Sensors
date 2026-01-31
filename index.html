@@ -288,6 +288,11 @@ body {
 </style>
 </head>
 <body>
+    <div id="start-overlay" style="position:fixed; inset:0; background:#000; z-index:10005; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+    <div style="color:var(--tiffany-green); font-family:monospace; letter-spacing:5px; border:1px solid var(--tiffany-green); padding:20px 40px;">
+        CLICK TO INITIALIZE SYSTEM
+    </div>
+</div>
   <div id="cursor-light"></div>
     <div id="cursor-ring"></div>
 
@@ -388,6 +393,11 @@ body {
 <audio id="sfx-access" src="access-granted.mp3" preload="auto"></audio>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
+          const startOverlay = document.getElementById('start-overlay');
+    
+    startOverlay.addEventListener('click', () => {
+        // 1. 移除啟動層
+        gsap.to(startOverlay, { opacity: 0, duration: 0.5, onComplete: () => startOverlay.remove() });
     // --- 0. 資料庫定義 (The Data Core) ---
     const categories = [
         { name: "MBC LINE SENSOR", desc: "Precision Tracking / Cyan Core", color: "#00ffff", texture: "texture-circuit" }, // Home/Sensor
