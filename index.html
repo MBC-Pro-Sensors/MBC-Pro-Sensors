@@ -384,6 +384,8 @@ body {
         </div>
 
     </main>
+    <audio id="sfx-door" src="door-open.mp3" preload="auto"></audio>
+<audio id="sfx-access" src="access-granted.mp3" preload="auto"></audio>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
     // --- 0. 資料庫定義 (The Data Core) ---
@@ -482,22 +484,32 @@ body {
                 // 階段 4：自動開啟實驗室大門 - 再過 1.5 秒
                 setTimeout(() => {
                     clearInterval(streamInterval); // 停止亂碼
-                    
+                    // 獲取音效元素
+    const doorSfx = document.getElementById('sfx-door');
+    const accessSfx = document.getElementById('sfx-access');
+
+    // 播放「身份確認」音效 (如果有準備的話)
+    if(accessSfx) {
+        accessSfx.volume = 0.5;
+        accessSfx.play().catch(e => console.log("音效播放受限"));
+    }
                     // 1. 辨識層淡出
                     gsap.to(bioLayer, { opacity: 0, duration: 0.8 });
                     
-                    // 2. 實驗室大門開啟動畫
-                    gsap.to(".left-door", { x: "-100%", duration: 2.5, ease: "power3.inOut" });
-                    gsap.to(".right-door", { x: "100%", duration: 2.5, ease: "power3.inOut", onComplete: () => {
-                        const doorCont = document.getElementById('lab-door-container');
-                        if(doorCont) doorCont.remove();
-                        bioLayer.remove();
-                        initLab(); // 動畫完全結束後，啟動首頁 3D 內容
-                    }});
-                }, 1500);
-            }, 2500);
-        }, 1500);
+                 // 2. 實驗室大門開啟動畫 + 音效觸發
+    if(doorSfx) {
+        doorSfx.volume = 0.7;
+        doorSfx.play().catch(e => console.log("音效播放受限"));
     }
+
+    gsap.to(".left-door", { x: "-100%", duration: 2.5, ease: "power3.inOut" });
+    gsap.to(".right-door", { x: "100%", duration: 2.5, ease: "power3.inOut", onComplete: () => {
+        const doorCont = document.getElementById('lab-door-container');
+        if(doorCont) doorCont.remove();
+        if(bioLayer) bioLayer.remove(); // 確保徹底移除
+        initLab(); // 啟動 3D 立方體
+    }});
+}, 1500);
 
     // --- 核心初始化函數 ---
     function initLab() {
