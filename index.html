@@ -484,24 +484,38 @@ body {
                         gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
                     }
 
-                    // 階段 4 (大門開啟)
-                    setTimeout(() => {
-                        clearInterval(streamInterval); 
-                        if(accessSfx) { accessSfx.volume = 0.5; accessSfx.play().catch(e => {}); }
-                        gsap.to(bioLayer, { opacity: 0, duration: 0.8 });
-                        
-                        if(doorSfx) { doorSfx.volume = 0.7; doorSfx.play().catch(e => {}); }
+                  // 階段 4 (大門開啟 - 完美對齊 3 秒音效版)
+setTimeout(() => {
+    clearInterval(streamInterval); 
+    
+    // 獲取音效元素
+    const doorSfx = document.getElementById('sfx-door');
+    const accessSfx = document.getElementById('sfx-access');
 
-                        gsap.to(".left-door", { x: "-100%", duration: 2.5, ease: "power3.inOut" });
-                        gsap.to(".right-door", { x: "100%", duration: 2.5, ease: "power3.inOut", onComplete: () => {
-                            if(document.getElementById('lab-door-container')) document.getElementById('lab-door-container').remove();
-                            if(bioLayer) bioLayer.remove(); 
-                            initLab(); 
-                        }});
-                    }, 1500);
-                }, 2500);
-            }, 1500);
-        }
+    // 播放「身份確認」音效
+    if(accessSfx) { 
+        accessSfx.volume = 0.5; 
+        accessSfx.play().catch(e => {}); 
+    }
+
+    // 1. 辨識層淡出 (稍微加長一點，讓過渡更平滑)
+    gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
+    
+    // 2. 播放大門開啟音效並啟動 3 秒動畫
+    if(doorSfx) { 
+        doorSfx.volume = 0.7; 
+        doorSfx.play().catch(e => {}); 
+    }
+
+    // 將 duration 改為 3.0 以對齊音檔，ease 改為 power2 讓機械感更沈穩
+    gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
+    gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
+        const doorCont = document.getElementById('lab-door-container');
+        if(doorCont) doorCont.remove();
+        if(bioLayer) bioLayer.remove(); 
+        initLab(); 
+    }});
+}, 1500);
 
         // --- 3. 核心功能 ---
         function initLab() {
