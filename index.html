@@ -465,40 +465,63 @@ body {
                 if(mainScanner) mainScanner.style.borderColor = yellow;
                 if(scannerLine) { scannerLine.style.background = yellow; scannerLine.style.boxShadow = `0 0 20px ${yellow}`; }
 
-                // 階段 3 (綠色確認)
-                setTimeout(() => {
-                    bioLayer.classList.remove('scanning-active'); 
-                    bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
-                    const green = "#33ff33";
-                    if(statusText) { statusText.innerText = "IDENTITY VERIFIED: CHIEF ENGINEER"; statusText.style.color = green; }
-                    if(idInfo) { idInfo.innerText = "ACCESS GRANTED // WELCOME SPARK-031"; idInfo.style.color = green; }
-                    if(mainScanner) mainScanner.style.borderColor = green;
-                    if(scannerLine) { scannerLine.style.background = green; scannerLine.style.boxShadow = `0 0 20px ${green}`; }
-                    
-                    if(checkBtn) {
-                        checkBtn.style.display = "block";
-                        gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
-                    }
+              // --- 階段 3：確認授權 (變綠色) ---
+setTimeout(() => {
+    bioLayer.classList.remove('scanning-active'); 
+    bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
+    
+    const green = "#33ff33";
+    if(statusText) {
+        statusText.innerText = "IDENTITY VERIFIED: CHIEF ENGINEER";
+        statusText.style.color = green;
+    }
+    if(idInfo) {
+        idInfo.innerText = "ACCESS GRANTED // WELCOME SPARK-031";
+        idInfo.style.color = green;
+    }
+    if(mainScanner) mainScanner.style.borderColor = green;
+    if(scannerLine) {
+        scannerLine.style.background = green;
+        scannerLine.style.boxShadow = `0 0 20px ${green}`;
+    }
+    
+    // 【重點 1】：綠色畫面一出現，立刻播放身分確認音效
+    const accessSfx = document.getElementById('sfx-access');
+    if(accessSfx) {
+        accessSfx.volume = 0.6;
+        accessSfx.play().catch(e => console.log("音效播放受限"));
+    }
 
-                    // 階段 4 (大門開啟 - 對齊 3 秒音效)
-                    setTimeout(() => {
-                        clearInterval(streamInterval); 
-                        if(accessSfx) { accessSfx.volume = 0.5; accessSfx.play().catch(e => {}); }
-                        gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
-                        
-                        if(doorSfx) { doorSfx.volume = 0.7; doorSfx.play().catch(e => {}); }
+    if(checkBtn) {
+        checkBtn.style.display = "block";
+        gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
+    }
 
-                        gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
-                        gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
-                            if(document.getElementById('lab-door-container')) document.getElementById('lab-door-container').remove();
-                            if(bioLayer) bioLayer.remove(); 
-                            initLab(); 
-                        }});
-                    }, 1500);
-                }, 2500); // 這裡之前漏掉了關閉括號
-            }, 2000);
+    // --- 階段 4：等待音效播完再開門 ---
+    // 這裡的 3000 毫秒可以讓你完整聽完 "Access Granted"
+    setTimeout(() => {
+        clearInterval(streamInterval); 
+
+        // 1. 辨識層淡出
+        gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
+        
+        // 2. 播放大門開啟音效
+        const doorSfx = document.getElementById('sfx-door');
+        if(doorSfx) {
+            doorSfx.volume = 0.7;
+            doorSfx.play().catch(e => {});
         }
 
+        // 3. 大門開啟視覺動畫 (3秒)
+        gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
+        gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
+            const doorCont = document.getElementById('lab-door-container');
+            if(doorCont) doorCont.remove();
+            if(bioLayer) bioLayer.remove(); 
+            initLab(); 
+        }});
+    }, 3000); // 這裡調整為 3 秒，確保確認音效播完才開門
+}, 2500);
         // --- 3. 核心功能 ---
         function initLab() {
             gsap.from(".hero-title", { y: 50, opacity: 0, duration: 1, delay: 0.5 });
