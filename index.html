@@ -391,19 +391,19 @@ body {
     </main>
     <audio id="sfx-door" src="door-open.mp3" preload="auto"></audio>
 <audio id="sfx-access" src="access-granted.mp3" preload="auto"></audio>
-   <script>
+ <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- A. 啟動層邏輯 ---
         const startOverlay = document.getElementById('start-overlay');
         
-        startOverlay.addEventListener('click', () => {
-            // 1. 移除啟動層
-            gsap.to(startOverlay, { opacity: 0, duration: 0.5, onComplete: () => startOverlay.remove() });
-            // 2. 啟動自動化辨識掃描
-            startAutomatedBioScan(); 
-        });
+        if(startOverlay) {
+            startOverlay.addEventListener('click', () => {
+                gsap.to(startOverlay, { opacity: 0, duration: 0.5, onComplete: () => startOverlay.remove() });
+                startAutomatedBioScan(); 
+            });
+        }
 
-        // --- 0. 資料庫定義 (The Data Core) ---
+        // --- 0. 資料庫定義 ---
         const categories = [
             { name: "MBC LINE SENSOR", desc: "Precision Tracking / Cyan Core", color: "#00ffff", texture: "texture-circuit" },
             { name: "MBC SENSOR PRO", desc: "Advanced Algorithm", color: "#00ffff", texture: "texture-circuit" }, 
@@ -423,19 +423,15 @@ body {
         const leftArmHud = document.querySelector('.left-arm-hud');
         const rightArmHud = document.querySelector('.right-arm-hud');
 
-        // --- 1. 鼠標引力燈系統 (Gravity Light) ---
+        // --- 1. 鼠標引力燈系統 ---
         const cursorLight = document.getElementById('cursor-light');
         const cursorRing = document.getElementById('cursor-ring');
-        
         document.addEventListener('mousemove', (e) => {
             gsap.to(cursorLight, { x: e.clientX, y: e.clientY, duration: 0.1 });
             gsap.to(cursorRing, { x: e.clientX, y: e.clientY, duration: 0.2 });
         });
 
-        document.addEventListener('mousedown', () => document.body.classList.add('click-active'));
-        document.addEventListener('mouseup', () => document.body.classList.remove('click-active'));
-
-        // --- 2. 自動化生物辨識系統 (修正結構版) ---
+        // --- 2. 自動化生物辨識系統 ---
         function startAutomatedBioScan() {
             const bioLayer = document.getElementById('bio-layer');
             const statusText = document.getElementById('bio-status-text');
@@ -484,38 +480,24 @@ body {
                         gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
                     }
 
-                  // 階段 4 (大門開啟 - 完美對齊 3 秒音效版)
-setTimeout(() => {
-    clearInterval(streamInterval); 
-    
-    // 獲取音效元素
-    const doorSfx = document.getElementById('sfx-door');
-    const accessSfx = document.getElementById('sfx-access');
+                    // 階段 4 (大門開啟 - 對齊 3 秒音效)
+                    setTimeout(() => {
+                        clearInterval(streamInterval); 
+                        if(accessSfx) { accessSfx.volume = 0.5; accessSfx.play().catch(e => {}); }
+                        gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
+                        
+                        if(doorSfx) { doorSfx.volume = 0.7; doorSfx.play().catch(e => {}); }
 
-    // 播放「身份確認」音效
-    if(accessSfx) { 
-        accessSfx.volume = 0.5; 
-        accessSfx.play().catch(e => {}); 
-    }
-
-    // 1. 辨識層淡出 (稍微加長一點，讓過渡更平滑)
-    gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
-    
-    // 2. 播放大門開啟音效並啟動 3 秒動畫
-    if(doorSfx) { 
-        doorSfx.volume = 0.7; 
-        doorSfx.play().catch(e => {}); 
-    }
-
-    // 將 duration 改為 3.0 以對齊音檔，ease 改為 power2 讓機械感更沈穩
-    gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
-    gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
-        const doorCont = document.getElementById('lab-door-container');
-        if(doorCont) doorCont.remove();
-        if(bioLayer) bioLayer.remove(); 
-        initLab(); 
-    }});
-}, 1500);
+                        gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
+                        gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
+                            if(document.getElementById('lab-door-container')) document.getElementById('lab-door-container').remove();
+                            if(bioLayer) bioLayer.remove(); 
+                            initLab(); 
+                        }});
+                    }, 1500);
+                }, 2500); // 這裡之前漏掉了關閉括號
+            }, 1500);
+        }
 
         // --- 3. 核心功能 ---
         function initLab() {
@@ -535,21 +517,25 @@ setTimeout(() => {
             root.style.setProperty('--current-theme', data.color);
             navItems.forEach((item, i) => item.classList.toggle('active', i === currentIndex));
             
-            progressBar.style.width = `${((currentIndex + 1) / categories.length) * 100}%`;
-            progressBar.style.background = data.color;
+            if(progressBar) {
+                progressBar.style.width = `${((currentIndex + 1) / categories.length) * 100}%`;
+                progressBar.style.background = data.color;
+            }
 
             const activeFace = document.querySelector('.cube-front .product-name');
             const activeDesc = document.querySelector('.cube-front .product-desc');
             const activeVisual = document.querySelector('.cube-front .product-visual');
             const activeFaceDiv = document.querySelector('.cube-front');
 
-            gsap.to('.product-content', { opacity: 0, duration: 0.2, onComplete: () => {
-                activeFace.innerText = data.name;
-                activeDesc.innerText = data.desc;
-                activeVisual.style.borderColor = data.color;
-                activeFaceDiv.className = `cube-face cube-front ${data.texture}`;
-                gsap.to('.product-content', { opacity: 1, duration: 0.2 });
-            }});
+            if(activeFace) {
+                gsap.to('.product-content', { opacity: 0, duration: 0.2, onComplete: () => {
+                    activeFace.innerText = data.name;
+                    activeDesc.innerText = data.desc;
+                    activeVisual.style.borderColor = data.color;
+                    activeFaceDiv.className = `cube-face cube-front ${data.texture}`;
+                    gsap.to('.product-content', { opacity: 1, duration: 0.2 });
+                }});
+            }
         }
 
         // --- 4. 控制事件 ---
@@ -567,22 +553,29 @@ setTimeout(() => {
             setTimeout(() => updateSystem(currentIndex - 1), 300);
         }
 
-        function rotateCube() { cube.style.transform = `rotateY(${currentRotation}deg)`; }
+        function rotateCube() { 
+            if(cube) cube.style.transform = `rotateY(${currentRotation}deg)`; 
+        }
 
         function triggerArm(hudElement, text) {
             if(!hudElement) return;
             hudElement.classList.add('arm-active');
             const statusEl = hudElement.querySelector('.arm-status');
-            const originalText = statusEl.innerText;
-            statusEl.innerText = text;
-            setTimeout(() => {
-                hudElement.classList.remove('arm-active');
-                statusEl.innerText = originalText;
-            }, 1200);
+            if(statusEl) {
+                const originalText = statusEl.innerText;
+                statusEl.innerText = text;
+                setTimeout(() => {
+                    hudElement.classList.remove('arm-active');
+                    statusEl.innerText = originalText;
+                }, 1200);
+            }
         }
 
-        document.querySelector('.next-btn').addEventListener('click', goNext);
-        document.querySelector('.prev-btn').addEventListener('click', goPrev);
+        const nextBtn = document.querySelector('.next-btn');
+        const prevBtn = document.querySelector('.prev-btn');
+        if(nextBtn) nextBtn.addEventListener('click', goNext);
+        if(prevBtn) prevBtn.addEventListener('click', goPrev);
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') goNext();
             if (e.key === 'ArrowLeft') goPrev();
@@ -598,7 +591,7 @@ setTimeout(() => {
                 updateSystem(index);
             });
         });
-    }); // 這裡就是你原本漏掉的關鍵關閉符號！
+    });
 </script>
 </body>
 </html>
