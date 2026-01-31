@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBC-Pro-Sensors | Advanced Robotics Lab</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+
+  <style>
+  /* --- 0. 全局變數與基礎設定 --- */
+:root {
+    --bg-dark: #050a10;
+    --bg-gradient: linear-gradient(135deg, #0f1720 0%, #000000 100%);
+    --neon-cyan: #00ffff;
+    --neon-gold: #ffd700;
+    --neon-orange: #ff4500;
+    --neon-ice: #a5f2f3;
+    --neon-purple: #b026ff;
+    --tiffany-green: #0ABAB5; /* 鼠標引力燈顏色 */
+    
+    --current-theme: var(--neon-cyan); /* 動態變更的主題色 */
+    --glass-bg: rgba(20, 30, 40, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* { box-sizing: border-box; cursor: none; /* 隱藏原生鼠標 */ }
+body {
+    margin: 0; padding: 0;
+    background: var(--bg-dark);
+    font-family: 'Segoe UI', 'Orbitron', sans-serif;
+    color: white; overflow: hidden; height: 100vh;
+}
+
+/* --- 1. 鼠標引力燈特效 (Tiffany Green) --- */
+#cursor-light {
+    position: fixed; top: 0; left: 0; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(10,186,181,0.15) 0%, transparent 70%);
+    transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+    transition: width 0.1s, height 0.1s;
+    mix-blend-mode: screen;
+}
+#cursor-ring {
+    position: fixed; top: 0; left: 0; width: 20px; height: 20px;
+    border: 2px solid var(--tiffany-green); border-radius: 50%;
+    transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+    box-shadow: 0 0 10px var(--tiffany-green);
+    transition: all 0.1s ease-out;
+}
+.click-active #cursor-ring {
+    transform: translate(-50%, -50%) scale(0.8);
+    background: var(--tiffany-green);
+    box-shadow: 0 0 30px var(--tiffany-green);
+}
+
+/* --- 2. 生物辨識開場 (Biometric) --- */
+#bio-layer {
+    position: fixed; inset: 0; background: #000; z-index: 10000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.bio-scanner-line {
+    position: absolute; width: 100%; height: 5px; background: var(--tiffany-green);
+    box-shadow: 0 0 20px var(--tiffany-green);
+    animation: scanDown 2s infinite linear;
+}
+.bio-center { text-align: center; }
+.fingerprint-scan {
+    width: 100px; height: 100px; border: 2px dashed var(--tiffany-green);
+    border-radius: 50%; margin: 0 auto 20px;
+    animation: spin 4s infinite linear;
+}
+.bio-text { font-family: monospace; color: var(--tiffany-green); letter-spacing: 3px; }
+#access-btn {
+    display: none; margin-top: 30px; padding: 15px 40px;
+    background: transparent; border: 1px solid var(--tiffany-green);
+    color: var(--tiffany-green); font-size: 18px; letter-spacing: 2px;
+    cursor: none; transition: 0.3s;
+}
+#access-btn:hover { background: var(--tiffany-green); color: black; box-shadow: 0 0 30px var(--tiffany-green); }
+
+/* --- 3. 影片背景與掃描線 --- */
+.video-wrapper {
+    position: fixed; inset: 0; z-index: -1;
+    overflow: hidden;
+}
+#bg-video {
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.5; /* 降低透明度 */
+    transform: scale(1.05); /* 裁切邊緣浮水印 */
+}
+.scan-overlay {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+        0deg, transparent, transparent 1px, rgba(0, 255, 255, 0.03) 2px, rgba(0, 255, 255, 0.03) 3px
+    );
+    pointer-events: none;
+}
+.vignette-overlay {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle, transparent 40%, #050a10 100%);
+}
+
+/* --- 4. 戰術導覽列 --- */
+#tactical-nav {
+    position: fixed; top: 0; width: 100%; height: 80px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    background: linear-gradient(to bottom, rgba(5,10,16,0.9), rgba(5,10,16,0));
+    backdrop-filter: blur(5px); z-index: 500;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.nav-brand { font-size: 24px; font-weight: bold; letter-spacing: 2px; color: white; }
+.nav-menu { display: flex; gap: 30px; }
+.nav-item {
+    text-decoration: none; color: #888; font-size: 14px; letter-spacing: 1px;
+    transition: color 0.5s, text-shadow 0.5s; position: relative;
+}
+.nav-item.active { color: var(--current-theme); text-shadow: 0 0 10px var(--current-theme); }
+.nav-progress-container {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1);
+}
+.nav-progress-bar {
+    height: 100%; width: 0%; background: var(--current-theme);
+    transition: width 0.5s ease, background 0.5s ease;
+    box-shadow: 0 0 10px var(--current-theme);
+}
+.id-tag { text-align: right; font-size: 10px; color: #555; border-left: 2px solid var(--current-theme); padding-left: 10px; }
+.id-tag .code { display: block; color: var(--current-theme); }
+
+/* --- 5. 核心實驗平台 (3D Cube) --- */
+.lab-stage {
+    position: relative; width: 100%; height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    perspective: 1200px; /* 3D 透視 */
+}
+.hero-title h1 {
+    font-size: 4rem; margin: 0; color: white; text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    position: relative; animation: glitch 3s infinite;
+}
+.subtitle { letter-spacing: 5px; color: var(--current-theme); font-size: 0.9rem; margin-top: 10px; }
+
+.scene { width: 400px; height: 400px; position: relative; margin-top: 50px; }
+.cube {
+    width: 100%; height: 100%; position: absolute;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cube-face {
+    position: absolute; width: 400px; height: 400px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* L型對焦框 */
+.corner { position: absolute; width: 20px; height: 20px; border-color: var(--current-theme); transition: border-color 0.5s; }
+.tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+.tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
+.bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
+.br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* 3D 位置定義 */
+.cube-front { transform: rotateY(0deg) translateZ(200px); }
+.cube-right { transform: rotateY(90deg) translateZ(200px); }
+.cube-back  { transform: rotateY(180deg) translateZ(200px); }
+.cube-left  { transform: rotateY(-90deg) translateZ(200px); }
+
+/* 產品與紋理系統 */
+.product-content { text-align: center; transform: translateZ(20px); /* 內容浮起感 */ }
+.product-visual {
+    width: 200px; height: 200px; background: rgba(0,0,0,0.5);
+    margin: 0 auto 20px; position: relative;
+    border: 1px solid var(--current-theme);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    transition: transform 0.3s;
+}
+.product-visual:hover { transform: perspective(500px) rotateX(-5deg) rotateY(5deg) scale(1.05); }
+
+/* Pin 腳標註 (Hover 顯示) */
+.pin-overlays { opacity: 0; transition: opacity 0.3s; }
+.product-visual:hover .pin-overlays { opacity: 1; }
+.pin {
+    position: absolute; font-size: 10px; color: var(--current-theme);
+    background: rgba(0,0,0,0.8); padding: 2px 5px; border: 1px solid var(--current-theme);
+}
+.pin::before { /* 指示線 */
+    content: ''; position: absolute; width: 10px; height: 1px; background: var(--current-theme);
+    top: 50%; left: -10px;
+}
+
+/* --- 6. 紋理主題 (動態切換 Class) --- */
+.texture-circuit { background-image: radial-gradient(circle, transparent 20%, #000 120%), repeating-linear-gradient(45deg, rgba(0,255,255,0.05) 0px, transparent 2px, transparent 10px); }
+.texture-power   { background-image: repeating-linear-gradient(0deg, rgba(255,69,0,0.1) 0px, transparent 2px, transparent 20px); }
+.texture-track   { background-image: repeating-linear-gradient(90deg, rgba(255,215,0,0.1) 0px, rgba(255,215,0,0.1) 20px, transparent 20px, transparent 40px); }
+.texture-nebula  { background-image: url('data:image/svg+xml;base64,...'); /* 模擬星雲或用 CSS Gradient */ background: radial-gradient(circle at center, rgba(176,38,255,0.2), transparent); }
+
+/* --- 7. 機械臂 HUD 與控制 --- */
+.arm-hud {
+    position: absolute; bottom: 10%; width: 200px; padding: 10px;
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.6);
+    font-size: 10px; color: #888; transition: all 0.3s;
+}
+.left-arm-hud { left: 5%; border-left: 3px solid #888; }
+.right-arm-hud { right: 5%; border-right: 3px solid #888; }
+
+/* 機械臂激活狀態 */
+.arm-active { border-color: var(--current-theme); color: var(--current-theme); box-shadow: 0 0 15px var(--current-theme); }
+.arm-active .target-reticle { animation: rotateReticle 1s infinite linear; border-color: var(--current-theme); }
+
+.controls { position: absolute; bottom: 30px; display: flex; gap: 20px; z-index: 100; }
+.ctrl-btn {
+    background: transparent; border: 1px solid var(--current-theme); color: white;
+    padding: 10px 20px; font-family: inherit; transition: 0.3s;
+}
+.ctrl-btn:hover { background: var(--current-theme); color: black; }
+
+/* 動畫 Keyframes */
+@keyframes scanDown { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes rotateReticle { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes glitch {
+    0% { clip-path: inset(10% 0 80% 0); } 20% { clip-path: inset(80% 0 10% 0); }
+    40% { clip-path: inset(40% 0 50% 0); } 100% { clip-path: inset(0 0 0 0); }
+}
+</style>
+</head>
+<body>
+  <div id="cursor-light"></div>
+    <div id="cursor-ring"></div>
+
+    <div id="bio-layer">
+        <div class="scan-grid"></div>
+        <div class="bio-scanner-line"></div>
+        <div class="bio-center">
+            <div class="fingerprint-scan"></div>
+            <div class="bio-text" id="bio-text">IDENTIFYING SUBJECT...</div>
+            <div class="loading-bar"><div class="bar-fill"></div></div>
+        </div>
+        <button id="access-btn">ACCESS GRANTED // ENTER LAB</button>
+    </div>
+
+    <div class="video-wrapper">
+        <video autoplay muted loop playsinline id="bg-video">
+            <source src="lab-bg.mp4" type="video/mp4">
+        </video>
+        <div class="scan-overlay"></div>
+        <div class="vignette-overlay"></div>
+    </div>
+
+    <nav id="tactical-nav">
+        <div class="nav-brand">MBC-PRO-SENSORS</div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item active" data-cat="0" data-color="#00ffff">HOME</a>
+            <a href="#" class="nav-item" data-cat="1" data-color="#00ffff">MBC SENSOR</a>
+            <a href="#" class="nav-item" data-cat="2" data-color="#ffd700">WRO</a>
+            <a href="#" class="nav-item" data-cat="3" data-color="#ff4500">MOTOR</a>
+            <a href="#" class="nav-item" data-cat="4" data-color="#a5f2f3">SPIKE COURSE</a>
+            <a href="#" class="nav-item" data-cat="5" data-color="#b026ff">FREE</a>
+            <a href="#" class="nav-item" data-cat="6" data-color="#ffffff">CONTACT</a>
+        </div>
+        <div class="nav-progress-container">
+            <div class="nav-progress-bar"></div>
+        </div>
+        <div class="id-tag">
+            <span class="label">CHIEF ENGINEER</span>
+            <span class="code">ID: 031-SPARK</span>
+        </div>
+    </nav>
+
+    <main class="lab-stage">
+        
+        <div class="hero-title">
+            <h1 data-text="MBC-Pro-Sensors">MBC-Pro-Sensors</h1>
+            <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
+        </div>
+
+        <div class="scene">
+            <div class="cube" id="cube">
+                <div class="cube-face cube-front">
+                    <div class="corner tl"></div><div class="corner tr"></div>
+                    <div class="corner bl"></div><div class="corner br"></div>
+                    <div class="product-content">
+                        <div class="product-visual" id="p-visual-1">
+                            <div class="sensor-mockup"></div>
+                            <div class="pin-overlays">
+                                <div class="pin" style="top:20%; left:10%;">VCC</div>
+                                <div class="pin" style="top:50%; left:90%;">GND</div>
+                                <div class="pin" style="top:80%; left:50%;">SIG</div>
+                            </div>
+                        </div>
+                        <h2 class="product-name">MBC LINE FOLLOWER</h2>
+                        <p class="product-desc">High-precision tracking sensor.</p>
+                    </div>
+                </div>
+                <div class="cube-face cube-right"></div>
+                <div class="cube-face cube-back"></div>
+                <div class="cube-face cube-left"></div>
+            </div>
+        </div>
+
+        <div class="arm-hud left-arm-hud">
+            <div class="arm-status">LEFT ARM [2-CLAW]: STANDBY</div>
+            <div class="target-reticle"></div>
+        </div>
+        <div class="arm-hud right-arm-hud">
+            <div class="arm-status">RIGHT ARM [3-CLAW]: STANDBY</div>
+            <div class="target-reticle"></div>
+        </div>
+
+        <div class="controls">
+            <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
+            <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
+        </div>
+
+    </main>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+    // --- 0. 資料庫定義 (The Data Core) ---
+    const categories = [
+        { name: "MBC LINE SENSOR", desc: "Precision Tracking / Cyan Core", color: "#00ffff", texture: "texture-circuit" }, // Home/Sensor
+        { name: "MBC SENSOR PRO", desc: "Advanced Algorithm", color: "#00ffff", texture: "texture-circuit" }, 
+        { name: "WRO WORLD", desc: "Competition Standard / Gold Tier", color: "#ffd700", texture: "texture-track" },
+        { name: "TECHNIC MOTOR", desc: "High Torque / Power Red", color: "#ff4500", texture: "texture-power" },
+        { name: "SPIKE COURSE", desc: "Education / Ice Blue", color: "#a5f2f3", texture: "texture-circuit" },
+        { name: "FREE DOMAIN", desc: "Unlimited Potential / Void Purple", color: "#b026ff", texture: "texture-nebula" },
+        { name: "CONTACT US", desc: "Secure Channel", color: "#ffffff", texture: "texture-circuit" }
+    ];
+
+    let currentIndex = 0;
+    const root = document.documentElement;
+    const cube = document.getElementById('cube');
+    const navItems = document.querySelectorAll('.nav-item');
+    const progressBar = document.querySelector('.nav-progress-bar');
+    
+    // --- 1. 鼠標引力燈系統 (Gravity Light) ---
+    const cursorLight = document.getElementById('cursor-light');
+    const cursorRing = document.getElementById('cursor-ring');
+    
+    document.addEventListener('mousemove', (e) => {
+        // 使用 GSAP 讓光效滑順跟隨
+        gsap.to(cursorLight, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        gsap.to(cursorRing, { x: e.clientX, y: e.clientY, duration: 0.2 });
+    });
+
+    document.addEventListener('mousedown', () => {
+        document.body.classList.add('click-active');
+    });
+    document.addEventListener('mouseup', () => {
+        document.body.classList.remove('click-active');
+    });
+
+    // --- 2. 生物辨識開場 (Bio Entry) ---
+    const bioLayer = document.getElementById('bio-layer');
+    const accessBtn = document.getElementById('access-btn');
+    const bioText = document.getElementById('bio-text');
+
+    setTimeout(() => {
+        bioText.innerText = "IDENTITY VERIFIED: CHIEF ENGINEER";
+        bioText.style.color = "#00ffff";
+        document.querySelector('.fingerprint-scan').style.borderColor = "#00ffff";
+        document.querySelector('.bar-fill').style.width = "100%";
+        
+        setTimeout(() => {
+            accessBtn.style.display = "block";
+        }, 500);
+    }, 2500); // 模擬 2.5秒掃描
+
+    accessBtn.addEventListener('click', () => {
+        // 炸開動畫
+        gsap.to(bioLayer, { 
+            scale: 2, opacity: 0, duration: 0.8, ease: "power2.inOut",
+            onComplete: () => bioLayer.remove() 
+        });
+        // 啟動首頁動畫
+        initLab();
+    });
+
+    function initLab() {
+        gsap.from(".hero-title", { y: 50, opacity: 0, duration: 1, delay: 0.5 });
+        gsap.from(".cube", { scale: 0, rotationY: 180, duration: 1.5, ease: "back.out(1.7)" });
+        updateSystem(0);
+    }
+
+    // --- 3. 核心實驗平台控制 (Core Logic) ---
+    let currentRotation = 0;
+
+    function updateSystem(index) {
+        // 更新索引與循環
+        if (index < 0) index = categories.length - 1;
+        if (index >= categories.length) index = 0;
+        currentIndex = index;
+
+        const data = categories[currentIndex];
+
+        // 1. 全局顏色變更 (CSS 變數)
+        root.style.setProperty('--current-theme', data.color);
+
+        // 2. 導覽列狀態
+        navItems.forEach((item, i) => {
+            item.classList.toggle('active', i === currentIndex);
+        });
+        const progress = ((currentIndex + 1) / categories.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressBar.style.background = data.color;
+
+        // 3. 更新立方體正面內容 (視覺欺騙：每次轉動前把新內容貼到"正面")
+        // 實際運作中，我們應該動態更新"即將轉到那一面"的內容，這裡簡化為更新當前顯示內容
+        const activeFace = document.querySelector('.cube-front .product-name');
+        const activeDesc = document.querySelector('.cube-front .product-desc');
+        const activeVisual = document.querySelector('.cube-front .product-visual');
+        const activeFaceDiv = document.querySelector('.cube-front');
+
+        // 淡出 -> 換內容 -> 淡入
+        gsap.to('.product-content', { opacity: 0, duration: 0.2, onComplete: () => {
+            activeFace.innerText = data.name;
+            activeDesc.innerText = data.desc;
+            activeVisual.style.borderColor = data.color;
+            
+            // 更新紋理
+            activeFaceDiv.className = `cube-face cube-front ${data.texture}`;
+            
+            gsap.to('.product-content', { opacity: 1, duration: 0.2 });
+        }});
+    }
+
+    // --- 4. 機械臂聯動與 3D 旋轉 (Robotic Arms) ---
+    const leftArmHud = document.querySelector('.left-arm-hud');
+    const rightArmHud = document.querySelector('.right-arm-hud');
+
+    document.querySelector('.next-btn').addEventListener('click', goNext);
+    document.querySelector('.prev-btn').addEventListener('click', goPrev);
+
+    // 鍵盤控制
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') goNext();
+        if (e.key === 'ArrowLeft') goPrev();
+    });
+
+    function goNext() {
+        // 左滑 (Next) -> 觸發左機械臂 (2-Claw) 視覺
+        triggerArm(leftArmHud, "ENGAGING 2-CLAW MECHANISM...");
+        
+        currentRotation -= 90;
+        rotateCube();
+        setTimeout(() => updateSystem(currentIndex + 1), 300); // 延遲更新數據以配合旋轉
+    }
+
+    function goPrev() {
+        // 右滑 (Prev) -> 觸發右機械臂 (3-Claw) 視覺
+        triggerArm(rightArmHud, "ENGAGING 3-CLAW MECHANISM...");
+
+        currentRotation += 90;
+        rotateCube();
+        setTimeout(() => updateSystem(currentIndex - 1), 300);
+    }
+
+    function rotateCube() {
+        cube.style.transform = `rotateY(${currentRotation}deg)`;
+    }
+
+    function triggerArm(hudElement, text) {
+        // 模擬機械臂激活的 HUD 效果
+        hudElement.classList.add('arm-active');
+        const originalText = hudElement.querySelector('.arm-status').innerText;
+        hudElement.querySelector('.arm-status').innerText = text;
+
+        // 1秒後恢復待機
+        setTimeout(() => {
+            hudElement.classList.remove('arm-active');
+            hudElement.querySelector('.arm-status').innerText = originalText;
+        }, 1200);
+    }
+
+    // 導覽列點擊跳轉
+    navItems.forEach((item, index) => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetIndex = index;
+            const diff = targetIndex - currentIndex;
+            
+            if (diff > 0) {
+                // 往右跳多次
+                currentRotation -= (90 * diff);
+                triggerArm(leftArmHud, "RAPID TRANSIT...");
+            } else if (diff < 0) {
+                currentRotation += (90 * Math.abs(diff));
+                triggerArm(rightArmHud, "RAPID TRANSIT...");
+            }
+            
+            rotateCube();
+            updateSystem(targetIndex);
+        });
+    });
+});
+      </script>
+</body>
+</html>
