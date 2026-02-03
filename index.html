@@ -350,6 +350,16 @@ body {
 .robotic-arms-system {
     z-index: 5; 
 }
+      /* 當手臂被觸發時的動作 (例如往中間伸一點，並增加亮度) */
+#arm-left.arm-active {
+    transform: rotate(10deg) translateX(50px) translateY(-30px);
+    filter: brightness(1.5) drop-shadow(0 0 20px var(--current-theme));
+}
+
+#arm-right.arm-active {
+    transform: rotate(-10deg) translateX(-50px) translateY(-30px);
+    filter: brightness(1.5) drop-shadow(0 0 20px var(--current-theme));
+}
 </style>
 </head>
 <body>
@@ -526,8 +536,6 @@ body {
         const cube = document.getElementById('cube');
         const navItems = document.querySelectorAll('.nav-item');
         const progressBar = document.querySelector('.nav-progress-bar');
-        const leftArmHud = document.querySelector('.left-arm-hud');
-        const rightArmHud = document.querySelector('.right-arm-hud');
 
         // --- 1. 鼠標引力燈系統 ---
         const cursorLight = document.getElementById('cursor-light');
@@ -663,36 +671,40 @@ function startAutomatedBioScan() {
 
         // --- 4. 控制事件 ---
         function goNext() {
-            triggerArm(leftArmHud, "ENGAGING 2-CLAW MECHANISM...");
-            currentRotation -= 90;
-            rotateCube();
-            setTimeout(() => updateSystem(currentIndex + 1), 300);
-        }
+    // 改為尋找你的新機械臂 ID
+    const armLeft = document.getElementById('arm-left');
+    triggerArm(armLeft, "ENGAGING 2-CLAW..."); // 觸發新手臂動畫
+    
+    currentRotation -= 90;
+    rotateCube();
+    setTimeout(() => updateSystem(currentIndex + 1), 300);
+}
 
-        function goPrev() {
-            triggerArm(rightArmHud, "ENGAGING 3-CLAW MECHANISM...");
-            currentRotation += 90;
-            rotateCube();
-            setTimeout(() => updateSystem(currentIndex - 1), 300);
-        }
+function goPrev() {
+    // 改為尋找你的新機械臂 ID
+    const armRight = document.getElementById('arm-right');
+    triggerArm(armRight, "ENGAGING 3-CLAW..."); // 觸發新手臂動畫
+    
+    currentRotation += 90;
+    rotateCube();
+    setTimeout(() => updateSystem(currentIndex - 1), 300);
+}
 
         function rotateCube() { 
             if(cube) cube.style.transform = `rotateY(${currentRotation}deg)`; 
         }
 
-        function triggerArm(hudElement, text) {
-            if(!hudElement) return;
-            hudElement.classList.add('arm-active');
-            const statusEl = hudElement.querySelector('.arm-status');
-            if(statusEl) {
-                const originalText = statusEl.innerText;
-                statusEl.innerText = text;
-                setTimeout(() => {
-                    hudElement.classList.remove('arm-active');
-                    statusEl.innerText = originalText;
-                }, 1200);
-            }
-        }
+      function triggerArm(armElement, text) {
+    if(!armElement) return;
+    
+    // 加上動作類別 (我們可以在 CSS 寫動畫)
+    armElement.classList.add('arm-active');
+    
+    // 1.2 秒後移除動作狀態，回到待機位置
+    setTimeout(() => {
+        armElement.classList.remove('arm-active');
+    }, 1200);
+}
 
         const nextBtn = document.querySelector('.next-btn');
         const prevBtn = document.querySelector('.prev-btn');
