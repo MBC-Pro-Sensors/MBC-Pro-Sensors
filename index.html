@@ -766,55 +766,52 @@ body {
         }
 
        // ★ 修正後的機械臂動畫：向中心彎曲抓取 ★
-        // ★ 總工程師指示：專屬優化右手，保持左手完美 ★
+     // ★ 總工程師最終校準版 (含步驟註解) ★
         function animateComplexArm(side) {
             const container = side === 'left' ? '#arm-left-container' : '#arm-right-container';
             const shoulder = side === 'left' ? '#left-shoulder-group' : '#right-shoulder-group';
             const elbow = side === 'left' ? '#left-elbow-group' : '#right-elbow-group';
             const claw = side === 'left' ? '#left-claw-mechanism' : '#right-claw-mechanism';
             
-            // --- 核心修正區：左右手採取完全不同的參數 ---
             let shoulderRot, elbowRot, containerMoveX, containerMoveY;
 
             if (side === 'left') {
-                // 保持左手完美參數 (原本的設定)
                 shoulderRot = 40; 
                 elbowRot = 50;    
                 containerMoveX = 80; 
                 containerMoveY = -250;
             } else {
-                // 專屬優化右手：修正往左衝過頭的問題
-                shoulderRot = -45; // 往內傾斜
-                elbowRot = -60;    // 手肘大幅往左方塊彎曲
-                containerMoveX = -40; // 修正：減少負向位移，讓基座留在螢幕內
-                containerMoveY = -280; // 稍微伸高
+                // 右手補償：因為 scaleX(-1)，正值 X 座標會向左(中間)移動
+                shoulderRot = 45;   
+                elbowRot = 60;      
+                containerMoveX = 40; 
+                containerMoveY = -280; 
             }
             
-            // 建立 GSAP 時間軸
             currentArmTL = gsap.timeline({ 
-                onComplete: () => { currentArmTL = null; }, // 動畫結束後釋放鎖定
-                defaults: { ease: "power2.inOut" } // 預設緩動材質
+                onComplete: () => { currentArmTL = null; },
+                defaults: { ease: "power2.inOut" } 
             });
 
-         currentArmTL
-                // 1. 伸出 (y 向上移動，x 向中間靠攏)
+            currentArmTL
+                // --- 1. 伸出 --- (基座從角落升起並靠近方塊)
                 .to(container, { 
                     y: containerMoveY, 
                     x: containerMoveX, 
-                    rotation: 0, 
                     duration: 0.6 
                 })
-                // 2. 彎曲 (肩膀與手肘同步啟動)
+                // --- 2. 彎曲 --- (肩膀與手肘同步向中間彎曲)
                 .to(shoulder, { rotation: shoulderRot, duration: 0.5 }, "-=0.3")
                 .to(elbow, { rotation: elbowRot, duration: 0.5 }, "<")
-                // 3. 抓取 (夾爪連動)
+                
+                // --- 3. 抓取 --- (夾爪縮放，模擬夾取動作)
                 .to(claw, { scale: 0.6, duration: 0.2 })
                 .to(claw, { scale: 1.0, duration: 0.3, ease: "back.out(2)" })
-                // 4. 收回 (原路返回並恢復初始傾斜角)
+                
+                // --- 4. 收回 --- (關節先歸零，基座再降回原位)
                 .to([shoulder, elbow], { rotation: 0, duration: 0.5, delay: 0.2 })
                 .to(container, { 
                     y: 0, x: 0, 
-                    rotation: side === 'left' ? 15 : -15, 
                     duration: 0.6 
                 }, "-=0.2");
         }
