@@ -360,6 +360,19 @@ body {
     transform: rotate(-10deg) translateX(-50px) translateY(-30px);
     filter: brightness(1.5) drop-shadow(0 0 20px var(--current-theme));
 }
+      /* 讓機械爪具備金屬邊框感 */
+.claw-l-top, .claw-l-bottom {
+    stroke: #2a2a2a;
+    stroke-width: 18;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.8));
+}
+
+/* 加上一個發光的接點 */
+.core-light {
+    r: 10;
+    fill: var(--current-theme);
+    filter: blur(2px) brightness(1.5);
+}
 </style>
 </head>
 <body>
@@ -646,28 +659,28 @@ function startAutomatedBioScan() {
             const data = categories[currentIndex];
 
             root.style.setProperty('--current-theme', data.color);
-            navItems.forEach((item, i) => item.classList.toggle('active', i === currentIndex));
-            
-            if(progressBar) {
-                progressBar.style.width = `${((currentIndex + 1) / categories.length) * 100}%`;
-                progressBar.style.background = data.color;
-            }
+           navItems.forEach((item, index) => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const diff = index - currentIndex;
+        
+        // --- 修正：尋找新手臂 ID，避免使用已刪除的變數 ---
+        const armLeft = document.getElementById('arm-left');
+        const armRight = document.getElementById('arm-right');
 
-            const activeFace = document.querySelector('.cube-front .product-name');
-            const activeDesc = document.querySelector('.cube-front .product-desc');
-            const activeVisual = document.querySelector('.cube-front .product-visual');
-            const activeFaceDiv = document.querySelector('.cube-front');
-
-            if(activeFace) {
-                gsap.to('.product-content', { opacity: 0, duration: 0.2, onComplete: () => {
-                    activeFace.innerText = data.name;
-                    activeDesc.innerText = data.desc;
-                    activeVisual.style.borderColor = data.color;
-                    activeFaceDiv.className = `cube-face cube-front ${data.texture}`;
-                    gsap.to('.product-content', { opacity: 1, duration: 0.2 });
-                }});
-            }
+        if (diff > 0) { 
+            currentRotation -= (90 * diff); 
+            if(armLeft) triggerArm(armLeft, "RAPID TRANSIT..."); 
         }
+        else if (diff < 0) { 
+            currentRotation += (90 * Math.abs(diff)); 
+            if(armRight) triggerArm(armRight, "RAPID TRANSIT..."); 
+        }
+        
+        rotateCube();
+        updateSystem(index);
+    });
+});
 
         // --- 4. 控制事件 ---
         function goNext() {
