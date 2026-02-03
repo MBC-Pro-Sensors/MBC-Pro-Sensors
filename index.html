@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MBC-Pro-Sensors | Advanced Robotics Lab</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>   
 
   <style>
   /* --- 0. 全局變數與基礎設定 --- */
@@ -571,9 +571,6 @@ body {
     <audio id="sfx-door" src="door-open.mp3" preload="auto"></audio>
 <audio id="sfx-access" src="access-granted.mp3" preload="auto"></audio>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- A. 啟動層邏輯 ---
@@ -727,6 +724,16 @@ body {
                 progressBar.style.width = `${progress}%`;
             }
         }
+        // --- 補強：3D方塊旋轉函數 ---
+        function rotateCube() {
+            if (cube) {
+                gsap.to(cube, {
+                    rotationY: currentRotation,
+                    duration: 1.2,
+                    ease: "power2.out"
+                });
+            }
+        }
 
        // --- 4. 控制事件 (高級 GSAP 機械動畫版) ---
         
@@ -734,15 +741,16 @@ body {
         let currentArmTL = null;
 
         function goNext() {
-            if(currentArmTL && currentArmTL.isActive()) return; // 如果動畫正在跑，忽略點擊
+            if(currentArmTL && currentArmTL.isActive()) return; 
 
             currentRotation -= 90;
             rotateCube();
-            // 觸發左手「高級夾取」動畫
             animateComplexArm('left');
             
-            // 延遲更新系統文字，配合抓取動作的時機
-            setTimeout(() => updateSystem(currentIndex + 1), 800);
+            // 計算下一個索引並更新系統
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= categories.length) nextIndex = 0;
+            setTimeout(() => updateSystem(nextIndex), 500);
         }
 
         function goPrev() {
@@ -750,10 +758,11 @@ body {
 
             currentRotation += 90;
             rotateCube();
-            // 觸發右手「高級夾取」動畫
             animateComplexArm('right');
 
-            setTimeout(() => updateSystem(currentIndex - 1), 800);
+            let prevIndex = currentIndex - 1;
+            if (prevIndex < 0) prevIndex = categories.length - 1;
+            setTimeout(() => updateSystem(prevIndex), 500);
         }
 
         // ★ 全新的高級機械臂動畫函數 ★
