@@ -765,17 +765,22 @@ body {
             setTimeout(() => updateSystem(prevIndex), 500);
         }
 
-        // ★ 全新的高級機械臂動畫函數 ★
+       // ★ 修正後的機械臂動畫：向中心彎曲抓取 ★
         function animateComplexArm(side) {
             const container = side === 'left' ? '#arm-left-container' : '#arm-right-container';
             const shoulder = side === 'left' ? '#left-shoulder-group' : '#right-shoulder-group';
             const elbow = side === 'left' ? '#left-elbow-group' : '#right-elbow-group';
             const claw = side === 'left' ? '#left-claw-mechanism' : '#right-claw-mechanism';
             
-            // 定義動作角度 (左右手鏡像)
-            const shoulderRot = side === 'left' ? 25 : -25; // 肩膀前傾
-            const elbowRot = side === 'left' ? -45 : 45;    // 手肘彎曲指向中心
-            const containerMove = side === 'left' ? 30 : -30; // 整體向中心滑動
+            // 關鍵修正：左手正轉(往右彎)，右手負轉(往左彎)
+            const shoulderRot = side === 'left' ? 40 : -40; // 肩膀往中間傾斜
+            const elbowRot = side === 'left' ? 50 : -50;    // 手肘往中間大幅彎曲
+            const containerMoveX = side === 'left' ? 80 : -80; // 底部基座往中間靠攏
+            
+            currentArmTL = gsap.timeline({ 
+                onComplete: () => { currentArmTL = null; },
+                defaults: { ease: "power3.out" } 
+            });
             
             // 建立 GSAP 時間軸
             currentArmTL = gsap.timeline({ 
@@ -783,30 +788,22 @@ body {
                 defaults: { ease: "power2.inOut" } // 預設緩動材質
             });
 
-            currentArmTL
-                // 1. [進場] 整體滑入並旋轉豎起
-                .to(container, { 
-                    y: -180, // 向上伸出
-                    x: containerMove, // 向中心靠
-                    rotation: 0, // 轉正
-                    duration: 0.6 
-                })
-                // 2. [伸展] 肩膀與手肘連動 (同時開始 "<")
-                .to(shoulder, { rotation: shoulderRot, duration: 0.5 }, "<+=0.1")
+          currentArmTL
+                // 1. 伸出：基座上移並往中間靠，同時消除初始旋轉
+                .to(container, { y: -250, x: containerMoveX, rotation: 0, duration: 0.6 })
+                // 2. 彎曲：肩膀與手肘同時向中心合攏
+                .to(shoulder, { rotation: shoulderRot, duration: 0.5 }, "-=0.3")
                 .to(elbow, { rotation: elbowRot, duration: 0.5 }, "<")
-                
-                // 3. [夾取] 夾爪快速閉合再張開 (模擬抓取動作)
-                .to(claw, { scale: 0.7, duration: 0.2, ease: "back.in(2)" }) // 快速夾緊
-                .to(claw, { scale: 1.0, duration: 0.3, ease: "back.out(1.5)" }) // 彈回
-
-                // 4. [退場] 所有關節復歸原位
-                .to([shoulder, elbow], { rotation: 0, duration: 0.6 }, "+=0.2") // 稍微停頓後復歸
+                // 3. 抓取：夾爪縮放一下
+                .to(claw, { scale: 0.6, duration: 0.2 })
+                .to(claw, { scale: 1.0, duration: 0.3, ease: "back.out(2)" })
+                // 4. 收回：原路返回
+                .to([shoulder, elbow], { rotation: 0, duration: 0.5, delay: 0.2 })
                 .to(container, { 
-                    y: 0, 
-                    x: 0, 
-                    rotation: side === 'left' ? 15 : -15, // 回到初始傾斜角度
-                    duration: 0.7 
-                }, "<"); // 與關節復歸同時進行
+                    y: 0, x: 0, 
+                    rotation: side === 'left' ? 15 : -15, 
+                    duration: 0.6 
+                }, "-=0.2");
         }
 
         // 綁定按鈕監聽
@@ -815,24 +812,22 @@ body {
         if(nextBtn) nextBtn.addEventListener('click', goNext);
         if(prevBtn) prevBtn.addEventListener('click', goPrev);
 
-        // 導覽列點擊監聽
+       // 導覽列點擊監聽 (修正版)
         navItems.forEach((item, index) => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
+                if(currentArmTL && currentArmTL.isActive()) return;
+
                 const diff = index - currentIndex;
+                if (diff === 0) return;
                 
-                if (diff > 0) { 
-                    currentRotation -= (90 * diff); 
-                    const armLeft = document.getElementById('arm-left');
-                    triggerArm(armLeft, "RAPID TRANSIT..."); 
-                }
-                else if (diff < 0) { 
-                    currentRotation += (90 * Math.abs(diff)); 
-                    const armRight = document.getElementById('arm-right');
-                    triggerArm(armRight, "RAPID TRANSIT..."); 
-                }
-                
+                currentRotation -= (90 * diff);
                 rotateCube();
+
+                // 判斷該出哪隻手：往後切換用左手，往前切換用右手
+                if (diff > 0) { animateComplexArm('left'); } 
+                else { animateComplexArm('right'); }
+
                 updateSystem(index);
             });
         });
