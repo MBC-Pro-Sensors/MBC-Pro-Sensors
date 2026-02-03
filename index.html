@@ -285,6 +285,36 @@ body {
     0% { clip-path: inset(10% 0 80% 0); } 20% { clip-path: inset(80% 0 10% 0); }
     40% { clip-path: inset(40% 0 50% 0); } 100% { clip-path: inset(0 0 0 0); }
 }
+      .robotic-arms-system {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.arm-container {
+    position: absolute;
+    bottom: -100px; /* 初始藏在下面 */
+    width: 300px;
+    height: 500px;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+}
+
+#arm-left { left: 0%; transform: rotate(10deg); }
+#arm-right { right: 0%; transform: rotate(-10deg); }
+
+.arm-svg { width: 100%; height: 100%; }
+
+/* 讓能源線有呼吸感 */
+@keyframes energyPulse {
+    0%, 100% { opacity: 0.8; filter: brightness(1); }
+    50% { opacity: 1; filter: brightness(1.8) blur(1px); }
+}
+
+.arm-energy-wire, .core-light {
+    animation: energyPulse 2s infinite ease-in-out;
+}
 </style>
 </head>
 <body>
@@ -344,7 +374,50 @@ body {
     </nav>
 
     <main class="lab-stage">
-        
+       
+    <div class="robotic-arms-system">
+        <div id="arm-left" class="arm-container">
+            <svg viewBox="0 0 250 500" class="arm-svg">
+                <defs>
+                    <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#1a1a1a" />
+                        <stop offset="50%" style="stop-color:#4d4d4d" />
+                        <stop offset="100%" style="stop-color:#1a1a1a" />
+                    </linearGradient>
+                    <filter id="neonGlow">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+                <rect x="90" y="450" width="70" height="50" rx="5" fill="#111" />
+                <g class="arm-main-section">
+                    <rect x="105" y="250" width="40" height="200" rx="10" fill="url(#metalGrad)" stroke="#000" stroke-width="2" />
+                    <rect x="115" y="270" width="20" height="160" fill="#222" rx="5" />
+                    <path class="arm-energy-wire" d="M125 270 L125 430" stroke="var(--current-theme)" stroke-width="3" filter="url(#neonGlow)" />
+                </g>
+                <g class="arm-head-left">
+                    <circle cx="125" cy="230" r="25" fill="#333" stroke="#000" />
+                    <circle cx="125" cy="230" r="10" fill="var(--current-theme)" filter="url(#neonGlow)" />
+                    <path class="claw-l-top" d="M110 210 Q80 160 110 120" stroke="#555" stroke-width="12" fill="none" stroke-linecap="round" />
+                    <path class="claw-l-bottom" d="M140 210 Q170 160 140 120" stroke="#555" stroke-width="12" fill="none" stroke-linecap="round" />
+                </g>
+            </svg>
+        </div>
+
+        <div id="arm-right" class="arm-container">
+            <svg viewBox="0 0 250 500" class="arm-svg">
+                <rect x="90" y="450" width="70" height="50" rx="5" fill="#111" />
+                <rect x="105" y="250" width="40" height="200" rx="10" fill="url(#metalGrad)" stroke="#000" stroke-width="2" />
+                <g class="arm-head-right">
+                    <circle cx="125" cy="230" r="25" fill="#333" stroke="#000" />
+                    <path class="claw-r-1" d="M125 205 L125 130" stroke="#555" stroke-width="8" fill="none" stroke-linecap="round" />
+                    <path class="claw-r-2" d="M105 220 L50 180" stroke="#555" stroke-width="8" fill="none" stroke-linecap="round" />
+                    <path class="claw-r-3" d="M145 220 L200 180" stroke="#555" stroke-width="8" fill="none" stroke-linecap="round" />
+                    <circle cx="125" cy="230" r="8" fill="var(--current-theme)" filter="url(#neonGlow)" />
+                </g>
+            </svg>
+        </div>
+    </div>
         <div class="hero-title">
             <h1 data-text="MBC-Pro-Sensors">MBC-Pro-Sensors</h1>
             <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
