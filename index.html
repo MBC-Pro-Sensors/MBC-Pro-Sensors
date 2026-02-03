@@ -326,11 +326,13 @@ body {
 .bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
 .br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
 
-/* 3D 位置定義 */
-.cube-front { transform: rotateY(0deg) translateZ(200px); }
-.cube-right { transform: rotateY(90deg) translateZ(200px); }
-.cube-back  { transform: rotateY(180deg) translateZ(200px); }
-.cube-left  { transform: rotateY(-90deg) translateZ(200px); }
+/* 確保所有面都有正確的 3D 坐標 */
+.cube-front  { transform: rotateY(0deg) translateZ(200px); }
+.cube-right  { transform: rotateY(90deg) translateZ(200px); }
+.cube-back   { transform: rotateY(180deg) translateZ(200px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
+.cube-top    { transform: rotateX(90deg) translateZ(200px); }
+.cube-bottom { transform: rotateX(-90deg) translateZ(200px); } /* 這是你缺失的關鍵 */
 
 /* 產品與紋理系統 */
 .product-content { text-align: center; transform: translateZ(20px); /* 內容浮起感 */ }
@@ -374,7 +376,14 @@ body {
 .arm-active { border-color: var(--current-theme); color: var(--current-theme); box-shadow: 0 0 15px var(--current-theme); }
 .arm-active .target-reticle { animation: rotateReticle 1s infinite linear; border-color: var(--current-theme); }
 
-.controls { position: absolute; bottom: 30px; display: flex; gap: 20px; z-index: 100; }
+.controls { 
+    position: absolute; 
+    bottom: 30px; 
+    display: flex; 
+    gap: 20px; 
+    z-index: 1000; /* 大幅拉高，確保在所有 3D 元素之上 */
+    pointer-events: auto; /* 確保可以被點擊 */
+}
 .ctrl-btn {
     background: transparent; border: 1px solid var(--current-theme); color: white;
     padding: 10px 20px; font-family: inherit; transition: 0.3s;
@@ -693,21 +702,21 @@ body {
             
             <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK">
                 <div class="hex-inner">
-                    <img src="fb.png" class="tech-icon" alt="FB">
+                    <img src="path-to-your-fb-icon.png" class="tech-icon" alt="FB">
                     <div class="hex-glow"></div>
                 </div>
             </a>
             
             <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM">
                 <div class="hex-inner">
-                    <img src="ig.png" class="tech-icon" alt="IG">
+                    <img src="path-to-your-ig-icon.png" class="tech-icon" alt="IG">
                     <div class="hex-glow"></div>
                 </div>
             </a>
             
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com&su=【產品相關事項諮詢】" target="_blank" class="social-hex" data-label="G-MAIL">
                 <div class="hex-inner">
-                    <img src="mail.png" class="tech-icon" alt="Mail">
+                    <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
                     <div class="hex-glow"></div>
                 </div>
             </a>
