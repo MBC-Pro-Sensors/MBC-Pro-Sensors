@@ -207,92 +207,98 @@ body {
     transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-      /* 確保所有面的內容都浮在最上層 */
-.cube-face > * {
-    position: relative;
-    z-index: 10; /* 強制提升內容層級 */
+    /* --- 聯絡我們：精密 3D 隔離系統 --- */
+
+/* 1. 基礎面設定：確保背面不顯示內容，防止穿透 */
+.cube-face {
+    position: absolute; width: 400px; height: 400px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    backface-visibility: hidden; /* 關鍵：背面轉過來時內容會自動消失 */
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
 }
 
-/* 專門針對底部 (CONTACT 面) 的強化 */
+/* 2. 專屬底部面樣式：加深背景以突顯圖標 */
 .cube-bottom {
-    background: rgba(5, 15, 25, 0.85) !important; /* 加深背景顏色，防止透明看不見 */
-    display: flex !important;
+    transform: rotateX(-90deg) translateZ(200px);
+    background: rgba(5, 15, 25, 0.95) !important; /* 深色底，防止看到背景影片 */
+}
+
+/* 3. 內容包裝層：強制鎖定在玻璃表面 */
+.contact-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    z-index: 50;
+    /* 核心：將內容推離中心點 2px，徹底解決穿透與閃爍 */
+    transform: translateZ(2px); 
 }
 
-/* 確保六角形與圖標不被濾鏡影響 */
-.social-hex {
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-.tech-icon {
-    filter: brightness(0) invert(1) drop-shadow(0 0 5px var(--current-theme)) !important;
-}
-      /* --- 聯絡我們模組專用樣式 (Contact Module) --- */
-.contact-module {
-    width: 100%;
-    z-index: 10;
-    text-align: center;
-    padding: 20px;
-}
-
+/* 4. 標題與網格佈局 */
 .module-title {
     color: var(--current-theme);
-    font-family: 'Orbitron', monospace; /* 確保字體有科技感 */
-    letter-spacing: 3px;
-    font-size: 14px;
-    margin-bottom: 30px;
-    text-shadow: 0 0 10px var(--current-theme);
-    opacity: 0.8;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 4px;
+    font-size: 16px;
+    margin-bottom: 35px;
+    text-shadow: 0 0 15px var(--current-theme);
 }
 
 .social-grid {
-    display: flex;
+    display: flex !important;
+    flex-direction: row !important; /* 強制橫向，不准亂跳 */
+    gap: 35px;
     justify-content: center;
-    gap: 25px; /* 按鈕之間的距離 */
 }
 
+/* 5. 六角形按鈕細節 */
 .social-hex {
     position: relative;
     width: 65px;
     height: 65px;
-    display: block;
+    text-decoration: none;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .hex-inner {
-    width: 100%;
-    height: 100%;
-    background: rgba(var(--current-theme-rgb, 0, 255, 255), 0.1); /* 微弱底色 */
+    width: 100%; height: 100%;
+    background: rgba(var(--current-theme-rgb, 0, 255, 255), 0.15);
     border: 1px solid var(--current-theme);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* 六角形裁切路徑 */
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px);
 }
 
 .tech-icon {
-    width: 28px;
-    height: 28px;
-    filter: brightness(0) invert(1); /* 圖片轉白色 */
-    transition: all 0.3s ease;
-    pointer-events: none; /* 防止圖片干擾滑鼠事件 */
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain;
+    /* 強制轉白並增加主題發光 */
+    filter: brightness(0) invert(1) drop-shadow(0 0 5px var(--current-theme)) !important;
 }
 
-/* --- 觸碰回饋與特效 --- */
-.social-hex:hover {
-    transform: translateY(-10px) scale(1.1);
+/* 6. 懸停特效：標籤顯示 */
+.social-hex::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--current-theme);
+    opacity: 0;
+    transition: 0.3s;
+    letter-spacing: 1px;
 }
 
-.social-hex:hover .hex-inner {
-    background: rgba(var(--current-theme-rgb, 0, 255, 255), 0.3);
-    box-shadow: 0 0 20px var(--current-theme);
-}
+.social-hex:hover { transform: translateY(-12px) scale(1.1); }
+.social-hex:hover::after { opacity: 1; }
 
 /* 滑鼠懸停顯示文字標籤 */
 .social-hex::after {
@@ -677,34 +683,35 @@ body {
                 <div class="corner bl"></div><div class="corner br"></div>
             </div>
 
-         <div class="cube-face cube-bottom">
+        <div class="cube-face cube-bottom">
     <div class="corner tl"></div><div class="corner tr"></div>
     <div class="corner bl"></div><div class="corner br"></div>
     
-    <div class="contact-module">
+    <div class="contact-wrapper">
         <h3 class="module-title">SECURE COMMS</h3>
         <div class="social-grid">
             
             <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK">
                 <div class="hex-inner">
-                    <img src="path-to-your-fb-icon.png" class="tech-icon" alt="FB">
+                    <img src="fb.png" class="tech-icon" alt="FB">
                     <div class="hex-glow"></div>
                 </div>
             </a>
             
             <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM">
                 <div class="hex-inner">
-                    <img src="path-to-your-ig-icon.png" class="tech-icon" alt="IG">
+                    <img src="ig.png" class="tech-icon" alt="IG">
                     <div class="hex-glow"></div>
                 </div>
             </a>
             
             <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com&su=【產品相關事項諮詢】" target="_blank" class="social-hex" data-label="G-MAIL">
                 <div class="hex-inner">
-                    <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
+                    <img src="mail.png" class="tech-icon" alt="Mail">
                     <div class="hex-glow"></div>
                 </div>
             </a>
+
         </div>
     </div>
 </div>
