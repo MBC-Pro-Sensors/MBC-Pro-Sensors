@@ -652,63 +652,58 @@ function startAutomatedBioScan() {
             });
         }
 
-        function updateSystem(index) {
+       function updateSystem(index) {
             if (index < 0) index = categories.length - 1;
             if (index >= categories.length) index = 0;
             currentIndex = index;
             const data = categories[currentIndex];
 
+            // 更新主題顏色
             root.style.setProperty('--current-theme', data.color);
-           navItems.forEach((item, index) => {
-    item.addEventListener('click', (e) => {
-        e.preventDefault();
-        const diff = index - currentIndex;
-        
-        // --- 修正：尋找新手臂 ID，避免使用已刪除的變數 ---
-        const armLeft = document.getElementById('arm-left');
-        const armRight = document.getElementById('arm-right');
-
-        if (diff > 0) { 
-            currentRotation -= (90 * diff); 
-            if(armLeft) triggerArm(armLeft, "RAPID TRANSIT..."); 
+            
+            // 更新導覽列狀態
+            navItems.forEach((item, i) => {
+                item.classList.toggle('active', i === currentIndex);
+            });
+            
+            // 更新進度條
+            if(progressBar) {
+                const progress = ((currentIndex + 1) / categories.length) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
         }
-        else if (diff < 0) { 
-            currentRotation += (90 * Math.abs(diff)); 
-            if(armRight) triggerArm(armRight, "RAPID TRANSIT..."); 
-        }
-        
-        rotateCube();
-        updateSystem(index);
-    });
-});
 
-        // --- 4. 控制事件 ---
+        // --- 4. 控制事件 (修正重複監聽問題) ---
         function goNext() {
-    // 改為尋找你的新機械臂 ID
-    const armLeft = document.getElementById('arm-left');
-    triggerArm(armLeft, "ENGAGING 2-CLAW..."); // 觸發新手臂動畫
-    
-    currentRotation -= 90;
-    rotateCube();
-    setTimeout(() => updateSystem(currentIndex + 1), 300);
-}
+            const armLeft = document.getElementById('arm-left');
+            triggerArm(armLeft, "ENGAGING 2-CLAW..."); 
+            
+            currentRotation -= 90;
+            rotateCube();
+            updateSystem(currentIndex + 1);
+        }
 
-function goPrev() {
-    // 改為尋找你的新機械臂 ID
-    const armRight = document.getElementById('arm-right');
-    triggerArm(armRight, "ENGAGING 3-CLAW..."); // 觸發新手臂動畫
-    
-    currentRotation += 90;
-    rotateCube();
-    setTimeout(() => updateSystem(currentIndex - 1), 300);
-}
+        function goPrev() {
+            const armRight = document.getElementById('arm-right');
+            triggerArm(armRight, "ENGAGING 3-CLAW..."); 
+            
+            currentRotation += 90;
+            rotateCube();
+            updateSystem(currentIndex - 1);
+        }
 
         function rotateCube() { 
             if(cube) cube.style.transform = `rotateY(${currentRotation}deg)`; 
         }
 
-      function triggerArm(armElement, text) {
-    if(!armElement) return;
+        function triggerArm(armElement, text) {
+            if(!armElement) return;
+            armElement.classList.add('arm-active');
+            setTimeout(() => {
+                armElement.classList.remove('arm-active');
+            }, 1200);
+        }
+     
     
     // 加上動作類別 (我們可以在 CSS 寫動畫)
     armElement.classList.add('arm-active');
@@ -729,17 +724,6 @@ function goPrev() {
             if (e.key === 'ArrowLeft') goPrev();
         });
 
-        navItems.forEach((item, index) => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const diff = index - currentIndex;
-                if (diff > 0) { currentRotation -= (90 * diff); triggerArm(leftArmHud, "RAPID TRANSIT..."); }
-                else if (diff < 0) { currentRotation += (90 * Math.abs(diff)); triggerArm(rightArmHud, "RAPID TRANSIT..."); }
-                rotateCube();
-                updateSystem(index);
-            });
-        });
-    });
 </script>
 </body>
 </html>
