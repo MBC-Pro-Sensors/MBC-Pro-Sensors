@@ -208,13 +208,107 @@ body {
 }
 
 .cube-face {
-    position: absolute; width: 400px; height: 400px;
+    position: absolute; 
+    width: 400px; 
+    height: 400px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(10px);
-    display: flex; align-items: center; justify-content: center;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    overflow: hidden; /* 確保內容不會超出方塊邊界 */
+    transition: background 0.5s ease; /* 讓不同類別切換顏色時更平滑 */
 }
 
+/* 確保面內部的所有內容都在裝飾框之上 */
+.cube-face > *:not(.corner) {
+    position: relative;
+    z-index: 5;
+}
+      /* --- 聯絡我們模組專用樣式 (Contact Module) --- */
+.contact-module {
+    width: 100%;
+    z-index: 10;
+    text-align: center;
+    padding: 20px;
+}
+
+.module-title {
+    color: var(--current-theme);
+    font-family: 'Orbitron', monospace; /* 確保字體有科技感 */
+    letter-spacing: 3px;
+    font-size: 14px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px var(--current-theme);
+    opacity: 0.8;
+}
+
+.social-grid {
+    display: flex;
+    justify-content: center;
+    gap: 25px; /* 按鈕之間的距離 */
+}
+
+.social-hex {
+    position: relative;
+    width: 65px;
+    height: 65px;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hex-inner {
+    width: 100%;
+    height: 100%;
+    background: rgba(var(--current-theme-rgb, 0, 255, 255), 0.1); /* 微弱底色 */
+    border: 1px solid var(--current-theme);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 六角形裁切路徑 */
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.tech-icon {
+    width: 28px;
+    height: 28px;
+    filter: brightness(0) invert(1); /* 圖片轉白色 */
+    transition: all 0.3s ease;
+    pointer-events: none; /* 防止圖片干擾滑鼠事件 */
+}
+
+/* --- 觸碰回饋與特效 --- */
+.social-hex:hover {
+    transform: translateY(-10px) scale(1.1);
+}
+
+.social-hex:hover .hex-inner {
+    background: rgba(var(--current-theme-rgb, 0, 255, 255), 0.3);
+    box-shadow: 0 0 20px var(--current-theme);
+}
+
+/* 滑鼠懸停顯示文字標籤 */
+.social-hex::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--current-theme);
+    opacity: 0;
+    transition: 0.3s;
+    white-space: nowrap;
+    letter-spacing: 1px;
+}
+
+.social-hex:hover::after {
+    opacity: 1;
+}
 /* L型對焦框 */
 .corner { position: absolute; width: 20px; height: 20px; border-color: var(--current-theme); transition: border-color 0.5s; }
 .tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
@@ -579,10 +673,11 @@ body {
                 <div class="corner bl"></div><div class="corner br"></div>
             </div>
 
-            <div class="cube-face cube-bottom">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-      <div class="contact-module">
+         <div class="cube-face cube-bottom">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    
+    <div class="contact-module">
         <h3 class="module-title">SECURE COMMS</h3>
         <div class="social-grid">
             
@@ -600,13 +695,12 @@ body {
                 </div>
             </a>
             
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com&su=【產品 相關事項諮詢】&body=您好，我想瞭解更多關於產品 的資訊：%0A%0A--- 基本資料 ---%0A姓名： %0A聯絡電話： %0A%0A--- 諮詢內容 ---%0A諮詢項目（MBC / WRO / MOTOR / 其他）： %0A具體詢問事項： %0A%0A--- 聯絡資訊 ---%0A方便接聽電話的時間： %0A%0A感謝您的協助！" target="_blank" class="social-card">
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com&su=【產品相關事項諮詢】" target="_blank" class="social-hex" data-label="G-MAIL">
                 <div class="hex-inner">
                     <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
                     <div class="hex-glow"></div>
                 </div>
             </a>
-
         </div>
     </div>
 </div>
