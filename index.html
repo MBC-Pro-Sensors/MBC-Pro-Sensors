@@ -207,24 +207,28 @@ body {
     transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.cube-face {
-    position: absolute; 
-    width: 400px; 
-    height: 400px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(10px);
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    overflow: hidden; /* 確保內容不會超出方塊邊界 */
-    transition: background 0.5s ease; /* 讓不同類別切換顏色時更平滑 */
+      /* 確保所有面的內容都浮在最上層 */
+.cube-face > * {
+    position: relative;
+    z-index: 10; /* 強制提升內容層級 */
 }
 
-/* 確保面內部的所有內容都在裝飾框之上 */
-.cube-face > *:not(.corner) {
-    position: relative;
-    z-index: 5;
+/* 專門針對底部 (CONTACT 面) 的強化 */
+.cube-bottom {
+    background: rgba(5, 15, 25, 0.85) !important; /* 加深背景顏色，防止透明看不見 */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 確保六角形與圖標不被濾鏡影響 */
+.social-hex {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.tech-icon {
+    filter: brightness(0) invert(1) drop-shadow(0 0 5px var(--current-theme)) !important;
 }
       /* --- 聯絡我們模組專用樣式 (Contact Module) --- */
 .contact-module {
