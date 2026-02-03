@@ -315,6 +315,26 @@ body {
 .arm-energy-wire, .core-light {
     animation: energyPulse 2s infinite ease-in-out;
 }
+      /* 讓整體更有立體感 */
+.arm-container {
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.9));
+    transition: filter 0.5s ease;
+}
+
+/* 模擬不鏽鋼油壓桿的反光 */
+.arm-piston rect:nth-child(2) {
+    mix-blend-mode: overlay;
+}
+
+/* 機械臂進入實驗室後的光影變化 */
+.arm-active {
+    filter: drop-shadow(0 0 15px var(--current-theme)) brightness(1.2);
+}
+
+/* 確保手臂在背景影片之上，但在 UI 按鈕之下 */
+.robotic-arms-system {
+    z-index: 5; 
+}
 </style>
 </head>
 <body>
@@ -375,49 +395,67 @@ body {
 
     <main class="lab-stage">
        
-    <div class="robotic-arms-system">
-        <div id="arm-left" class="arm-container">
-            <svg viewBox="0 0 250 500" class="arm-svg">
-                <defs>
-                    <linearGradient id="metalGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#1a1a1a" />
-                        <stop offset="50%" style="stop-color:#4d4d4d" />
-                        <stop offset="100%" style="stop-color:#1a1a1a" />
-                    </linearGradient>
-                    <filter id="neonGlow">
-                        <feGaussianBlur stdDeviation="3" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                </defs>
-                <rect x="90" y="450" width="70" height="50" rx="5" fill="#111" />
-                <g class="arm-main-section">
-                    <rect x="105" y="250" width="40" height="200" rx="10" fill="url(#metalGrad)" stroke="#000" stroke-width="2" />
-                    <rect x="115" y="270" width="20" height="160" fill="#222" rx="5" />
-                    <path class="arm-energy-wire" d="M125 270 L125 430" stroke="var(--current-theme)" stroke-width="3" filter="url(#neonGlow)" />
-                </g>
-                <g class="arm-head-left">
-                    <circle cx="125" cy="230" r="25" fill="#333" stroke="#000" />
-                    <circle cx="125" cy="230" r="10" fill="var(--current-theme)" filter="url(#neonGlow)" />
-                    <path class="claw-l-top" d="M110 210 Q80 160 110 120" stroke="#555" stroke-width="12" fill="none" stroke-linecap="round" />
-                    <path class="claw-l-bottom" d="M140 210 Q170 160 140 120" stroke="#555" stroke-width="12" fill="none" stroke-linecap="round" />
-                </g>
-            </svg>
-        </div>
+  <div class="robotic-arms-system">
+    <div id="arm-left" class="arm-container">
+        <svg viewBox="0 0 250 600" class="arm-svg">
+            <defs>
+                <linearGradient id="armGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#0f0f0f" />
+                    <stop offset="30%" style="stop-color:#3d3d3d" />
+                    <stop offset="50%" style="stop-color:#555555" />
+                    <stop offset="70%" style="stop-color:#3d3d3d" />
+                    <stop offset="100%" style="stop-color:#0f0f0f" />
+                </linearGradient>
+            </defs>
+            
+            <rect x="75" y="520" width="100" height="40" rx="3" fill="#1a1a1a" />
+            <circle cx="90" cy="540" r="3" fill="#333" />
+            <circle cx="160" cy="540" r="3" fill="#333" />
 
-        <div id="arm-right" class="arm-container">
-            <svg viewBox="0 0 250 500" class="arm-svg">
-                <rect x="90" y="450" width="70" height="50" rx="5" fill="#111" />
-                <rect x="105" y="250" width="40" height="200" rx="10" fill="url(#metalGrad)" stroke="#000" stroke-width="2" />
-                <g class="arm-head-right">
-                    <circle cx="125" cy="230" r="25" fill="#333" stroke="#000" />
-                    <path class="claw-r-1" d="M125 205 L125 130" stroke="#555" stroke-width="8" fill="none" stroke-linecap="round" />
-                    <path class="claw-r-2" d="M105 220 L50 180" stroke="#555" stroke-width="8" fill="none" stroke-linecap="round" />
-                    <path class="claw-r-3" d="M145 220 L200 180" stroke="#555" stroke-width="8" fill="none" stroke-linecap="round" />
-                    <circle cx="125" cy="230" r="8" fill="var(--current-theme)" filter="url(#neonGlow)" />
+            <g class="arm-segment-1">
+                <rect x="100" y="320" width="50" height="220" rx="8" fill="url(#armGrad)" stroke="#000" stroke-width="1" />
+                <rect x="115" y="350" width="20" height="150" fill="#0a0a0a" rx="2" />
+                <path class="arm-energy-wire" d="M125 350 L125 500" stroke="var(--current-theme)" stroke-width="2" opacity="0.8" filter="url(#neonGlow)" />
+            </g>
+
+            <g class="arm-piston">
+                <rect x="112" y="240" width="26" height="100" fill="#888" /> <rect x="112" y="240" width="10" height="100" fill="#aaa" opacity="0.5" />
+            </g>
+
+            <g class="arm-head-left">
+                <circle cx="125" cy="230" r="30" fill="#222" stroke="#444" stroke-width="2" />
+                <circle cx="125" cy="230" r="12" fill="#000" />
+                <circle class="core-light" cx="125" cy="230" r="6" fill="var(--current-theme)" filter="url(#neonGlow)" />
+                
+                <g class="claw-unit-top">
+                    <path class="claw-l-top" d="M100 215 L80 180 L100 140" stroke="url(#armGrad)" stroke-width="14" fill="none" stroke-linejoin="round" />
+                    <rect x="75" y="175" width="10" height="10" fill="#111" /> </g>
+                <g class="claw-unit-bottom">
+                    <path class="claw-l-bottom" d="M150 215 L170 180 L150 140" stroke="url(#armGrad)" stroke-width="14" fill="none" stroke-linejoin="round" />
                 </g>
-            </svg>
-        </div>
+            </g>
+        </svg>
     </div>
+
+    <div id="arm-right" class="arm-container">
+        <svg viewBox="0 0 250 600" class="arm-svg">
+            <rect x="75" y="520" width="100" height="40" rx="3" fill="#1a1a1a" />
+            <g class="arm-segment-1">
+                <rect x="100" y="320" width="50" height="220" rx="8" fill="url(#armGrad)" stroke="#000" />
+            </g>
+            <g class="arm-piston">
+                <rect x="112" y="240" width="26" height="100" fill="#888" />
+            </g>
+            <g class="arm-head-right">
+                <circle cx="125" cy="230" r="30" fill="#222" stroke="#444" />
+                <path class="claw-r-1" d="M125 200 L125 120" stroke="url(#armGrad)" stroke-width="10" fill="none" />
+                <path class="claw-r-2" d="M100 240 L40 210" stroke="url(#armGrad)" stroke-width="10" fill="none" />
+                <path class="claw-r-3" d="M150 240 L210 210" stroke="url(#armGrad)" stroke-width="10" fill="none" />
+                <circle class="core-light" cx="125" cy="230" r="6" fill="var(--current-theme)" filter="url(#neonGlow)" />
+            </g>
+        </svg>
+    </div>
+</div>
         <div class="hero-title">
             <h1 data-text="MBC-Pro-Sensors">MBC-Pro-Sensors</h1>
             <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
