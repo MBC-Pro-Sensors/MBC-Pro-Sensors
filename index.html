@@ -295,16 +295,31 @@ body {
 
 .arm-container {
     position: absolute;
-    bottom: -100px; /* 初始藏在下面 */
-    width: 300px;
-    height: 500px;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+    bottom: -150px; /* 調整基準點 */
+    width: 400px;  /* 加大寬度 */
+    height: 700px; /* 加高高度 */
+    filter: drop-shadow(0 20px 50px rgba(0,0,0,1));
+    z-index: 100;
 }
 
-#arm-left { left: 0%; transform: rotate(10deg); }
-#arm-right { right: 0%; transform: rotate(-10deg); }
+/* 左手臂：從左下角斜著伸入 */
+#arm-left { 
+    left: -100px; 
+    transform: rotate(25deg); 
+    transform-origin: bottom left;
+}
 
-.arm-svg { width: 100%; height: 100%; }
+/* 右手臂：從右下角斜著伸入 */
+#arm-right { 
+    right: -100px; 
+    transform: rotate(-25deg); 
+    transform-origin: bottom right;
+}
+
+/* 強化金屬質感與光澤 */
+.arm-svg {
+    filter: contrast(1.1) brightness(0.9);
+}
 
 /* 讓能源線有呼吸感 */
 @keyframes energyPulse {
@@ -395,63 +410,52 @@ body {
 
     <main class="lab-stage">
        
-  <div class="robotic-arms-system">
+ <div class="robotic-arms-system">
     <div id="arm-left" class="arm-container">
-        <svg viewBox="0 0 250 600" class="arm-svg">
+        <svg viewBox="0 0 300 700" class="arm-svg">
             <defs>
-                <linearGradient id="armGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#0f0f0f" />
-                    <stop offset="30%" style="stop-color:#3d3d3d" />
-                    <stop offset="50%" style="stop-color:#555555" />
-                    <stop offset="70%" style="stop-color:#3d3d3d" />
-                    <stop offset="100%" style="stop-color:#0f0f0f" />
+                <linearGradient id="armorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#0a0a0a" />
+                    <stop offset="50%" style="stop-color:#2a2a2a" />
+                    <stop offset="100%" style="stop-color:#0a0a0a" />
                 </linearGradient>
             </defs>
             
-            <rect x="75" y="520" width="100" height="40" rx="3" fill="#1a1a1a" />
-            <circle cx="90" cy="540" r="3" fill="#333" />
-            <circle cx="160" cy="540" r="3" fill="#333" />
-
-            <g class="arm-segment-1">
-                <rect x="100" y="320" width="50" height="220" rx="8" fill="url(#armGrad)" stroke="#000" stroke-width="1" />
-                <rect x="115" y="350" width="20" height="150" fill="#0a0a0a" rx="2" />
-                <path class="arm-energy-wire" d="M125 350 L125 500" stroke="var(--current-theme)" stroke-width="2" opacity="0.8" filter="url(#neonGlow)" />
+            <circle cx="50" cy="650" r="80" fill="#111" stroke="#000" />
+            
+            <g class="arm-main">
+                <rect x="30" y="350" width="60" height="300" rx="10" fill="url(#armorGrad)" stroke="#000" />
+                <rect x="85" y="400" width="15" height="200" fill="#444" rx="5" />
+                <rect x="85" y="450" width="15" height="100" fill="#666" rx="5" />
             </g>
 
-            <g class="arm-piston">
-                <rect x="112" y="240" width="26" height="100" fill="#888" /> <rect x="112" y="240" width="10" height="100" fill="#aaa" opacity="0.5" />
+            <g class="arm-forearm">
+                <rect x="40" y="200" width="45" height="180" rx="8" fill="#1a1a1a" stroke="#000" />
+                <path d="M62 210 L62 360" stroke="var(--current-theme)" stroke-width="3" filter="url(#neonGlow)" />
             </g>
 
-            <g class="arm-head-left">
-                <circle cx="125" cy="230" r="30" fill="#222" stroke="#444" stroke-width="2" />
-                <circle cx="125" cy="230" r="12" fill="#000" />
-                <circle class="core-light" cx="125" cy="230" r="6" fill="var(--current-theme)" filter="url(#neonGlow)" />
+            <g class="arm-head-left" style="transform: translate(62px, 180px);">
+                <circle cx="0" cy="0" r="35" fill="#222" stroke="#444" />
+                <circle class="core-light" cx="0" cy="0" r="10" fill="var(--current-theme)" filter="url(#neonGlow)" />
                 
-                <g class="claw-unit-top">
-                    <path class="claw-l-top" d="M100 215 L80 180 L100 140" stroke="url(#armGrad)" stroke-width="14" fill="none" stroke-linejoin="round" />
-                    <rect x="75" y="175" width="10" height="10" fill="#111" /> </g>
-                <g class="claw-unit-bottom">
-                    <path class="claw-l-bottom" d="M150 215 L170 180 L150 140" stroke="url(#armGrad)" stroke-width="14" fill="none" stroke-linejoin="round" />
-                </g>
+                <path class="claw-l-top" d="M-20 -10 L-50 -60 L-10 -100" stroke="#333" stroke-width="18" fill="none" stroke-linecap="square" />
+                <path class="claw-l-bottom" d="M20 -10 L50 -60 L10 -100" stroke="#333" stroke-width="18" fill="none" stroke-linecap="square" />
             </g>
         </svg>
     </div>
 
     <div id="arm-right" class="arm-container">
-        <svg viewBox="0 0 250 600" class="arm-svg">
-            <rect x="75" y="520" width="100" height="40" rx="3" fill="#1a1a1a" />
-            <g class="arm-segment-1">
-                <rect x="100" y="320" width="50" height="220" rx="8" fill="url(#armGrad)" stroke="#000" />
+        <svg viewBox="0 0 300 700" class="arm-svg">
+            <circle cx="250" cy="650" r="80" fill="#111" stroke="#000" />
+            <g class="arm-main">
+                <rect x="210" y="350" width="60" height="300" rx="10" fill="url(#armorGrad)" stroke="#000" />
             </g>
-            <g class="arm-piston">
-                <rect x="112" y="240" width="26" height="100" fill="#888" />
-            </g>
-            <g class="arm-head-right">
-                <circle cx="125" cy="230" r="30" fill="#222" stroke="#444" />
-                <path class="claw-r-1" d="M125 200 L125 120" stroke="url(#armGrad)" stroke-width="10" fill="none" />
-                <path class="claw-r-2" d="M100 240 L40 210" stroke="url(#armGrad)" stroke-width="10" fill="none" />
-                <path class="claw-r-3" d="M150 240 L210 210" stroke="url(#armGrad)" stroke-width="10" fill="none" />
-                <circle class="core-light" cx="125" cy="230" r="6" fill="var(--current-theme)" filter="url(#neonGlow)" />
+            <g class="arm-head-right" style="transform: translate(240px, 180px);">
+                <circle cx="0" cy="0" r="35" fill="#222" />
+                <circle class="core-light" cx="0" cy="0" r="10" fill="var(--current-theme)" filter="url(#neonGlow)" />
+                <path d="M-10 -20 L-40 -80" stroke="#333" stroke-width="12" />
+                <path d="M10 -20 L40 -80" stroke="#333" stroke-width="12" />
+                <path d="M0 20 L0 80" stroke="#333" stroke-width="12" />
             </g>
         </svg>
     </div>
@@ -483,15 +487,6 @@ body {
                 <div class="cube-face cube-back"></div>
                 <div class="cube-face cube-left"></div>
             </div>
-        </div>
-
-        <div class="arm-hud left-arm-hud">
-            <div class="arm-status">LEFT ARM [2-CLAW]: STANDBY</div>
-            <div class="target-reticle"></div>
-        </div>
-        <div class="arm-hud right-arm-hud">
-            <div class="arm-status">RIGHT ARM [3-CLAW]: STANDBY</div>
-            <div class="target-reticle"></div>
         </div>
 
         <div class="controls">
