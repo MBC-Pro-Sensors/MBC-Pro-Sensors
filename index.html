@@ -285,93 +285,89 @@ body {
     0% { clip-path: inset(10% 0 80% 0); } 20% { clip-path: inset(80% 0 10% 0); }
     40% { clip-path: inset(40% 0 50% 0); } 100% { clip-path: inset(0 0 0 0); }
 }
-      .robotic-arms-system {
+    /* === 全新融合版：重裝甲機械臂系統 2.0 CSS === */
+
+/* 手臂總容器：確保在背景之上，UI 之下 */
+.robotic-arms-system {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    pointer-events: none;
-    z-index: 100;
+    pointer-events: none; /* 允許滑鼠穿透點擊到後面的按鈕 */
+    z-index: 5; /* 照你要求的設為 5，確保不擋住頂部導覽列與按鈕 */
 }
 
-.arm-container {
+/* 手臂外部容器：負責整體進出場位置 */
+.arm-wrapper {
     position: absolute;
-    bottom: -150px; /* 調整基準點 */
-    width: 400px;  /* 加大寬度 */
-    height: 700px; /* 加高高度 */
-    filter: drop-shadow(0 20px 50px rgba(0,0,0,1));
-    z-index: 100;
-}
-
-/* 左手臂：從左下角斜著伸入 */
-#arm-left { 
-    left: -100px; 
-    transform: rotate(25deg); 
-    transform-origin: bottom left;
-}
-
-/* 右手臂：從右下角斜著伸入 */
-#arm-right { 
-    right: -100px; 
-    transform: rotate(-25deg); 
-    transform-origin: bottom right;
-}
-
-/* 強化金屬質感與光澤 */
-.arm-svg {
-    filter: contrast(1.1) brightness(0.9);
-}
-
-/* 讓能源線有呼吸感 */
-@keyframes energyPulse {
-    0%, 100% { opacity: 0.8; filter: brightness(1); }
-    50% { opacity: 1; filter: brightness(1.8) blur(1px); }
-}
-
-.arm-energy-wire, .core-light {
-    animation: energyPulse 2s infinite ease-in-out;
-}
-      /* 讓整體更有立體感 */
-.arm-container {
-    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.9));
+    bottom: -350px; /* 初始藏在畫面下方更深處 */
+    width: 400px; 
+    height: 800px;
+    /* 強化你喜歡的重型陰影感 */
+    filter: drop-shadow(0 30px 50px rgba(0,0,0,1));
     transition: filter 0.5s ease;
 }
 
-/* 模擬不鏽鋼油壓桿的反光 */
-.arm-piston rect:nth-child(2) {
-    mix-blend-mode: overlay;
+#arm-left-container {
+    left: -120px;
+    transform-origin: bottom left;
+    transform: rotate(15deg); /* 初始稍微斜放 */
 }
 
-/* 機械臂進入實驗室後的光影變化 */
-.arm-active {
-    filter: drop-shadow(0 0 15px var(--current-theme)) brightness(1.2);
+#arm-right-container {
+    right: -120px;
+    transform-origin: bottom right;
+    transform: rotate(-15deg); /* 初始稍微斜放 */
 }
 
-/* 確保手臂在背景影片之上，但在 UI 按鈕之下 */
-.robotic-arms-system {
-    z-index: 5; 
-}
-      /* 當手臂被觸發時的動作 (例如往中間伸一點，並增加亮度) */
-#arm-left.arm-active {
-    transform: rotate(10deg) translateX(50px) translateY(-30px);
-    filter: brightness(1.5) drop-shadow(0 0 20px var(--current-theme));
+/* SVG 本體：繼承你原本對金屬亮度的要求 */
+.advanced-arm-svg {
+    width: 100%; 
+    height: 100%;
+    overflow: visible;
+    filter: contrast(1.1) brightness(0.9); /* 保留你喜歡的對比度 */
 }
 
-#arm-right.arm-active {
-    transform: rotate(-10deg) translateX(-50px) translateY(-30px);
-    filter: brightness(1.5) drop-shadow(0 0 20px var(--current-theme));
-}
-      /* 讓機械爪具備金屬邊框感 */
-.claw-l-top, .claw-l-bottom {
-    stroke: #2a2a2a;
-    stroke-width: 18;
-    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.8));
+/* --- 核心：多關節旋轉點定義 (這部分不能改，否則關節會脫臼) --- */
+#left-shoulder-group, #right-shoulder-group { transform-origin: 150px 650px; }
+#left-elbow-group, #right-elbow-group       { transform-origin: 150px 350px; }
+#left-claw-mechanism, #right-claw-mechanism { transform-origin: 150px 150px; }
+
+/* --- ★ 流水燈與能源線動畫 ★ --- */
+
+/* 模擬你原本的能源線呼吸感，但升級為「流動」效果 */
+.energy-flow-path {
+    stroke-dashoffset: 0;
+    animation: flowAnimation 1.2s linear infinite;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 8px var(--current-theme)); /* 隨主題變色 */
 }
 
-/* 加上一個發光的接點 */
-.core-light {
-    r: 10;
-    fill: var(--current-theme);
+@keyframes flowAnimation {
+    to {
+        stroke-dashoffset: -100; /* 製造向上流動的能量感 */
+    }
+}
+
+/* 夾爪核心發光：保留你原本的 core-light 呼吸感 */
+.claw-core-light {
+    animation: energyPulse 2s infinite ease-in-out;
     filter: blur(2px) brightness(1.5);
+}
+
+@keyframes energyPulse {
+    0%, 100% { opacity: 0.6; filter: brightness(1) blur(2px); }
+    50% { opacity: 1; filter: brightness(2) blur(3px); }
+}
+
+/* 機械臂活動時的亮度強化 */
+.arm-active-visual {
+    filter: brightness(1.3) drop-shadow(0 0 20px var(--current-theme));
+}
+
+/* 模擬油壓桿反光 */
+.arm-piston-highlight {
+    mix-blend-mode: overlay;
+    opacity: 0.6;
 }
 </style>
 </head>
@@ -433,52 +429,106 @@ body {
 
     <main class="lab-stage">
        
- <div class="robotic-arms-system">
-    <div id="arm-left" class="arm-container">
-        <svg viewBox="0 0 300 700" class="arm-svg">
+<div class="robotic-arms-system">
+    
+    <div id="arm-left-container" class="arm-wrapper">
+        <svg viewBox="0 0 400 800" class="advanced-arm-svg">
             <defs>
-                <linearGradient id="armorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#0a0a0a" />
-                    <stop offset="50%" style="stop-color:#2a2a2a" />
-                    <stop offset="100%" style="stop-color:#0a0a0a" />
+                <linearGradient id="metal-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#2a2a2a"/>
+                    <stop offset="20%" stop-color="#555"/>
+                    <stop offset="50%" stop-color="#777"/> <stop offset="80%" stop-color="#555"/>
+                    <stop offset="100%" stop-color="#2a2a2a"/>
                 </linearGradient>
+                <radialGradient id="joint-grad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#444"/>
+                    <stop offset="100%" stop-color="#111"/>
+                </radialGradient>
+                <filter id="glow-filter" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
             </defs>
-            
-            <circle cx="50" cy="650" r="80" fill="#111" stroke="#000" />
-            
-            <g class="arm-main">
-                <rect x="30" y="350" width="60" height="300" rx="10" fill="url(#armorGrad)" stroke="#000" />
-                <rect x="85" y="400" width="15" height="200" fill="#444" rx="5" />
-                <rect x="85" y="450" width="15" height="100" fill="#666" rx="5" />
+
+            <g class="arm-base">
+                <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad)" stroke="#111" stroke-width="2"/>
+                <circle cx="70" cy="720" r="5" fill="#111"/><circle cx="70" cy="760" r="5" fill="#111"/>
+                <circle cx="230" cy="720" r="5" fill="#111"/><circle cx="230" cy="760" r="5" fill="#111"/>
             </g>
 
-            <g class="arm-forearm">
-                <rect x="40" y="200" width="45" height="180" rx="8" fill="#1a1a1a" stroke="#000" />
-                <path d="M62 210 L62 360" stroke="var(--current-theme)" stroke-width="3" filter="url(#neonGlow)" />
-            </g>
-
-            <g class="arm-head-left" style="transform: translate(62px, 180px);">
-                <circle cx="0" cy="0" r="35" fill="#222" stroke="#444" />
-                <circle class="core-light" cx="0" cy="0" r="10" fill="var(--current-theme)" filter="url(#neonGlow)" />
+            <g id="left-shoulder-group" class="rotatable-joint">
+                <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
                 
-                <path class="claw-l-top" d="M-20 -10 L-50 -60 L-10 -100" stroke="#333" stroke-width="18" fill="none" stroke-linecap="square" />
-                <path class="claw-l-bottom" d="M20 -10 L50 -60 L10 -100" stroke="#333" stroke-width="18" fill="none" stroke-linecap="square" />
-            </g>
-        </svg>
+                <g id="left-upper-arm">
+                    <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad)" stroke="#111" stroke-width="2"/>
+                    <rect x="170" y="380" width="15" height="200" fill="#333" rx="5"/>
+                    <rect x="175" y="400" width="5" height="180" fill="#aaa"/>
+                    
+                    <path class="energy-flow-path" d="M150 650 L150 350" 
+                          stroke="var(--current-theme)" stroke-width="6" fill="none" 
+                          stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
+
+                    <g id="left-elbow-group" class="rotatable-joint">
+                        <circle cx="150" cy="350" r="30" fill="url(#joint-grad)" stroke="#222"/>
+                        
+                        <g id="left-forearm">
+                            <rect x="120" y="150" width="60" height="200" rx="10" fill="url(#metal-grad)" stroke="#111"/>
+                            <path class="energy-flow-path" d="M150 350 L150 180" 
+                                  stroke="var(--current-theme)" stroke-width="5" fill="none" 
+                                  stroke-dasharray="15, 8" filter="url(#glow-filter)"/>
+
+                            <circle cx="150" cy="150" r="25" fill="#222"/>
+                            <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
+
+                            <g id="left-claw-mechanism">
+                                <path d="M130 130 L100 80 L140 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M170 130 L200 80 L160 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            </g>
+                        </g> </g> </g> </g> </svg>
     </div>
 
-    <div id="arm-right" class="arm-container">
-        <svg viewBox="0 0 300 700" class="arm-svg">
-            <circle cx="250" cy="650" r="80" fill="#111" stroke="#000" />
-            <g class="arm-main">
-                <rect x="210" y="350" width="60" height="300" rx="10" fill="url(#armorGrad)" stroke="#000" />
+    <div id="arm-right-container" class="arm-wrapper">
+        <svg viewBox="0 0 400 800" class="advanced-arm-svg" style="transform: scaleX(-1);"> <defs>
+                <linearGradient id="metal-grad-r" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#2a2a2a"/>
+                    <stop offset="50%" stop-color="#777"/>
+                    <stop offset="100%" stop-color="#2a2a2a"/>
+                </linearGradient>
+                 </defs>
+
+            <g class="arm-base">
+                <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad-r)" stroke="#111" stroke-width="2"/>
             </g>
-            <g class="arm-head-right" style="transform: translate(240px, 180px);">
-                <circle cx="0" cy="0" r="35" fill="#222" />
-                <circle class="core-light" cx="0" cy="0" r="10" fill="var(--current-theme)" filter="url(#neonGlow)" />
-                <path d="M-10 -20 L-40 -80" stroke="#333" stroke-width="12" />
-                <path d="M10 -20 L40 -80" stroke="#333" stroke-width="12" />
-                <path d="M0 20 L0 80" stroke="#333" stroke-width="12" />
+
+            <g id="right-shoulder-group" class="rotatable-joint">
+                <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
+                
+                <g id="right-upper-arm">
+                    <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad-r)" stroke="#111"/>
+                    <path class="energy-flow-path" d="M150 650 L150 350" 
+                          stroke="var(--current-theme)" stroke-width="6" fill="none" 
+                          stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
+
+                    <g id="right-elbow-group" class="rotatable-joint">
+                        <circle cx="150" cy="350" r="30" fill="url(#joint-grad)"/>
+                        
+                        <g id="right-forearm">
+                            <rect x="125" y="150" width="50" height="200" rx="10" fill="url(#metal-grad-r)" stroke="#111"/>
+                            <path class="energy-flow-path" d="M150 350 L150 180" 
+                                  stroke="var(--current-theme)" stroke-width="5" fill="none" 
+                                  stroke-dasharray="15, 8" filter="url(#glow-filter)"/>
+
+                            <circle cx="150" cy="150" r="25" fill="#222"/>
+                            <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
+
+                            <g id="right-claw-mechanism">
+                                <path d="M150 125 L150 60" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> <path d="M130 135 L90 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> <path d="M170 135 L210 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> </g>
+                        </g>
+                    </g>
+                </g>
             </g>
         </svg>
     </div>
@@ -520,6 +570,10 @@ body {
     </main>
     <audio id="sfx-door" src="door-open.mp3" preload="auto"></audio>
 <audio id="sfx-access" src="access-granted.mp3" preload="auto"></audio>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- A. 啟動層邏輯 ---
@@ -674,37 +728,76 @@ body {
             }
         }
 
-        // --- 4. 控制事件 ---
+       // --- 4. 控制事件 (高級 GSAP 機械動畫版) ---
+        
+        // 儲存當前動畫時間軸，防止快速點擊時衝突
+        let currentArmTL = null;
+
         function goNext() {
-            const armLeft = document.getElementById('arm-left');
-            triggerArm(armLeft, "ENGAGING 2-CLAW..."); 
-            
+            if(currentArmTL && currentArmTL.isActive()) return; // 如果動畫正在跑，忽略點擊
+
             currentRotation -= 90;
             rotateCube();
-            updateSystem(currentIndex + 1);
+            // 觸發左手「高級夾取」動畫
+            animateComplexArm('left');
+            
+            // 延遲更新系統文字，配合抓取動作的時機
+            setTimeout(() => updateSystem(currentIndex + 1), 800);
         }
 
         function goPrev() {
-            const armRight = document.getElementById('arm-right');
-            triggerArm(armRight, "ENGAGING 3-CLAW..."); 
-            
+            if(currentArmTL && currentArmTL.isActive()) return;
+
             currentRotation += 90;
             rotateCube();
-            updateSystem(currentIndex - 1);
+            // 觸發右手「高級夾取」動畫
+            animateComplexArm('right');
+
+            setTimeout(() => updateSystem(currentIndex - 1), 800);
         }
 
-        function rotateCube() { 
-            if(cube) cube.style.transform = `rotateY(${currentRotation}deg)`; 
-        }
-
-        function triggerArm(armElement, text) {
-            if(!armElement) return;
-            armElement.classList.add('arm-active');
+        // ★ 全新的高級機械臂動畫函數 ★
+        function animateComplexArm(side) {
+            const container = side === 'left' ? '#arm-left-container' : '#arm-right-container';
+            const shoulder = side === 'left' ? '#left-shoulder-group' : '#right-shoulder-group';
+            const elbow = side === 'left' ? '#left-elbow-group' : '#right-elbow-group';
+            const claw = side === 'left' ? '#left-claw-mechanism' : '#right-claw-mechanism';
             
-            // 1.2 秒後移除動作狀態，回到待機位置
-            setTimeout(() => {
-                armElement.classList.remove('arm-active');
-            }, 1200);
+            // 定義動作角度 (左右手鏡像)
+            const shoulderRot = side === 'left' ? 25 : -25; // 肩膀前傾
+            const elbowRot = side === 'left' ? -45 : 45;    // 手肘彎曲指向中心
+            const containerMove = side === 'left' ? 30 : -30; // 整體向中心滑動
+            
+            // 建立 GSAP 時間軸
+            currentArmTL = gsap.timeline({ 
+                onComplete: () => { currentArmTL = null; }, // 動畫結束後釋放鎖定
+                defaults: { ease: "power2.inOut" } // 預設緩動材質
+            });
+
+            currentArmTL
+                // 1. [進場] 整體滑入並旋轉豎起
+                .to(container, { 
+                    y: -180, // 向上伸出
+                    x: containerMove, // 向中心靠
+                    rotation: 0, // 轉正
+                    duration: 0.6 
+                })
+                // 2. [伸展] 肩膀與手肘連動 (同時開始 "<")
+                .to(shoulder, { rotation: shoulderRot, duration: 0.5 }, "<+=0.1")
+                .to(elbow, { rotation: elbowRot, duration: 0.5 }, "<")
+                
+                // 3. [夾取] 夾爪快速閉合再張開 (模擬抓取動作)
+                .to(claw, { scale: 0.7, duration: 0.2, ease: "back.in(2)" }) // 快速夾緊
+                .to(claw, { scale: 1.0, duration: 0.3, ease: "back.out(1.5)" }) // 彈回
+
+                // 4. [退場] 所有關節復歸原位
+                .to([shoulder, elbow], { rotation: 0, duration: 0.6 }, "+=0.2") // 稍微停頓後復歸
+                .to(container, { 
+                    y: 0, 
+                    x: 0, 
+                    rotation: side === 'left' ? 15 : -15, // 回到初始傾斜角度
+                    duration: 0.7 
+                }, "<"); // 與關節復歸同時進行
         }
 
         // 綁定按鈕監聽
