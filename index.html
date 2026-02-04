@@ -563,29 +563,52 @@ body {
     /* 讓圖標發出對應類別的光芒 */
     filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--current-theme));
 }
-/* --- 8. 手機版專屬響應式設定 (RWD) 整合版 --- */
+/* --- 8. 手機版專屬響應式設定 (RWD) 終極整合版 --- */
 @media screen and (max-width: 768px) {
-    /* 1. 保留你原本的隱藏設定：隱藏開場生物辨識與大門動畫 */
+    /* 1. 保留原本的隱藏設定 */
     #bio-layer, #lab-door-container, .scan-overlay,
-    .robotic-arms-system, .arm-hud {
+    .robotic-arms-system, .arm-hud, .id-tag {
         display: none !important;
     }
 
-    /* 2. 標題文字修正：解決你截圖中文字斷行與重疊的問題 */
-    .hero-title {
-        top: 8%; /* 稍微往上提一點 */
+    /* 2. 導覽列優化：簡化 Logo 為 MBC 並調整選項字體 */
+    #tactical-nav {
+        padding: 5px 10px;
+        height: 50px;
     }
-    .hero-title h1 {
-        font-size: 1.6rem !important; /* 從你原本的 2.2rem 調降，防止斷行 */
-        white-space: nowrap;          /* 強制不換行，確保公司名稱完整 */
-        letter-spacing: 2px;
+    .nav-brand {
+        font-size: 0 !important; /* 隱藏原本長文字 */
     }
-    .hero-title .subtitle {
-        font-size: 0.7rem !important;
-        margin-top: 5px;
+    .nav-brand::before {
+        content: "MBC"; /* 簡化 Logo 文字 */
+        font-size: 1.2rem;
+        color: var(--tiffany-green);
+        font-weight: bold;
+    }
+    .nav-menu {
+        gap: 8px; /* 縮小按鈕間距 */
+    }
+    .nav-item {
+        font-size: 0.7rem !important; /* 縮小文字確保能塞進寬度 */
+        padding: 4px 6px;
     }
 
-    /* 3. 保留你原本的方塊縮放邏輯，但微調尺寸至 260px 確保不撞邊 */
+    /* 3. 標題區域優化：壓縮高度，防止與下方方塊打架 */
+    .hero-title {
+        top: 70px; /* 確保在導覽列下方，且與方塊有適當距離 */
+    }
+    .hero-title h1 {
+        font-size: 1.5rem !important; /* 稍微調降一點，確保 white-space 不會撐開螢幕 */
+        white-space: nowrap; 
+        letter-spacing: 2px;
+        margin: 0;
+    }
+    .hero-title .subtitle {
+        font-size: 0.6rem !important;
+        margin-top: 3px;
+    }
+
+    /* 4. 保留 260px 方塊縮放邏輯，新增垂直置中解決裁切 */
     .scene {
         width: 260px;
         height: 260px;
@@ -597,39 +620,52 @@ body {
         height: 260px;
     }
     
-    /* 核心位移修正：根據 260px 寬度重新計算中心點 (260/2 = 130) */
+    /* 核心位移修正 (260/2 = 130) */
     .cube-front  { transform: rotateY(  0deg) translateZ(130px); }
     .cube-right  { transform: rotateY( 90deg) translateZ(130px); }
     .cube-back   { transform: rotateY(180deg) translateZ(130px); }
     .cube-left   { transform: rotateY(-90deg) translateZ(130px); }
 
-    /* 4. 產品圖片自適應：防止截圖中圖片超出方塊的情況 */
-    .product-visual img {
-        width: 160px !important; 
-        height: auto;
-    }
-    .product-name {
-        font-size: 1.1rem !important;
+    /* 解決截圖中圖片被裁切的問題：將內容垂直置中 */
+    .product-content {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* 重要：讓圖片在方塊中央，不被頂部文字往下擠 */
+        align-items: center;
+        height: 100%;
     }
 
-    /* 5. 保留你原本的按鈕區域並美化 */
+    /* 5. 產品圖片與名稱自適應微調 */
+    .product-visual img {
+        width: 140px !important; /* 再縮小一點點，確保安全邊距 */
+        height: auto;
+        max-height: 110px;
+        object-fit: contain;
+    }
+    .product-name {
+        font-size: 0.95rem !important; /* 配合方塊尺寸縮小字體 */
+        margin-top: 8px;
+    }
+
+    /* 6. 保留並優化按鈕區域 */
     .controls {
-        bottom: 40px;
+        bottom: 30px; /* 稍微往上調，避免被手機導航條擋住 */
         width: 95%;
         display: flex;
         gap: 10px;
         justify-content: center;
     }
     .ctrl-btn {
-        padding: 12px 10px !important;
-        font-size: 10px !important;
-        flex: 1; /* 讓兩個按鈕等寬平分空間 */
+        padding: 12px 5px !important;
+        font-size: 9px !important;
+        flex: 1; 
         white-space: nowrap;
     }
 
-    /* 6. 保留你的捲動設定 */
+    /* 7. 保留捲動設定 */
     body {
-        overflow: hidden; /* 建議設為 hidden，防止方塊轉動時產生橫向捲軸 */
+        overflow: hidden; 
     }
 }
 </style>
