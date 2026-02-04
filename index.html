@@ -3,364 +3,1016 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MBC-Pro-Sensors | Laboratory</title>
-    
+    <title>MBC-Pro-Sensors | Advanced Robotics Lab</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Segoe+UI&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>   
 
-    <style>
-        /* --- 0. 全局變數與基礎設定 --- */
-        :root {
-            --bio-cyan: #00ffff;
-            --bio-yellow: #ffcc00;
-            --bio-green: #33ff33;
-            --bg-dark: #050a10;
-            --bg-gradient: linear-gradient(135deg, #0f1720 0%, #000000 100%);
-            --neon-cyan: #00ffff;
-            --neon-gold: #ffd700;
-            --neon-orange: #ff4500;
-            --neon-ice: #a5f2f3;
-            --neon-purple: #b026ff;
-            --tiffany-green: #0ABAB5;
-            
-            --current-theme: var(--neon-cyan);
-            --current-theme-rgb: 0, 255, 255;
-            --glass-bg: rgba(20, 30, 40, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
+  <style>
+  /* --- 0. 全局變數與基礎設定 --- */
+:root {
+    --bio-cyan: #00ffff;
+    --bio-yellow: #ffcc00;
+    --bio-green: #33ff33;
+    --bg-dark: #050a10;
+    --bg-gradient: linear-gradient(135deg, #0f1720 0%, #000000 100%);
+    --neon-cyan: #00ffff;
+    --neon-gold: #ffd700;
+    --neon-orange: #ff4500;
+    --neon-ice: #a5f2f3;
+    --neon-purple: #b026ff;
+    --tiffany-green: #0ABAB5; /* 鼠標引力燈顏色 */
+    
+    --current-theme: var(--neon-cyan); /* 動態變更的主題色 */
+    --glass-bg: rgba(20, 30, 40, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
 
-        * { box-sizing: border-box; }
-        
-        /* 電腦版隱藏原生鼠標 */
-        @media (min-width: 1025px) {
-            * { cursor: none; }
-        }
+* { box-sizing: border-box; cursor: none; /* 隱藏原生鼠標 */ }
+body {
+    margin: 0; padding: 0;
+    background: var(--bg-dark);
+    font-family: 'Segoe UI', 'Orbitron', sans-serif;
+    color: white; overflow: hidden; height: 100vh;
+}
 
-        body {
-            margin: 0; padding: 0;
-            background: var(--bg-dark);
-            font-family: 'Segoe UI', 'Orbitron', sans-serif;
-            color: white; overflow: hidden; height: 100vh;
-        }
+/* --- 1. 鼠標引力燈特效 (Tiffany Green) --- */
+#cursor-light {
+    position: fixed; top: 0; left: 0; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(10,186,181,0.15) 0%, transparent 70%);
+    transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+    transition: width 0.1s, height 0.1s;
+    mix-blend-mode: screen;
+}
+#cursor-ring {
+    position: fixed; top: 0; left: 0; width: 20px; height: 20px;
+    border: 2px solid var(--tiffany-green); border-radius: 50%;
+    transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+    box-shadow: 0 0 10px var(--tiffany-green);
+    transition: all 0.1s ease-out;
+}
+.click-active #cursor-ring {
+    transform: translate(-50%, -50%) scale(0.8);
+    background: var(--tiffany-green);
+    box-shadow: 0 0 30px var(--tiffany-green);
+}
 
-        /* --- 1. 鼠標引力燈特效 (Tiffany Green) --- */
-        #cursor-light {
-            position: fixed; top: 0; left: 0; width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(10,186,181,0.15) 0%, transparent 70%);
-            transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
-            mix-blend-mode: screen;
-        }
-        #cursor-ring {
-            position: fixed; top: 0; left: 0; width: 20px; height: 20px;
-            border: 2px solid var(--tiffany-green); border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
-            box-shadow: 0 0 10px var(--tiffany-green);
-        }
+/* --- 2. 生物辨識開場 (Biometric: 自動化三段式) --- */
+#bio-layer {
+    position: fixed; inset: 0; background: #000; z-index: 10000;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: background-color 0.5s ease;
+}
 
-        /* --- 2. 生物辨識開場 --- */
-        #bio-layer {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .bio-scanner-line {
-            position: absolute; width: 100%; height: 5px; 
-            background: var(--tiffany-green);
-            box-shadow: 0 0 20px var(--tiffany-green);
-            animation: scanDown 2s infinite linear;
-            z-index: 10001;
-        }
-        .bio-center { text-align: center; z-index: 10002; }
-        .fingerprint-scan {
-            width: 120px; height: 120px; border: 3px solid var(--tiffany-green);
-            border-radius: 50%; margin: 0 auto 20px; animation: spin 4s infinite linear;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .bio-text { font-family: 'Orbitron'; color: var(--tiffany-green); letter-spacing: 3px; }
-        
-        .scanning-active {
-            background-color: rgba(255, 204, 0, 0.1) !important;
-            animation: screenShake 0.1s infinite !important;
-        }
-        @keyframes screenShake {
-            0% { transform: translate(1px, 1px); }
-            50% { transform: translate(-2px, 1px); }
-            100% { transform: translate(1px, -1px); }
-        }
+/* 掃描線顏色跟隨當前狀態 */
+.bio-scanner-line {
+    position: absolute; width: 100%; height: 5px; 
+    background: var(--tiffany-green);
+    box-shadow: 0 0 20px var(--tiffany-green);
+    animation: scanDown 2s infinite linear;
+    z-index: 10001;
+    transition: background 0.3s, box-shadow 0.3s;
+}
 
-        /* 大門層 */
-        #lab-door-container { position: fixed; inset: 0; z-index: 9999; display: flex; pointer-events: none; }
-        .door-panel { width: 50%; height: 100%; background: #050a10; border: 1px solid rgba(255,255,255,0.1); }
-        .left-door { border-right: 4px solid #1a1a1a; }
-        .right-door { border-left: 4px solid #1a1a1a; }
+.bio-center { text-align: center; z-index: 10002; }
 
-        /* --- 3. 戰術導覽列 --- */
-        #tactical-nav {
-            position: fixed; top: 0; width: 100%; height: 80px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px; background: rgba(5,10,16,0.9); backdrop-filter: blur(5px); z-index: 500;
-        }
-        .nav-brand { font-family: 'Orbitron'; font-size: 24px; letter-spacing: 2px; }
-        .nav-menu { display: flex; gap: 30px; }
-        .nav-item { color: #888; font-size: 14px; text-decoration: none; transition: 0.5s; cursor: pointer; }
-        .nav-item.active { color: var(--current-theme); text-shadow: 0 0 10px var(--current-theme); }
+/* 核心掃描圈 */
+.fingerprint-scan {
+    width: 120px; height: 120px; 
+    border: 3px solid var(--tiffany-green);
+    border-radius: 50%; margin: 0 auto 20px;
+    animation: spin 4s infinite linear;
+    transition: all 0.3s ease;
+    display: flex; align-items: center; justify-content: center;
+}
 
-        /* --- 4. 核心 3D 實驗平台 (修復版) --- */
-        .lab-stage {
-            position: absolute; inset: 0; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 10;
-        }
-        .scene { width: 400px; height: 400px; perspective: 1200px; }
-        .cube {
-            width: 100%; height: 100%; position: absolute; transform-style: preserve-3d;
-            transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        .cube-face {
-            position: absolute; width: 400px; height: 400px;
-            background: var(--glass-bg); border: 1px solid var(--glass-border);
-            backdrop-filter: blur(10px); backface-visibility: hidden;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .cube-front  { transform: rotateY(0deg) translateZ(200px); }
-        .cube-right  { transform: rotateY(90deg) translateZ(200px); }
-        .cube-back   { transform: rotateY(180deg) translateZ(200px); }
-        .cube-left   { transform: rotateY(-90deg) translateZ(200px); }
+/* 狀態文字與 ID 資訊 */
+.bio-text { 
+    font-family: 'Orbitron', monospace; color: var(--tiffany-green); 
+    letter-spacing: 3px; font-size: 1.2rem; margin-bottom: 5px;
+    transition: color 0.3s;
+}
+.bio-id-info { 
+    font-family: monospace; color: rgba(255,255,255,0.5); 
+    font-size: 0.8rem; letter-spacing: 2px;
+}
 
-        /* --- CONTACT US 精密顯示修復 --- */
-        .contact-wrapper {
-            position: relative; width: 100%; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; transform: translateZ(2px);
-        }
-        .social-grid { display: flex; gap: 35px; justify-content: center; }
-        .social-hex {
-            position: relative; width: 65px; height: 65px; text-decoration: none;
-            transition: 0.4s; cursor: pointer;
-        }
-        .hex-inner {
-            width: 100%; height: 100%; border: 1px solid var(--current-theme);
-            background: rgba(var(--current-theme-rgb), 0.15);
-            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .hex-inner i { font-size: 24px; color: white; filter: drop-shadow(0 0 5px var(--current-theme)); }
-        .social-hex:hover { transform: translateY(-10px) scale(1.1); }
+/* --- 新增：黃色震動階段 --- */
+.scanning-active {
+    background-color: rgba(255, 204, 0, 0.1) !important;
+    animation: screenShake 0.1s infinite !important;
+}
+@keyframes screenShake {
+    0% { transform: translate(1px, 1px); }
+    25% { transform: translate(-1px, -2px); }
+    50% { transform: translate(-2px, 1px); }
+    100% { transform: translate(1px, -1px); }
+}
 
-        /* L型對焦框 */
-        .corner { position: absolute; width: 20px; height: 20px; border-color: var(--current-theme); }
-        .tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
-        .tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
-        .bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
-        .br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+/* --- 新增：數據流 (Data Stream) --- */
+.data-stream {
+    position: absolute; top: 10%; width: 150px; height: 80%;
+    font-family: monospace; font-size: 10px; color: var(--tiffany-green);
+    overflow: hidden; opacity: 0.3; pointer-events: none;
+}
+#data-stream-left { left: 5%; }
+#data-stream-right { right: 5%; }
 
-        /* --- 5. 機械臂系統 (依照你原始 CSS 結構) --- */
-        .robotic-arms-system {
-            position: fixed; inset: 0; pointer-events: none; z-index: 5;
-        }
-        .arm-wrapper {
-            position: absolute; bottom: -350px; width: 400px; height: 800px;
-            filter: drop-shadow(0 30px 50px rgba(0,0,0,1));
-        }
-        #arm-left-container { left: -120px; transform-origin: bottom left; transform: rotate(15deg); }
-        #arm-right-container { right: -120px; transform-origin: bottom right; transform: rotate(-15deg); }
-        
-        .arm-svg { width: 100%; height: 100%; overflow: visible; }
-        #left-shoulder-group, #right-shoulder-group { transform-origin: 150px 650px; }
-        #left-elbow-group, #right-elbow-group { transform-origin: 150px 350px; }
-        #left-claw-mechanism, #right-claw-mechanism { transform-origin: 150px 150px; }
+/* --- 新增：打勾確認圖標 --- */
+#auto-check-btn {
+    display: none; margin-top: 25px; padding: 10px 30px;
+    border: 1px solid #33ff33; color: #33ff33;
+    font-family: 'Orbitron', sans-serif; font-size: 14px;
+    background: rgba(51, 255, 51, 0.1);
+}
 
-        .energy-flow-path {
-            stroke-dasharray: 100; stroke-dashoffset: 0;
-            animation: flowAnimation 1.2s linear infinite;
-            stroke: var(--current-theme); filter: drop-shadow(0 0 8px var(--current-theme));
-        }
-        @keyframes flowAnimation { to { stroke-dashoffset: -200; } }
+/* --- 新增：實驗室大門層 --- */
+#lab-door-container {
+    position: fixed; inset: 0; z-index: 9999;
+    display: flex; pointer-events: none;
+}
+.door-panel {
+    width: 50%; height: 100%; background: #050a10;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+}
+.left-door { border-right: 4px solid #1a1a1a; }
+.right-door { border-left: 4px solid #1a1a1a; }
 
-        /* --- 6. 控制與優化 --- */
-        .controls { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); display: flex; gap: 30px; z-index: 999; }
-        .ctrl-btn {
-            background: transparent; border: 1px solid var(--current-theme); color: white;
-            padding: 10px 30px; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s;
-        }
-        .ctrl-btn:hover { background: var(--current-theme); color: black; }
+/* --- 3. 影片背景與掃描線 --- */
+.video-wrapper {
+    position: fixed; inset: 0; z-index: -1;
+    overflow: hidden;
+}
+#bg-video {
+    width: 100%; height: 100%; object-fit: cover;
+    opacity: 0.5; /* 降低透明度 */
+    transform: scale(1.05); /* 裁切邊緣浮水印 */
+}
+.scan-overlay {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+        0deg, transparent, transparent 1px, rgba(0, 255, 255, 0.03) 2px, rgba(0, 255, 255, 0.03) 3px
+    );
+    pointer-events: none;
+}
+.vignette-overlay {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle, transparent 40%, #050a10 100%);
+}
 
-        /* 手機版 RWD 優化 */
-        @media (max-width: 768px) {
-            .robotic-arms-system, #bio-layer, #lab-door-container, #cursor-light, #cursor-ring { display: none !important; }
-            .scene, .cube-face { width: 300px; height: 300px; }
-            .cube-front { transform: rotateY(0deg) translateZ(150px); }
-            .cube-right { transform: rotateY(90deg) translateZ(150px); }
-            .cube-back  { transform: rotateY(180deg) translateZ(150px); }
-            .cube-left  { transform: rotateY(-90deg) translateZ(150px); }
-            .nav-menu { display: none; }
-            .controls { bottom: 20px; }
-        }
+/* --- 4. 戰術導覽列 --- */
+#tactical-nav {
+    position: fixed; top: 0; width: 100%; height: 80px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px;
+    background: linear-gradient(to bottom, rgba(5,10,16,0.9), rgba(5,10,16,0));
+    backdrop-filter: blur(5px); z-index: 500;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.nav-brand { font-size: 24px; font-weight: bold; letter-spacing: 2px; color: white; }
+.nav-menu { display: flex; gap: 30px; }
+.nav-item {
+    text-decoration: none; color: #888; font-size: 14px; letter-spacing: 1px;
+    transition: color 0.5s, text-shadow 0.5s; position: relative;
+}
+.nav-item.active { color: var(--current-theme); text-shadow: 0 0 10px var(--current-theme); }
+.nav-progress-container {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1);
+}
+.nav-progress-bar {
+    height: 100%; width: 0%; background: var(--current-theme);
+    transition: width 0.5s ease, background 0.5s ease;
+    box-shadow: 0 0 10px var(--current-theme);
+}
+.id-tag { text-align: right; font-size: 10px; color: #555; border-left: 2px solid var(--current-theme); padding-left: 10px; }
+.id-tag .code { display: block; color: var(--current-theme); }
 
-        @keyframes scanDown { 0% { top: -10%; } 100% { top: 110%; } }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    </style>
+/* --- 5. 核心實驗平台 (3D Cube) --- */
+.lab-stage {
+    position: relative;
+    z-index: 100; /* 提升層級 */
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* 讓內容絕對垂直居中 */
+    pointer-events: none; /* 防止干擾背景特效 */
+}
+      .hero-title {
+    position: absolute;
+    top: 10%;           /* 距離頂部 10%，你可以根據喜好調整 */
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 100%;
+    z-index: 100;       /* 確保在背景之上 */
+    pointer-events: none; /* 讓滑鼠點擊可以穿過標題，點到後面的東西 */
+}
+.hero-title h1 {
+    font-size: 4rem; margin: 0; color: white; text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    position: relative; animation: glitch 3s infinite;
+}
+.subtitle { letter-spacing: 5px; color: var(--current-theme); font-size: 0.9rem; margin-top: 10px; }
+
+.scene { width: 400px; height: 400px; position: relative; margin-top: 50px; }
+.cube {
+    width: 100%; height: 100%; position: absolute;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+    /* --- 聯絡我們：精密 3D 隔離系統 --- */
+
+/* 1. 基礎面設定：確保背面不顯示內容，防止穿透 */
+.cube-face {
+    position: absolute; 
+    width: 400px; 
+    height: 400px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    
+    /* --- 核心修正：加入 Webkit 前綴確保所有瀏覽器都不閃爍 --- */
+    backface-visibility: hidden; 
+    -webkit-backface-visibility: hidden; 
+    
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    overflow: hidden;
+    
+    /* 增加這行：防止 3D 空間中的內容被錯誤裁切 */
+    transform-style: preserve-3d; 
+}
+/* 2. 專屬底部面樣式：加深背景以突顯圖標 */
+.cube-bottom {
+    transform: rotateX(-90deg) translateZ(200px);
+    background: rgba(5, 15, 25, 0.95) !important; /* 深色底，防止看到背景影片 */
+}
+
+/* 3. 內容包裝層：強制鎖定在玻璃表面 */
+.contact-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    /* 核心：將內容推離中心點 2px，徹底解決穿透與閃爍 */
+    transform: translateZ(2px); 
+}
+
+/* 4. 標題與網格佈局 */
+.module-title {
+    color: var(--current-theme);
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 4px;
+    font-size: 16px;
+    margin-bottom: 35px;
+    text-shadow: 0 0 15px var(--current-theme);
+}
+
+.social-grid {
+    display: flex !important;
+    flex-direction: row !important; /* 強制橫向，不准亂跳 */
+    gap: 35px;
+    justify-content: center;
+}
+
+/* 5. 六角形按鈕細節 */
+.social-hex {
+    position: relative;
+    width: 65px;
+    height: 65px;
+    text-decoration: none;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hex-inner {
+    width: 100%; height: 100%;
+    background: rgba(var(--current-theme-rgb, 0, 255, 255), 0.15);
+    border: 1px solid var(--current-theme);
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.tech-icon {
+    width: 32px !important;
+    height: 32px !important;
+    object-fit: contain;
+    /* 強制轉白並增加主題發光 */
+    filter: brightness(0) invert(1) drop-shadow(0 0 5px var(--current-theme)) !important;
+}
+
+/* 6. 懸停特效：標籤顯示 */
+.social-hex::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--current-theme);
+    opacity: 0;
+    transition: 0.3s;
+    letter-spacing: 1px;
+}
+
+.social-hex:hover { transform: translateY(-12px) scale(1.1); }
+.social-hex:hover::after { opacity: 1; }
+
+/* 滑鼠懸停顯示文字標籤 */
+.social-hex::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--current-theme);
+    opacity: 0;
+    transition: 0.3s;
+    white-space: nowrap;
+    letter-spacing: 1px;
+}
+
+.social-hex:hover::after {
+    opacity: 1;
+}
+/* L型對焦框 */
+.corner { position: absolute; width: 20px; height: 20px; border-color: var(--current-theme); transition: border-color 0.5s; }
+.tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+.tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
+.bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
+.br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+
+/* 確保所有面都有正確的 3D 坐標 */
+.cube-front  { transform: rotateY(0deg) translateZ(200px); }
+.cube-right  { transform: rotateY(90deg) translateZ(200px); }
+.cube-back   { transform: rotateY(180deg) translateZ(200px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
+.cube-top    { transform: rotateX(90deg) translateZ(200px); }
+.cube-bottom { transform: rotateX(-90deg) translateZ(200px); } /* 這是你缺失的關鍵 */
+
+/* 產品與紋理系統 */
+.product-content { text-align: center; transform: translateZ(20px); /* 內容浮起感 */ }
+.product-visual {
+    width: 200px; height: 200px; background: rgba(0,0,0,0.5);
+    margin: 0 auto 20px; position: relative;
+    border: 1px solid var(--current-theme);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    transition: transform 0.3s;
+}
+.product-visual:hover { transform: perspective(500px) rotateX(-5deg) rotateY(5deg) scale(1.05); }
+
+/* Pin 腳標註 (Hover 顯示) */
+.pin-overlays { opacity: 0; transition: opacity 0.3s; }
+.product-visual:hover .pin-overlays { opacity: 1; }
+.pin {
+    position: absolute; font-size: 10px; color: var(--current-theme);
+    background: rgba(0,0,0,0.8); padding: 2px 5px; border: 1px solid var(--current-theme);
+}
+.pin::before { /* 指示線 */
+    content: ''; position: absolute; width: 10px; height: 1px; background: var(--current-theme);
+    top: 50%; left: -10px;
+}
+
+/* --- 6. 紋理主題 (動態切換 Class) --- */
+.texture-circuit { background-image: radial-gradient(circle, transparent 20%, #000 120%), repeating-linear-gradient(45deg, rgba(0,255,255,0.05) 0px, transparent 2px, transparent 10px); }
+.texture-power   { background-image: repeating-linear-gradient(0deg, rgba(255,69,0,0.1) 0px, transparent 2px, transparent 20px); }
+.texture-track   { background-image: repeating-linear-gradient(90deg, rgba(255,215,0,0.1) 0px, rgba(255,215,0,0.1) 20px, transparent 20px, transparent 40px); }
+.texture-nebula  { background-image: url('data:image/svg+xml;base64,...'); /* 模擬星雲或用 CSS Gradient */ background: radial-gradient(circle at center, rgba(176,38,255,0.2), transparent); }
+
+/* --- 7. 機械臂 HUD 與控制 --- */
+.arm-hud {
+    position: absolute; bottom: 10%; width: 200px; padding: 10px;
+    border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.6);
+    font-size: 10px; color: #888; transition: all 0.3s;
+}
+.left-arm-hud { left: 5%; border-left: 3px solid #888; }
+.right-arm-hud { right: 5%; border-right: 3px solid #888; }
+
+/* 機械臂激活狀態 */
+.arm-active { border-color: var(--current-theme); color: var(--current-theme); box-shadow: 0 0 15px var(--current-theme); }
+.arm-active .target-reticle { animation: rotateReticle 1s infinite linear; border-color: var(--current-theme); }
+
+.controls { 
+    position: fixed; /* 改為 fixed 確保不隨立方體滾動 */
+    bottom: 50px; 
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex; 
+    gap: 30px; 
+    z-index: 9999; /* 提升到最高層級 */
+    pointer-events: auto; /* 強制啟動點擊監聽 */
+}
+.ctrl-btn {
+    background: transparent; border: 1px solid var(--current-theme); color: white;
+    padding: 10px 20px; font-family: inherit; transition: 0.3s;
+}
+.ctrl-btn:hover { background: var(--current-theme); color: black; }
+
+/* 動畫 Keyframes */
+@keyframes scanDown { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes rotateReticle { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes glitch {
+    0% { clip-path: inset(10% 0 80% 0); } 20% { clip-path: inset(80% 0 10% 0); }
+    40% { clip-path: inset(40% 0 50% 0); } 100% { clip-path: inset(0 0 0 0); }
+}
+    /* === 全新融合版：重裝甲機械臂系統 2.0 CSS === */
+
+/* 手臂總容器：確保在背景之上，UI 之下 */
+.robotic-arms-system {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none; /* 允許滑鼠穿透點擊到後面的按鈕 */
+    z-index: 5; /* 照你要求的設為 5，確保不擋住頂部導覽列與按鈕 */
+}
+
+/* 手臂外部容器：負責整體進出場位置 */
+.arm-wrapper {
+    position: absolute;
+    bottom: -350px; /* 初始藏在畫面下方更深處 */
+    width: 400px; 
+    height: 800px;
+    /* 強化你喜歡的重型陰影感 */
+    filter: drop-shadow(0 30px 50px rgba(0,0,0,1));
+    transition: filter 0.5s ease;
+}
+
+#arm-left-container {
+    left: -120px;
+    transform-origin: bottom left;
+    transform: rotate(15deg); /* 初始稍微斜放 */
+}
+
+#arm-right-container {
+    right: -120px;
+    transform-origin: bottom right;
+    transform: rotate(-15deg); /* 初始稍微斜放 */
+}
+
+/* SVG 本體：繼承你原本對金屬亮度的要求 */
+.advanced-arm-svg {
+    width: 100%; 
+    height: 100%;
+    overflow: visible;
+    filter: contrast(1.1) brightness(0.9); /* 保留你喜歡的對比度 */
+}
+
+/* --- 核心：多關節旋轉點定義 (這部分不能改，否則關節會脫臼) --- */
+#left-shoulder-group, #right-shoulder-group { transform-origin: 150px 650px; }
+#left-elbow-group, #right-elbow-group       { transform-origin: 150px 350px; }
+#left-claw-mechanism, #right-claw-mechanism { transform-origin: 150px 150px; }
+
+/* --- ★ 流水燈與能源線動畫 ★ --- */
+
+/* 模擬你原本的能源線呼吸感，但升級為「流動」效果 */
+.energy-flow-path {
+    stroke-dashoffset: 0;
+    animation: flowAnimation 1.2s linear infinite;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 8px var(--current-theme)); /* 隨主題變色 */
+}
+
+@keyframes flowAnimation {
+    to {
+        stroke-dashoffset: -100; /* 製造向上流動的能量感 */
+    }
+}
+
+/* 夾爪核心發光：保留你原本的 core-light 呼吸感 */
+.claw-core-light {
+    animation: energyPulse 2s infinite ease-in-out;
+    filter: blur(2px) brightness(1.5);
+}
+
+@keyframes energyPulse {
+    0%, 100% { opacity: 0.6; filter: brightness(1) blur(2px); }
+    50% { opacity: 1; filter: brightness(2) blur(3px); }
+}
+
+/* 機械臂活動時的亮度強化 */
+.arm-active-visual {
+    filter: brightness(1.3) drop-shadow(0 0 20px var(--current-theme));
+}
+
+/* 模擬油壓桿反光 */
+.arm-piston-highlight {
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+}
+      /* 讓 PNG 圖標適應六角形大小 */
+.tech-icon {
+    width: 32px;        /* 調整圖片寬度 */
+    height: 32px;       /* 調整圖片高度 */
+    object-fit: contain;
+    z-index: 2;
+    /* 如果你的 PNG 是黑色的，這行會讓它變白以符合科技感 */
+    filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    transition: all 0.3s ease;
+}
+
+/* 當滑鼠懸停時，讓圖片顏色與目前的燈光顏色同步 */
+.social-hex:hover .tech-icon {
+    transform: scale(1.1);
+    /* 讓圖標發出對應類別的光芒 */
+    filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--current-theme));
+}
+</style>
 </head>
 <body>
-
-    <div id="cursor-light"></div>
+    <div id="start-overlay" style="position:fixed; inset:0; background:#000; z-index:10005; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+    <div style="color:var(--tiffany-green); font-family:monospace; letter-spacing:5px; border:1px solid var(--tiffany-green); padding:20px 40px;">
+        CLICK TO INITIALIZE SYSTEM
+    </div>
+</div>
+  <div id="cursor-light"></div>
     <div id="cursor-ring"></div>
 
-    <div id="bio-layer">
-        <div class="bio-scanner-line"></div>
-        <div class="bio-center">
-            <div class="fingerprint-scan"><i class="fas fa-fingerprint" style="font-size: 50px; color: var(--tiffany-green);"></i></div>
-            <div class="bio-text">BIOMETRIC SCANNING</div>
-        </div>
+  <div id="bio-layer">
+    <div class="bio-scanner-line"></div>
+    
+    <div id="data-stream-left" class="data-stream"></div>
+    <div id="data-stream-right" class="data-stream"></div>
+    
+    <div class="bio-center">
+        <div class="fingerprint-scan" id="main-scanner"></div>
+        <div class="bio-text" id="bio-status-text">INITIALIZING BIO-SCAN...</div>
+        <div class="bio-id-info" id="bio-id-info">SUBJECT: UNKNOWN</div>
+        <div id="auto-check-btn"><span class="check-icon"></span>ACCESS GRANTED</div>
     </div>
+</div>
 
-    <div id="lab-door-container">
-        <div class="door-panel left-door"></div>
-        <div class="door-panel right-door"></div>
+<div id="lab-door-container">
+    <div class="door-panel left-door"></div>
+    <div class="door-panel right-door"></div>
+</div>
+
+    <div class="video-wrapper">
+        <video autoplay muted loop playsinline id="bg-video">
+            <source src="lab-bg.mp4" type="video/mp4">
+        </video>
+        <div class="scan-overlay"></div>
+        <div class="vignette-overlay"></div>
     </div>
 
     <nav id="tactical-nav">
-        <div class="nav-brand">MBC PRO</div>
+        <div class="nav-brand">MBC-PRO-SENSORS</div>
         <div class="nav-menu">
-            <div class="nav-item active" data-index="0">SENSOR</div>
-            <div class="nav-item" data-index="1">WRO</div>
-            <div class="nav-item" data-index="2">MOTOR</div>
-            <div class="nav-item" data-index="3">SPIKE</div>
-            <div class="nav-item" data-index="4">FREE</div>
-            <div class="nav-item" data-index="5">CONTACT</div>
+            <a href="#" class="nav-item active" data-cat="0" data-color="#00ffff">HOME</a>
+            <a href="#" class="nav-item" data-cat="1" data-color="#00ffff">MBC SENSOR</a>
+            <a href="#" class="nav-item" data-cat="2" data-color="#ffd700">WRO</a>
+            <a href="#" class="nav-item" data-cat="3" data-color="#ff4500">MOTOR</a>
+            <a href="#" class="nav-item" data-cat="4" data-color="#a5f2f3">SPIKE COURSE</a>
+            <a href="#" class="nav-item" data-cat="5" data-color="#b026ff">FREE</a>
+            <a href="#" class="nav-item" data-cat="6" data-color="#ffffff">CONTACT</a>
+        </div>
+        <div class="nav-progress-container">
+            <div class="nav-progress-bar"></div>
+        </div>
+        <div class="id-tag">
+            <span class="label">CHIEF ENGINEER</span>
+            <span class="code">ID: 031-SPARK</span>
         </div>
     </nav>
 
-    <div class="lab-stage">
-        <div class="scene">
-            <div class="cube" id="cube">
-                <div class="cube-face cube-front" id="face-content"></div>
-                <div class="cube-face cube-right"></div>
-                <div class="cube-face cube-back"></div>
-                <div class="cube-face cube-left"></div>
-            </div>
-        </div>
-    </div>
-
+   <main class="lab-stage">
     <div class="robotic-arms-system">
         <div id="arm-left-container" class="arm-wrapper">
-            <svg class="arm-svg" viewBox="0 0 300 800">
-                <g id="left-shoulder-group">
-                    <rect x="130" y="350" width="40" height="300" fill="#1a222a" />
-                    <path class="energy-flow-path" d="M150 650 L150 350" fill="none" stroke-width="4"/>
-                    <g id="left-elbow-group">
-                        <rect x="135" y="150" width="30" height="200" fill="#2a333c" />
-                        <g id="left-claw-mechanism">
-                            <path d="M130 150 L100 80" stroke="white" stroke-width="5" />
-                            <path d="M170 150 L200 80" stroke="white" stroke-width="5" />
-                            <circle cx="150" cy="150" r="15" fill="var(--current-theme)" />
-                        </g>
-                    </g>
+            <svg viewBox="0 0 400 800" class="advanced-arm-svg">
+                <defs>
+                    <linearGradient id="metal-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#2a2a2a"/>
+                        <stop offset="20%" stop-color="#555"/>
+                        <stop offset="50%" stop-color="#777"/> 
+                        <stop offset="80%" stop-color="#555"/>
+                        <stop offset="100%" stop-color="#2a2a2a"/>
+                    </linearGradient>
+                    <radialGradient id="joint-grad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#444"/>
+                        <stop offset="100%" stop-color="#111"/>
+                    </radialGradient>
+                    <filter id="glow-filter" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <g class="arm-base">
+                    <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad)" stroke="#111" stroke-width="2"/>
+                    <circle cx="70" cy="720" r="5" fill="#111"/><circle cx="70" cy="760" r="5" fill="#111"/>
+                    <circle cx="230" cy="720" r="5" fill="#111"/><circle cx="230" cy="760" r="5" fill="#111"/>
                 </g>
+                <g id="left-shoulder-group" class="rotatable-joint">
+                    <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
+                    <g id="left-upper-arm">
+                        <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad)" stroke="#111" stroke-width="2"/>
+                        <rect x="170" y="380" width="15" height="200" fill="#333" rx="5"/>
+                        <rect x="175" y="400" width="5" height="180" fill="#aaa"/>
+                        <path class="energy-flow-path" d="M150 650 L150 350" stroke="var(--current-theme)" stroke-width="6" fill="none" stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
+                        <g id="left-elbow-group" class="rotatable-joint">
+                            <circle cx="150" cy="350" r="30" fill="url(#joint-grad)" stroke="#222"/>
+                            <g id="left-forearm">
+                                <rect x="120" y="150" width="60" height="200" rx="10" fill="url(#metal-grad)" stroke="#111"/>
+                                <path class="energy-flow-path" d="M150 350 L150 180" stroke="var(--current-theme)" stroke-width="5" fill="none" stroke-dasharray="15, 8" filter="url(#glow-filter)"/>
+                                <circle cx="150" cy="150" r="25" fill="#222"/>
+                                <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
+                                <g id="left-claw-mechanism">
+                                    <path d="M130 130 L100 80 L140 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M170 130 L200 80 L160 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                </g>
+                            </g> 
+                        </g> 
+                    </g> 
+                </g> 
             </svg>
         </div>
+
         <div id="arm-right-container" class="arm-wrapper">
-            <svg class="arm-svg" viewBox="0 0 300 800">
-                <g id="right-shoulder-group">
-                    <rect x="130" y="350" width="40" height="300" fill="#1a222a" />
-                    <path class="energy-flow-path" d="M150 650 L150 350" fill="none" stroke-width="4"/>
-                    <g id="right-elbow-group">
-                        <rect x="135" y="150" width="30" height="200" fill="#2a333c" />
-                        <g id="right-claw-mechanism">
-                            <path d="M150 150 L150 70" stroke="white" stroke-width="4" />
-                            <path d="M130 150 L100 100" stroke="white" stroke-width="4" />
-                            <path d="M170 150 L200 100" stroke="white" stroke-width="4" />
-                            <circle cx="150" cy="150" r="15" fill="var(--current-theme)" />
+            <svg viewBox="0 0 400 800" class="advanced-arm-svg" style="transform: scaleX(-1);">
+                <defs>
+                    <linearGradient id="metal-grad-r" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#2a2a2a"/>
+                        <stop offset="50%" stop-color="#777"/>
+                        <stop offset="100%" stop-color="#2a2a2a"/>
+                    </linearGradient>
+                </defs>
+                <g class="arm-base">
+                    <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad-r)" stroke="#111" stroke-width="2"/>
+                </g>
+                <g id="right-shoulder-group" class="rotatable-joint">
+                    <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
+                    <g id="right-upper-arm">
+                        <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad-r)" stroke="#111"/>
+                        <path class="energy-flow-path" d="M150 650 L150 350" stroke="var(--current-theme)" stroke-width="6" fill="none" stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
+                        <g id="right-elbow-group" class="rotatable-joint">
+                            <circle cx="150" cy="350" r="30" fill="url(#joint-grad)"/>
+                            <g id="right-forearm">
+                                <rect x="125" y="150" width="50" height="200" rx="10" fill="url(#metal-grad-r)" stroke="#111"/>
+                                <path class="energy-flow-path" d="M150 350 L150 180" stroke="var(--current-theme)" stroke-width="5" fill="none" stroke-dasharray="15, 8" filter="url(#glow-filter)"/>
+                                <circle cx="150" cy="150" r="25" fill="#222"/>
+                                <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
+                                <g id="right-claw-mechanism">
+                                    <path d="M150 125 L150 60" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+                                    <path d="M130 135 L90 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+                                    <path d="M170 135 L210 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+                                </g>
+                            </g>
                         </g>
                     </g>
                 </g>
             </svg>
         </div>
     </div>
+
+    <div class="hero-title">
+        <h1 data-text="MBC-Pro-Sensors">MBC-Pro-Sensors</h1>
+        <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
+    </div>
+
+    <div class="scene">
+        <div class="cube" id="cube">
+            <div class="cube-face cube-front">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
+                <div class="product-content">
+                    <div class="product-visual" id="p-visual-1">
+                        <div class="sensor-mockup"></div>
+                        <div class="pin-overlays">
+                            <div class="pin" style="top:20%; left:10%;">VCC</div>
+                            <div class="pin" style="top:50%; left:90%;">GND</div>
+                            <div class="pin" style="top:80%; left:50%;">SIG</div>
+                        </div>
+                    </div>
+                    <h2 class="product-name">MBC LINE FOLLOWER</h2>
+                    <p class="product-desc">High-precision tracking sensor.</p>
+                </div>
+            </div>
+
+            <div class="cube-face cube-right">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
+            </div>
+
+            <div class="cube-face cube-back">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
+            </div>
+
+            <div class="cube-face cube-left">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
+            </div>
+
+            <div class="cube-face cube-top">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
+            </div>
+
+        <div class="cube-face cube-bottom">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    
+    <div class="contact-wrapper">
+        <h3 class="module-title">SECURE COMMS</h3>
+        <div class="social-grid">
+            
+            <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK">
+                <div class="hex-inner">
+                    <img src="path-to-your-fb-icon.png" class="tech-icon" alt="FB">
+                    <div class="hex-glow"></div>
+                </div>
+            </a>
+            
+            <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM">
+                <div class="hex-inner">
+                    <img src="path-to-your-ig-icon.png" class="tech-icon" alt="IG">
+                    <div class="hex-glow"></div>
+                </div>
+            </a>
+            
+            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com&su=【產品相關事項諮詢】" target="_blank" class="social-hex" data-label="G-MAIL">
+                <div class="hex-inner">
+                    <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
+                    <div class="hex-glow"></div>
+                </div>
+            </a>
+
+        </div>
+  </div> </div> </main> 
 
     <div class="controls">
-        <button class="ctrl-btn" id="prevBtn">PREV</button>
-        <button class="ctrl-btn" id="nextBtn">NEXT</button>
+        <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
+        <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
     </div>
 
-    <script>
-        const products = [
-            { name: "MBC SENSOR", color: "#00ffff", rgb: "0,255,255", icon: "fa-microchip" },
-            { name: "WRO TRACK", color: "#ffd700", rgb: "255,215,0", icon: "fa-trophy" },
-            { name: "TECHNIC MOTOR", color: "#ff4500", rgb: "255,69,0", icon: "fa-cogs" },
-            { name: "SPIKE COURSE", color: "#a5f2f3", rgb: "165,242,243", icon: "fa-graduation-cap" },
-            { name: "FREE DOMAIN", color: "#b026ff", rgb: "176,38,255", icon: "fa-rocket" },
-            { name: "CONTACT US", color: "#ffffff", rgb: "255,255,255", isContact: true }
-        ];
-
-        let currentIndex = 0;
-        let rotationY = 0;
-
-        // 初始化開場動畫 (電腦版)
-        if (window.innerWidth > 768) {
-            const tl = gsap.timeline();
-            tl.to("#bio-layer", { backgroundColor: "rgba(255,204,0,0.2)", duration: 1.5 })
-              .to("#bio-layer", { opacity: 0, duration: 1, delay: 1, onComplete: () => document.getElementById('bio-layer').remove() })
-              .to(".left-door", { x: "-100%", duration: 1.5, ease: "power4.inOut" }, "-=0.5")
-              .to(".right-door", { x: "100%", duration: 1.5, ease: "power4.inOut" }, "<");
-        }
-
-        function updateContent() {
-            const p = products[currentIndex];
-            document.documentElement.style.setProperty('--current-theme', p.color);
-            document.documentElement.style.setProperty('--current-theme-rgb', p.rgb);
-
-            const content = p.isContact ? `
-                <div class="contact-wrapper">
-                    <div class="module-title">CONTACT US</div>
-                    <div class="social-grid">
-                        <a class="social-hex"><div class="hex-inner"><i class="fab fa-facebook-f"></i></div></a>
-                        <a class="social-hex"><div class="hex-inner"><i class="fab fa-instagram"></i></div></a>
-                        <a class="social-hex"><div class="hex-inner"><i class="fas fa-envelope"></i></div></a>
-                    </div>
-                </div>
-            ` : `
-                <div class="content-wrapper">
-                    <i class="fas ${p.icon}" style="font-size:80px; color:var(--current-theme)"></i>
-                    <h2 style="font-family:Orbitron; margin-top:20px;">${p.name}</h2>
-                </div>
-            `;
-            
-            // 更新所有面確保旋轉時不穿幫
-            document.querySelectorAll('.cube-face').forEach(face => {
-                face.innerHTML = content + '<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>';
+    <audio id="sfx-door" src="door-open.mp3" preload="auto"></audio>
+    <audio id="sfx-access" src="access-granted.mp3" preload="auto"></audio>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- A. 啟動層邏輯 ---
+        const startOverlay = document.getElementById('start-overlay');
+        
+        if(startOverlay) {
+            startOverlay.addEventListener('click', () => {
+                gsap.to(startOverlay, { opacity: 0, duration: 0.5, onComplete: () => startOverlay.remove() });
+                startAutomatedBioScan(); 
             });
         }
 
-        function animateArm(side) {
-            if (window.innerWidth <= 768) return;
-            const container = side === 'left' ? "#arm-left-container" : "#arm-right-container";
-            gsap.to(container, { bottom: "0px", duration: 0.5, yoyo: true, repeat: 1, ease: "power2.out" });
-        }
+        // --- 0. 資料庫定義 ---
+        const categories = [
+            { name: "MBC LINE SENSOR", desc: "Precision Tracking / Cyan Core", color: "#00ffff", texture: "texture-circuit" },
+            { name: "MBC SENSOR PRO", desc: "Advanced Algorithm", color: "#00ffff", texture: "texture-circuit" }, 
+            { name: "WRO WORLD", desc: "Competition Standard / Gold Tier", color: "#ffd700", texture: "texture-track" },
+            { name: "TECHNIC MOTOR", desc: "High Torque / Power Red", color: "#ff4500", texture: "texture-power" },
+            { name: "SPIKE COURSE", desc: "Education / Ice Blue", color: "#a5f2f3", texture: "texture-circuit" },
+            { name: "FREE DOMAIN", desc: "Unlimited Potential / Void Purple", color: "#b026ff", texture: "texture-nebula" },
+            { name: "CONTACT US", desc: "Secure Channel", color: "#ffffff", texture: "texture-circuit" }
+        ];
 
-        document.getElementById('nextBtn').onclick = () => {
-            currentIndex = (currentIndex + 1) % products.length;
-            rotationY -= 90;
-            gsap.to("#cube", { rotationY: rotationY, duration: 1 });
-            animateArm('left');
-            updateContent();
-        };
+        let currentIndex = 0;
+        let currentRotation = 0;
+        const root = document.documentElement;
+        const cube = document.getElementById('cube');
+        const navItems = document.querySelectorAll('.nav-item');
+        const progressBar = document.querySelector('.nav-progress-bar');
 
-        document.getElementById('prevBtn').onclick = () => {
-            currentIndex = (currentIndex - 1 + products.length) % products.length;
-            rotationY += 90;
-            gsap.to("#cube", { rotationY: rotationY, duration: 1 });
-            animateArm('right');
-            updateContent();
-        };
+        // --- 1. 鼠標引力燈系統 ---
+        const cursorLight = document.getElementById('cursor-light');
+        const cursorRing = document.getElementById('cursor-ring');
+        document.addEventListener('mousemove', (e) => {
+            gsap.to(cursorLight, { x: e.clientX, y: e.clientY, duration: 0.1 });
+            gsap.to(cursorRing, { x: e.clientX, y: e.clientY, duration: 0.2 });
+        });
 
-        // 鼠標監聽
-        if (window.innerWidth > 1024) {
-            window.onmousemove = (e) => {
-                gsap.to("#cursor-light", { x: e.clientX, y: e.clientY, duration: 0.6 });
-                gsap.to("#cursor-ring", { x: e.clientX, y: e.clientY, duration: 0.1 });
+        // --- 2. 自動化生物辨識系統 ---
+        function startAutomatedBioScan() {
+            const bioLayer = document.getElementById('bio-layer');
+            const statusText = document.getElementById('bio-status-text');
+            const idInfo = document.getElementById('bio-id-info');
+            const mainScanner = document.getElementById('main-scanner');
+            const checkBtn = document.getElementById('auto-check-btn');
+            const leftStream = document.getElementById('data-stream-left');
+            const rightStream = document.getElementById('data-stream-right');
+            const scannerLine = document.querySelector('.bio-scanner-line');
+            const doorSfx = document.getElementById('sfx-door');
+            const accessSfx = document.getElementById('sfx-access');
+
+            const generateCode = () => {
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]{}_+=-*&^%$#@!Ω≈ç";
+                let str = "";
+                for(let i=0; i<20; i++) str += chars.charAt(Math.floor(Math.random() * chars.length)) + (i % 2 === 0 ? " " : "<br>");
+                return str;
             };
+
+            const streamInterval = setInterval(() => {
+                if(leftStream) leftStream.innerHTML = generateCode();
+                if(rightStream) rightStream.innerHTML = generateCode();
+            }, 80);
+
+            setTimeout(() => {
+                bioLayer.classList.add('scanning-active'); 
+                const yellow = "#ffcc00";
+                if(statusText) { statusText.innerText = "WARNING: ANALYZING BIOMETRIC PATTERNS..."; statusText.style.color = yellow; }
+                if(idInfo) { idInfo.innerText = "SENSING NEURAL FREQUENCY..."; idInfo.style.color = yellow; }
+                if(mainScanner) mainScanner.style.borderColor = yellow;
+                if(scannerLine) { scannerLine.style.background = yellow; scannerLine.style.boxShadow = `0 0 20px ${yellow}`; }
+
+                setTimeout(() => {
+                    bioLayer.classList.remove('scanning-active'); 
+                    bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
+                    const green = "#33ff33";
+                    if(statusText) { statusText.innerText = "IDENTITY VERIFIED: CHIEF ENGINEER"; statusText.style.color = green; }
+                    if(idInfo) { idInfo.innerText = "ACCESS GRANTED // WELCOME SPARK-031"; idInfo.style.color = green; }
+                    if(mainScanner) mainScanner.style.borderColor = green;
+                    if(scannerLine) { scannerLine.style.background = green; scannerLine.style.boxShadow = `0 0 20px ${green}`; }
+                    
+                    if(accessSfx) { accessSfx.volume = 0.6; accessSfx.play().catch(e => {}); }
+                    if(checkBtn) {
+                        checkBtn.style.display = "block";
+                        gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
+                    }
+
+                    setTimeout(() => {
+                        clearInterval(streamInterval); 
+                        gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
+                        if(doorSfx) { doorSfx.volume = 0.7; doorSfx.play().catch(e => {}); }
+
+                        gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
+                        gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
+                            const doorCont = document.getElementById('lab-door-container');
+                            if(doorCont) doorCont.remove();
+                            if(bioLayer) bioLayer.remove(); 
+                            initLab(); 
+                        }});
+                    }, 3000); 
+                }, 2500);
+            }, 1500);
         }
 
-        updateContent();
-    </script>
+        // --- 3. 核心功能 ---
+        function initLab() {
+            gsap.set(".lab-stage", { opacity: 1, display: "flex" });
+            gsap.from(".hero-title", { y: 50, opacity: 0, duration: 1, delay: 0.5 });
+            gsap.from(".cube", { 
+                scale: 0, rotationY: 180, duration: 1.5, ease: "back.out(1.7)",
+                onComplete: () => {
+                    updateSystem(0);
+                    gsap.from(".controls", { opacity: 0, y: 20, duration: 0.5 });
+                }
+            });
+        }
+
+       // --- 修改後的 updateSystem (增加紋理切換邏輯) ---
+function updateSystem(index) {
+    if (index < 0) index = categories.length - 1;
+    if (index >= categories.length) index = 0;
+    currentIndex = index;
+    const data = categories[currentIndex];
+
+    // 1. 更新主題顏色
+    root.style.setProperty('--current-theme', data.color);
+    
+    // 2. 更新紋理 (這部分是你原本缺少的)
+    // 移除舊紋理並加上新紋理類名
+    const cubeElement = document.getElementById('cube');
+    categories.forEach(cat => cubeElement.classList.remove(cat.texture));
+    cubeElement.classList.add(data.texture);
+
+    // 3. 更新導覽列狀態
+    navItems.forEach((item, i) => { item.classList.toggle('active', i === currentIndex); });
+    
+    // 4. 更新進度條
+    if(progressBar) {
+        const progress = ((currentIndex + 1) / categories.length) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+}
+
+        function rotateCube() {
+            if (cube) {
+                const data = categories[currentIndex];
+                let rotationGoal = { duration: 1.2, ease: "power2.out" };
+                if (data.name === "CONTACT US") {
+                    rotationGoal.rotationY = 0;
+                    rotationGoal.rotationX = -90;
+                } else {
+                    rotationGoal.rotationX = 0;
+                    rotationGoal.rotationY = currentRotation;
+                }
+                gsap.to(cube, rotationGoal);
+            }
+        }
+
+        // --- 4. 控制事件 ---
+        let currentArmTL = null;
+
+        function goNext() {
+            if(currentArmTL && currentArmTL.isActive()) return; 
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= categories.length) nextIndex = 0;
+            updateSystem(nextIndex); 
+            currentRotation -= 90;
+            rotateCube();
+            animateComplexArm('left');
+        }
+
+        function goPrev() {
+            if(currentArmTL && currentArmTL.isActive()) return;
+            let prevIndex = currentIndex - 1;
+            if (prevIndex < 0) prevIndex = categories.length - 1;
+            updateSystem(prevIndex);
+            currentRotation += 90;
+            rotateCube();
+            animateComplexArm('right');
+        }
+
+        function animateComplexArm(side) {
+            const container = side === 'left' ? '#arm-left-container' : '#arm-right-container';
+            const shoulder = side === 'left' ? '#left-shoulder-group' : '#right-shoulder-group';
+            const elbow = side === 'left' ? '#left-elbow-group' : '#right-elbow-group';
+            const claw = side === 'left' ? '#left-claw-mechanism' : '#right-claw-mechanism';
+            
+            let shoulderRot = side === 'left' ? 40 : 45;
+            let elbowRot = side === 'left' ? 50 : 60;
+            let containerMoveX = side === 'left' ? 80 : 40;
+            let containerMoveY = side === 'left' ? -350 : -480;
+
+            currentArmTL = gsap.timeline({ 
+                onComplete: () => { currentArmTL = null; },
+                defaults: { ease: "power2.inOut" } 
+            });
+
+            currentArmTL
+                .to(container, { y: containerMoveY, x: containerMoveX, duration: 0.6 })
+                .to(shoulder, { rotation: shoulderRot, duration: 0.5 }, "-=0.3")
+                .to(elbow, { rotation: elbowRot, duration: 0.5 }, "<")
+                .to(claw, { scale: 0.6, duration: 0.2 })
+                .to(claw, { scale: 1.0, duration: 0.3, ease: "back.out(2)" })
+                .to([shoulder, elbow], { rotation: 0, duration: 0.5, delay: 0.2 })
+                .to(container, { y: 0, x: 0, duration: 0.6 }, "-=0.2");
+        }
+
+        const nextBtn = document.querySelector('.next-btn');
+        const prevBtn = document.querySelector('.prev-btn');
+        if(nextBtn) nextBtn.addEventListener('click', goNext);
+        if(prevBtn) prevBtn.addEventListener('click', goPrev);
+
+        navItems.forEach((item, index) => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                if(currentArmTL && currentArmTL.isActive()) return;
+                if (index !== 6) {
+                    currentRotation -= (90 * (index - (currentIndex === 6 ? 0 : currentIndex)));
+                }
+                index > currentIndex ? animateComplexArm('left') : animateComplexArm('right');
+                updateSystem(index);
+                rotateCube();
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') goNext();
+            if (e.key === 'ArrowLeft') goPrev();
+        });
+
+        // --- 5. 感測器互動特效 (這是你剛才漏掉的部分) ---
+        document.addEventListener('mouseover', (e) => {
+            const visual = e.target.closest('.product-visual');
+            if (visual) {
+                // 自動標記核心發光點與針腳
+                gsap.to(visual.querySelectorAll('.pin'), { 
+                    opacity: 1, scale: 1, stagger: 0.05, duration: 0.4, ease: "back.out(2)" 
+                });
+                // 感測器圖像輕微移動
+                gsap.to(visual.querySelector('.sensor-mockup'), { 
+                    x: 10, y: -10, duration: 0.5, ease: "power2.out" 
+                });
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            const visual = e.target.closest('.product-visual');
+            if (visual) {
+                gsap.to(visual.querySelectorAll('.pin'), { opacity: 0, scale: 0.5, duration: 0.3 });
+                gsap.to(visual.querySelector('.sensor-mockup'), { x: 0, y: 0, duration: 0.5 });
+            }
+        });
+
+    });
+</script>
 </body>
 </html>
