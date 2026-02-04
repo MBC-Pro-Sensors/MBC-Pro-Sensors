@@ -532,7 +532,7 @@ body {
     animation: energyPulse 2s infinite ease-in-out;
     filter: blur(2px) brightness(1.5);
 }
-
+      
 @keyframes energyPulse {
     0%, 100% { opacity: 0.6; filter: brightness(1) blur(2px); }
     50% { opacity: 1; filter: brightness(2) blur(3px); }
@@ -564,6 +564,47 @@ body {
     transform: scale(1.1);
     /* 讓圖標發出對應類別的光芒 */
     filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--current-theme));
+}
+      /* --- 8. 手機版專屬響應式設定 (RWD) --- */
+@media screen and (max-width: 768px) {
+    /* 1. 隱藏開場生物辨識與大門動畫 */
+    #bio-layer, #lab-door-container, .scan-overlay {
+        display: none !important;
+    }
+
+    /* 2. 隱藏左右機械手臂 */
+    .robotic-arms-system, .arm-hud {
+        display: none !important;
+    }
+
+    /* 3. 調整方塊與場景大小 (手機版面較小，改為 300px) */
+    .scene, .cube-face {
+        width: 300px;
+        height: 300px;
+    }
+    
+    /* 核心修正：手機版的 Z 軸位移也要跟著縮小 (300/2 = 150px) */
+    .cube-front  { transform: rotateY(  0deg) translateZ(150px); }
+    .cube-right  { transform: rotateY( 90deg) translateZ(150px); }
+    .cube-back   { transform: rotateY(180deg) translateZ(150px); }
+    .cube-left   { transform: rotateY(-90deg) translateZ(150px); }
+
+    /* 4. 調整標題大小，避免手機版破版 */
+    .hero-title h1 {
+        font-size: 2.2rem;
+    }
+    
+    /* 5. 確保控制按鈕在最下方清晰可見 */
+    .controls {
+        bottom: 30px;
+        width: 90%;
+        justify-content: space-around;
+    }
+
+    /* 6. 允許手機版捲動（如果內容太長）*/
+    body {
+        overflow-y: auto;
+    }
 }
 </style>
 </head>
