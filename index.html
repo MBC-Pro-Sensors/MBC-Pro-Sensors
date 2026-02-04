@@ -188,7 +188,7 @@ body {
 .id-tag { text-align: right; font-size: 10px; color: #555; border-left: 2px solid var(--current-theme); padding-left: 10px; }
 .id-tag .code { display: block; color: var(--current-theme); }
 
-/* --- 5. 核心實驗平台 (3D Cube) --- */
+/* --- 5. 核心實驗平台 (3D Cube) 修正版：徹底鎖定中心 --- */
 .lab-stage {
     position: relative;
     z-index: 100;
@@ -198,8 +198,55 @@ body {
     align-items: center;      /* 垂直居中 */
     justify-content: center;   /* 水平居中 */
     pointer-events: none;
-    overflow: hidden;         /* 防止旋轉時出現捲軸 */
+    overflow: hidden;
 }
+
+/* 場景設定：使用 flex 強制歸位 */
+.scene { 
+    width: 400px; 
+    height: 400px; 
+    position: relative; /* 改回 relative 但配合父層 flex */
+    perspective: 1200px; 
+    pointer-events: auto;
+    /* 移除所有 margin-top 或 margin-left */
+    margin: 0 !important; 
+}
+
+/* 立方體主體：確保旋轉中心在絕對幾何中心 */
+.cube {
+    width: 400px; 
+    height: 400px; 
+    position: absolute;
+    top: 0; left: 0;
+    transform-style: preserve-3d;
+    /* 核心：確保旋轉軸心在 Z 軸 0 的位置 */
+    transform-origin: center center 0px; 
+    transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 基礎面設定：寬度 400px，位移 200px */
+.cube-face {
+    position: absolute; 
+    width: 400px; 
+    height: 400px;
+    top: 0; left: 0;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    backface-visibility: hidden; 
+    -webkit-backface-visibility: hidden;
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    overflow: hidden;
+    transform-style: preserve-3d;
+}
+
+/* --- 精確四面座標 --- */
+.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
+.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
+.cube-back   { transform: rotateY(180deg) translateZ(200px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
       .hero-title {
     position: absolute;
     top: 10%;           /* 距離頂部 10%，你可以根據喜好調整 */
@@ -216,50 +263,6 @@ body {
     position: relative; animation: glitch 3s infinite;
 }
 .subtitle { letter-spacing: 5px; color: var(--current-theme); font-size: 0.9rem; margin-top: 10px; }
-
-/* 場景設定：強制鎖定在畫面中心點 */
-.scene { 
-    width: 400px; 
-    height: 400px; 
-    position: absolute;      /* 改為 absolute 以配合父層置中 */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* 絕對置中關鍵 */
-    perspective: 1200px; 
-    pointer-events: auto;    /* 讓方塊內容可以被點擊 */
-}
-
-/* 立方體主體：確保旋轉軸心在幾何中心 */
-.cube {
-    width: 100%; 
-    height: 100%; 
-    position: absolute;
-    transform-style: preserve-3d;
-    transform-origin: center center 0; /* 鎖定 Z 軸旋轉中心 */
-    transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-/* 基礎面設定：修正 Z 軸位移量 (400px 的一半是 200px) */
-.cube-face {
-    position: absolute; 
-    width: 400px; 
-    height: 400px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(10px);
-    backface-visibility: hidden; 
-    -webkit-backface-visibility: hidden;
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-}
-
-/* --- 核心修正：四個面的空間定位 --- */
-/* 因為寬度 400px，所以 translateZ 必須是 200px */
-.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
-.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
-.cube-back   { transform: rotateY(180deg) translateZ(200px); }
-.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
     
     /* --- 核心修正：加入 Webkit 前綴確保所有瀏覽器都不閃爍 --- */
     backface-visibility: hidden; 
@@ -391,12 +394,6 @@ body {
 .tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
 .bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
 .br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
-
-/* 確保所有面都有正確的 3D 坐標 */
-.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
-.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
-.cube-back   { transform: rotateY(180deg) translateZ(200px); }
-.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
 
 /* 產品與紋理系統 */
 .product-content { text-align: center; transform: translateZ(20px); /* 內容浮起感 */ }
@@ -979,11 +976,14 @@ function updateSystem(index) {
 
 function rotateCube() {
     if (cube) {
-        // 核心修正：取消原本針對 CONTACT US 的 rotationX (-90deg) 邏輯
-        // 現在 4 個面都在同一水平線上，我們只管 rotationY
+        // 核心修正：除了 rotationY，我們強制把所有位移座標鎖死在 0
         gsap.to(cube, {
             rotationY: currentRotation,
             rotationX: 0, 
+            // 強制回歸中心點，防止因為動畫殘留導致的「離心亂跑」
+            x: 0,
+            y: 0,
+            z: 0,
             duration: 1.2,
             ease: "power2.out"
         });
