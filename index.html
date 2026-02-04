@@ -552,23 +552,6 @@ body {
     mix-blend-mode: overlay;
     opacity: 0.6;
 }
-      /* 讓 PNG 圖標適應六角形大小 */
-.tech-icon {
-    width: 32px;        /* 調整圖片寬度 */
-    height: 32px;       /* 調整圖片高度 */
-    object-fit: contain;
-    z-index: 2;
-    /* 如果你的 PNG 是黑色的，這行會讓它變白以符合科技感 */
-    filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.5));
-    transition: all 0.3s ease;
-}
-
-/* 當滑鼠懸停時，讓圖片顏色與目前的燈光顏色同步 */
-.social-hex:hover .tech-icon {
-    transform: scale(1.1);
-    /* 讓圖標發出對應類別的光芒 */
-    filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--current-theme));
-}
 /* --- 8. 手機版專屬響應式設定 (RWD) 終極整合版 --- */
 @media screen and (max-width: 768px) {
     /* 1. 保留原本的隱藏設定 */
