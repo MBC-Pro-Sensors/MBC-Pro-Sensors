@@ -563,45 +563,73 @@ body {
     /* 讓圖標發出對應類別的光芒 */
     filter: brightness(0) invert(1) drop-shadow(0 0 8px var(--current-theme));
 }
-      /* --- 8. 手機版專屬響應式設定 (RWD) --- */
+/* --- 8. 手機版專屬響應式設定 (RWD) 整合版 --- */
 @media screen and (max-width: 768px) {
-    /* 1. 隱藏開場生物辨識與大門動畫 */
-    #bio-layer, #lab-door-container, .scan-overlay {
-        display: none !important;
-    }
-
-    /* 2. 隱藏左右機械手臂 */
+    /* 1. 保留你原本的隱藏設定：隱藏開場生物辨識與大門動畫 */
+    #bio-layer, #lab-door-container, .scan-overlay,
     .robotic-arms-system, .arm-hud {
         display: none !important;
     }
 
-    /* 3. 調整方塊與場景大小 (手機版面較小，改為 300px) */
-    .scene, .cube-face {
-        width: 300px;
-        height: 300px;
+    /* 2. 標題文字修正：解決你截圖中文字斷行與重疊的問題 */
+    .hero-title {
+        top: 8%; /* 稍微往上提一點 */
     }
-    
-    /* 核心修正：手機版的 Z 軸位移也要跟著縮小 (300/2 = 150px) */
-    .cube-front  { transform: rotateY(  0deg) translateZ(150px); }
-    .cube-right  { transform: rotateY( 90deg) translateZ(150px); }
-    .cube-back   { transform: rotateY(180deg) translateZ(150px); }
-    .cube-left   { transform: rotateY(-90deg) translateZ(150px); }
-
-    /* 4. 調整標題大小，避免手機版破版 */
     .hero-title h1 {
-        font-size: 2.2rem;
+        font-size: 1.6rem !important; /* 從你原本的 2.2rem 調降，防止斷行 */
+        white-space: nowrap;          /* 強制不換行，確保公司名稱完整 */
+        letter-spacing: 2px;
     }
-    
-    /* 5. 確保控制按鈕在最下方清晰可見 */
-    .controls {
-        bottom: 30px;
-        width: 90%;
-        justify-content: space-around;
+    .hero-title .subtitle {
+        font-size: 0.7rem !important;
+        margin-top: 5px;
     }
 
-    /* 6. 允許手機版捲動（如果內容太長）*/
+    /* 3. 保留你原本的方塊縮放邏輯，但微調尺寸至 260px 確保不撞邊 */
+    .scene {
+        width: 260px;
+        height: 260px;
+        perspective: 1000px;
+        margin-top: 40px !important;
+    }
+    .cube, .cube-face {
+        width: 260px;
+        height: 260px;
+    }
+    
+    /* 核心位移修正：根據 260px 寬度重新計算中心點 (260/2 = 130) */
+    .cube-front  { transform: rotateY(  0deg) translateZ(130px); }
+    .cube-right  { transform: rotateY( 90deg) translateZ(130px); }
+    .cube-back   { transform: rotateY(180deg) translateZ(130px); }
+    .cube-left   { transform: rotateY(-90deg) translateZ(130px); }
+
+    /* 4. 產品圖片自適應：防止截圖中圖片超出方塊的情況 */
+    .product-visual img {
+        width: 160px !important; 
+        height: auto;
+    }
+    .product-name {
+        font-size: 1.1rem !important;
+    }
+
+    /* 5. 保留你原本的按鈕區域並美化 */
+    .controls {
+        bottom: 40px;
+        width: 95%;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+    .ctrl-btn {
+        padding: 12px 10px !important;
+        font-size: 10px !important;
+        flex: 1; /* 讓兩個按鈕等寬平分空間 */
+        white-space: nowrap;
+    }
+
+    /* 6. 保留你的捲動設定 */
     body {
-        overflow-y: auto;
+        overflow: hidden; /* 建議設為 hidden，防止方塊轉動時產生橫向捲軸 */
     }
 }
 </style>
