@@ -9,22 +9,23 @@
 
   <style>
   /* --- 0. 全局變數與基礎設定 --- */
+/* --- 修改後的 :root --- */
 :root {
-    --bio-cyan: #00ffff;
-    --bio-yellow: #ffcc00;
-    --bio-green: #33ff33;
+    /* 1. 核心底色與漸層 (保留原樣) */
     --bg-dark: #050a10;
     --bg-gradient: linear-gradient(135deg, #0f1720 0%, #000000 100%);
-    --neon-cyan: #00ffff;
-    --neon-gold: #ffd700;
-    --neon-orange: #ff4500;
-    --neon-ice: #a5f2f3;
-    --neon-purple: #b026ff;
-    --tiffany-green: #0ABAB5; /* 鼠標引力燈顏色 */
-    
-    --current-theme: var(--neon-cyan); /* 動態變更的主題色 */
     --glass-bg: rgba(20, 30, 40, 0.4);
     --glass-border: rgba(255, 255, 255, 0.1);
+    --tiffany-green: #0ABAB5; /* 鼠標引力燈顏色保持不變 */
+
+    /* 2. 重新定義的四個面主題色 (對應你的新要求) */
+    --color-home: #00d2ff;    /* 首頁：青藍色 */
+    --color-sensor: #ffff00;  /* 感應器：黃色 */
+    --color-motor: #ff4500;   /* 馬達：紅色 (沿用你原本的 neon-orange 較有科技感，或改純紅 #ff0000) */
+    --color-contact: #b026ff; /* 聯絡我們：紫色 */
+
+    /* 3. 動態變更的主題色 (初始化為首頁顏色) */
+    --current-theme: var(--color-home); 
 }
 
 * { box-sizing: border-box; cursor: none; /* 隱藏原生鼠標 */ }
@@ -246,6 +247,19 @@ body {
     /* 增加這行：防止 3D 空間中的內容被錯誤裁切 */
     transform-style: preserve-3d; 
 }
+      /* L型聚焦框：放在每個 cube-face 的四角 */
+.corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--current-theme); /* 自動跟隨主題變色 */
+    transition: 0.5s ease;
+}
+
+.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
 /* 2. 專屬底部面樣式：加深背景以突顯圖標 */
 .cube-bottom {
     transform: rotateX(-90deg) translateZ(200px);
@@ -353,12 +367,10 @@ body {
 .br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
 
 /* 確保所有面都有正確的 3D 坐標 */
-.cube-front  { transform: rotateY(0deg) translateZ(200px); }
-.cube-right  { transform: rotateY(90deg) translateZ(200px); }
+.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
+.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
 .cube-back   { transform: rotateY(180deg) translateZ(200px); }
 .cube-left   { transform: rotateY(-90deg) translateZ(200px); }
-.cube-top    { transform: rotateX(90deg) translateZ(200px); }
-.cube-bottom { transform: rotateX(-90deg) translateZ(200px); } /* 這是你缺失的關鍵 */
 
 /* 產品與紋理系統 */
 .product-content { text-align: center; transform: translateZ(20px); /* 內容浮起感 */ }
@@ -567,15 +579,12 @@ body {
 
     <nav id="tactical-nav">
         <div class="nav-brand">MBC-PRO-SENSORS</div>
-        <div class="nav-menu">
-            <a href="#" class="nav-item active" data-cat="0" data-color="#00ffff">HOME</a>
-            <a href="#" class="nav-item" data-cat="1" data-color="#00ffff">MBC SENSOR</a>
-            <a href="#" class="nav-item" data-cat="2" data-color="#ffd700">WRO</a>
-            <a href="#" class="nav-item" data-cat="3" data-color="#ff4500">MOTOR</a>
-            <a href="#" class="nav-item" data-cat="4" data-color="#a5f2f3">SPIKE COURSE</a>
-            <a href="#" class="nav-item" data-cat="5" data-color="#b026ff">FREE</a>
-            <a href="#" class="nav-item" data-cat="6" data-color="#ffffff">CONTACT</a>
-        </div>
+       <div class="nav-menu">
+    <a href="#" class="nav-item active" data-cat="0" data-color="var(--color-home)">HOME</a>
+    <a href="#" class="nav-item" data-cat="1" data-color="var(--color-sensor)">MBC SENSOR</a>
+    <a href="#" class="nav-item" data-cat="2" data-color="var(--color-motor)">MOTOR</a>
+    <a href="#" class="nav-item" data-cat="3" data-color="var(--color-contact)">CONTACT</a>
+</div>
         <div class="nav-progress-container">
             <div class="nav-progress-bar"></div>
         </div>
@@ -681,46 +690,43 @@ body {
         <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
     </div>
 
-    <div class="scene">
-        <div class="cube" id="cube">
-            <div class="cube-face cube-front">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-                <div class="product-content">
-                    <div class="product-visual" id="p-visual-1">
-                        <div class="sensor-mockup"></div>
-                        <div class="pin-overlays">
-                            <div class="pin" style="top:20%; left:10%;">VCC</div>
-                            <div class="pin" style="top:50%; left:90%;">GND</div>
-                            <div class="pin" style="top:80%; left:50%;">SIG</div>
-                        </div>
+   <div class="cube" id="cube">
+    <div class="cube-face cube-front">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="product-content">
+            <h2 class="product-name">LAB FACILITY</h2>
+            <p class="product-desc">READY FOR OPERATION</p>
+        </div>
+    </div>
+
+    <div class="cube-face cube-right">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="product-content">
+            <a href="sensor.html" target="_self" style="text-decoration: none; color: inherit;">
+                <div class="product-visual">
+                    <img src="sensor_main.png" alt="MBC Sensor" style="width: 250px; height: auto;">
                     </div>
-                    <h2 class="product-name">MBC LINE FOLLOWER</h2>
-                    <p class="product-desc">High-precision tracking sensor.</p>
+                <h2 class="product-name">MBC SENSOR</h2>
+            </a>
+        </div>
+    </div>
+
+    <div class="cube-face cube-back">
+        <div class="corner tl"></div><div class="corner tr"></div>
+        <div class="corner bl"></div><div class="corner br"></div>
+        <div class="product-content">
+            <a href="motor.html" target="_self" style="text-decoration: none; color: inherit;">
+                <div class="product-visual">
+                    <img src="motor_main.png" alt="Technic Motor" style="width: 250px; height: auto;">
                 </div>
-            </div>
+                <h2 class="product-name">TECHNIC MOTOR</h2>
+            </a>
+        </div>
+    </div>
 
-            <div class="cube-face cube-right">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-            </div>
-
-            <div class="cube-face cube-back">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-            </div>
-
-            <div class="cube-face cube-left">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-            </div>
-
-            <div class="cube-face cube-top">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-            </div>
-
-        <div class="cube-face cube-bottom">
+   <div class="cube-face cube-left">
     <div class="corner tl"></div><div class="corner tr"></div>
     <div class="corner bl"></div><div class="corner br"></div>
     
@@ -750,8 +756,10 @@ body {
             </a>
 
         </div>
-  </div> </div> </main> 
+    </div>
+</div>
 
+    </div>
     <div class="controls">
         <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
         <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
@@ -772,17 +780,13 @@ body {
             });
         }
 
-        // --- 0. 資料庫定義 ---
-        const categories = [
-            { name: "MBC LINE SENSOR", desc: "Precision Tracking / Cyan Core", color: "#00ffff", texture: "texture-circuit" },
-            { name: "MBC SENSOR PRO", desc: "Advanced Algorithm", color: "#00ffff", texture: "texture-circuit" }, 
-            { name: "WRO WORLD", desc: "Competition Standard / Gold Tier", color: "#ffd700", texture: "texture-track" },
-            { name: "TECHNIC MOTOR", desc: "High Torque / Power Red", color: "#ff4500", texture: "texture-power" },
-            { name: "SPIKE COURSE", desc: "Education / Ice Blue", color: "#a5f2f3", texture: "texture-circuit" },
-            { name: "FREE DOMAIN", desc: "Unlimited Potential / Void Purple", color: "#b026ff", texture: "texture-nebula" },
-            { name: "CONTACT US", desc: "Secure Channel", color: "#ffffff", texture: "texture-circuit" }
-        ];
-
+      // --- 0. 資料庫定義 (修正為 4 個選項) ---
+const categories = [
+    { name: "LAB FACILITY", desc: "READY FOR OPERATION", color: "var(--color-home)", texture: "texture-lab" },
+    { name: "MBC SENSOR", desc: "Precision Tracking / Cyan Core", color: "var(--color-sensor)", texture: "texture-circuit" }, 
+    { name: "TECHNIC MOTOR", desc: "High Torque / Power Red", color: "var(--color-motor)", texture: "texture-power" },
+    { name: "CONTACT US", desc: "Secure Channel", color: "var(--color-contact)", texture: "texture-circuit" }
+];
         let currentIndex = 0;
         let currentRotation = 0;
         const root = document.documentElement;
@@ -876,24 +880,28 @@ body {
             });
         }
 
-       // --- 修改後的 updateSystem (增加紋理切換邏輯) ---
 function updateSystem(index) {
+    // 防止索引超出範圍 (現在只有 4 個面，所以 index 是 0, 1, 2, 3)
     if (index < 0) index = categories.length - 1;
     if (index >= categories.length) index = 0;
+    
     currentIndex = index;
     const data = categories[currentIndex];
 
-    // 1. 更新主題顏色
+    // 1. 更新主題顏色 (使用 :root 定義的變數)
     root.style.setProperty('--current-theme', data.color);
     
-    // 2. 更新紋理 (這部分是你原本缺少的)
-    // 移除舊紋理並加上新紋理類名
+    // 2. 更新紋理
     const cubeElement = document.getElementById('cube');
-    categories.forEach(cat => cubeElement.classList.remove(cat.texture));
-    cubeElement.classList.add(data.texture);
+    if (cubeElement) {
+        categories.forEach(cat => cubeElement.classList.remove(cat.texture));
+        cubeElement.classList.add(data.texture);
+    }
 
     // 3. 更新導覽列狀態
-    navItems.forEach((item, i) => { item.classList.toggle('active', i === currentIndex); });
+    navItems.forEach((item, i) => { 
+        item.classList.toggle('active', i === currentIndex); 
+    });
     
     // 4. 更新進度條
     if(progressBar) {
@@ -902,20 +910,18 @@ function updateSystem(index) {
     }
 }
 
-        function rotateCube() {
-            if (cube) {
-                const data = categories[currentIndex];
-                let rotationGoal = { duration: 1.2, ease: "power2.out" };
-                if (data.name === "CONTACT US") {
-                    rotationGoal.rotationY = 0;
-                    rotationGoal.rotationX = -90;
-                } else {
-                    rotationGoal.rotationX = 0;
-                    rotationGoal.rotationY = currentRotation;
-                }
-                gsap.to(cube, rotationGoal);
-            }
-        }
+function rotateCube() {
+    if (cube) {
+        // 核心修正：取消原本針對 CONTACT US 的 rotationX (-90deg) 邏輯
+        // 現在 4 個面都在同一水平線上，我們只管 rotationY
+        gsap.to(cube, {
+            rotationY: currentRotation,
+            rotationX: 0, 
+            duration: 1.2,
+            ease: "power2.out"
+        });
+    }
+}
 
         // --- 4. 控制事件 ---
         let currentArmTL = null;
