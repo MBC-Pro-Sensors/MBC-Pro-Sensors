@@ -335,26 +335,29 @@ body {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* --- 修正圖標顯示並整合你的懸停效果 --- */
 
+/* 1. 解決白塊問題 */
+.tech-icon {
+    width: 35px !important; /* 縮小一點，更像科技 UI */
+    height: 35px !important;
+    object-fit: contain;
+    z-index: 5;
+    /* 移除強制的 brightness(0) invert(1)，讓圖片原始顏色出來 */
+    filter: drop-shadow(0 0 8px var(--current-theme)); 
+    transition: all 0.3s ease;
+    opacity: 1 !important;
+    display: block;
+}
+      /* 2. 修正六角形容器，確保不會吃掉圖標 */
 .hex-inner {
-    /* 確保背景是深色或半透明，才不會跟白色圖標撞色 */
-    background: rgba(0, 0, 0, 0.5) !important; 
+    background: rgba(0, 0, 0, 0.6) !important; /* 深色背景確保對比 */
+    width: 65px;
+    height: 65px;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--current-theme);
-    position: relative;
-    z-index: 2;
-}
-
-.tech-icon {
-    width: 60% !important;
-    height: 60% !important;
-    object-fit: contain;
-    /* 核心修正：確保圖片不會被背景遮住，並增加發光度 */
-    filter: drop-shadow(0 0 5px var(--current-theme));
-    pointer-events: none; /* 防止圖片干擾滑鼠懸停事件 */
 }
 
 /* --- 保留並優化你原本的懸停特效 --- */
@@ -616,7 +619,7 @@ body {
         width: 260px;
         height: 260px;
         perspective: 1000px;
-        margin-top: 40px !important;
+        margin-top: 120px !important;
     }
     .cube, .cube-face {
         width: 260px;
