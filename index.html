@@ -335,24 +335,34 @@ body {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* --- 修正圖標顯示並整合你的懸停效果 --- */
+
 .hex-inner {
-    width: 100%; height: 100%;
-    background: rgba(var(--current-theme-rgb, 0, 255, 255), 0.15);
+    /* 確保背景是深色或半透明，才不會跟白色圖標撞色 */
+    background: rgba(0, 0, 0, 0.5) !important; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid var(--current-theme);
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    display: flex; align-items: center; justify-content: center;
-    backdrop-filter: blur(5px);
+    position: relative;
+    z-index: 2;
 }
 
 .tech-icon {
-    width: 32px !important;
-    height: 32px !important;
+    width: 60% !important;
+    height: 60% !important;
     object-fit: contain;
-    /* 強制轉白並增加主題發光 */
-    filter: brightness(0) invert(1) drop-shadow(0 0 5px var(--current-theme)) !important;
+    /* 核心修正：確保圖片不會被背景遮住，並增加發光度 */
+    filter: drop-shadow(0 0 5px var(--current-theme));
+    pointer-events: none; /* 防止圖片干擾滑鼠懸停事件 */
 }
 
-/* 6. 懸停特效：標籤顯示 */
+/* --- 保留並優化你原本的懸停特效 --- */
+.social-hex {
+    position: relative;
+    transition: 0.3s ease;
+}
+
 .social-hex::after {
     content: attr(data-label);
     position: absolute;
@@ -365,29 +375,22 @@ body {
     opacity: 0;
     transition: 0.3s;
     letter-spacing: 1px;
+    white-space: nowrap; /* 確保標籤文字不換行 */
+    pointer-events: none;
 }
 
-.social-hex:hover { transform: translateY(-12px) scale(1.1); }
-.social-hex:hover::after { opacity: 1; }
-
-/* 滑鼠懸停顯示文字標籤 */
-.social-hex::after {
-    content: attr(data-label);
-    position: absolute;
-    bottom: -35px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 10px;
-    font-family: 'Orbitron', sans-serif;
-    color: var(--current-theme);
-    opacity: 0;
-    transition: 0.3s;
-    white-space: nowrap;
-    letter-spacing: 1px;
+/* 觸發你的原本特效 */
+.social-hex:hover { 
+    transform: translateY(-12px) scale(1.1); 
 }
 
-.social-hex:hover::after {
-    opacity: 1;
+.social-hex:hover::after { 
+    opacity: 1; 
+}
+
+/* 額外加強：懸停時讓圖標更亮 */
+.social-hex:hover .tech-icon {
+    filter: drop-shadow(0 0 12px var(--current-theme)) brightness(1.2);
 }
 /* L型對焦框 */
 .corner { position: absolute; width: 20px; height: 20px; border-color: var(--current-theme); transition: border-color 0.5s; }
