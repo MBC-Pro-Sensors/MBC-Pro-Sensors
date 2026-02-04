@@ -217,16 +217,28 @@ body {
 }
 .subtitle { letter-spacing: 5px; color: var(--current-theme); font-size: 0.9rem; margin-top: 10px; }
 
-.scene { width: 400px; height: 400px; position: relative; margin-top: 50px; }
-.cube {
-    width: 100%; height: 100%; position: absolute;
-    transform-style: preserve-3d;
-    transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+/* 1. 場景設定：保持 400px */
+.scene { 
+    width: 400px; 
+    height: 400px; 
+    position: relative; 
+    margin: 50px auto; /* 確保水平置中 */
+    perspective: 1200px; /* 增加 3D 深度感 */
 }
 
-    /* --- 聯絡我們：精密 3D 隔離系統 --- */
+/* 2. 立方體主體 */
+.cube {
+    width: 100%; 
+    height: 100%; 
+    position: absolute;
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* 確保初始位置在中心 */
+    left: 0;
+    top: 0;
+}
 
-/* 1. 基礎面設定：確保背面不顯示內容，防止穿透 */
+/* 3. 基礎面設定：修正 Z 軸位移量 */
 .cube-face {
     position: absolute; 
     width: 400px; 
@@ -234,6 +246,18 @@ body {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(10px);
+    backface-visibility: hidden; /* 重要：防止轉動時看到背面的倒影 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- 核心修正：四個面的空間定位 --- */
+/* 因為寬度 400px，所以 translateZ 必須是 200px */
+.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
+.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
+.cube-back   { transform: rotateY(180deg) translateZ(200px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
     
     /* --- 核心修正：加入 Webkit 前綴確保所有瀏覽器都不閃爍 --- */
     backface-visibility: hidden; 
