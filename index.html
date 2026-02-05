@@ -224,14 +224,13 @@ body {
     transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1); /* 更平滑的動力學曲線 */
 }
 
-/* 基礎面設定 */
 .cube-face {
     position: absolute; 
     width: 400px; 
     height: 400px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px); /* 增加磨砂質感 */
+    backdrop-filter: blur(12px); 
     -webkit-backdrop-filter: blur(12px);
     backface-visibility: hidden; 
     -webkit-backface-visibility: hidden;
@@ -239,6 +238,8 @@ body {
     align-items: center; 
     justify-content: center;
     overflow: hidden;
+    /* --- 新增：預設讓這一層不攔截點擊，交給裡面的內容處理 --- */
+    pointer-events: none; 
 }
 
 /* --- 精確四面位移 --- */
@@ -351,17 +352,21 @@ body {
     border: 1px solid var(--current-theme);
 }
 
-/* --- 保留並優化你原本的懸停特效 --- */
+/* --- 保留並優化你原本的懸停特效：精確修正版 --- */
 .social-hex {
     position: relative;
     width: 65px;
     height: 65px;
     text-decoration: none;
-    z-index: 101; /* 比 wrapper 更高 */
-    pointer-events: auto !important; /* 確保滑鼠能偵測到它 */
-    display: inline-block; /* 確保超連結有實體大小 */
+    z-index: 101; 
+    pointer-events: auto !important; /* 強制開啟點擊監聽 */
+    display: flex; /* 改成 flex 更好置中 */
+    align-items: center;
+    justify-content: center;
+    cursor: pointer !important; /* 強制滑鼠移上去變手指 */
+    /* 核心修正：讓它在 3D 空間中浮出 Face 表面，避免被 Face 的背景攔截 */
+    transform: translateZ(1px); 
 }
-
 
 .social-hex::after {
     content: attr(data-label);
