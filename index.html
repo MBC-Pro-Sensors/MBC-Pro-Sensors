@@ -507,6 +507,45 @@ body {
     mix-blend-mode: overlay;
     opacity: 0.6;
 }
+      /* 1. 確保電腦版基礎場景 */
+.scene { 
+    width: 400px; 
+    height: 400px; 
+    perspective: 1200px; 
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 120px auto 0; /* 這裡補回你需要的 margin-top */
+    pointer-events: none;
+    z-index: 10;
+}
+
+.cube {
+    width: 400px; 
+    height: 400px; 
+    position: relative;
+    transform-style: preserve-3d;
+    transform-origin: center center; 
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 2. 統一面的屬性，徹底解決「鏡像穿透」 */
+.cube-face {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    backface-visibility: hidden !important; /* 強制隱藏背面 */
+    -webkit-backface-visibility: hidden !important;
+    transform-style: preserve-3d;
+    pointer-events: none; /* 預設關閉 */
+}
+
+/* 3. 精確位移 (400/2=200) */
+.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
+.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
+.cube-back   { transform: rotateY(180deg) translateZ(200px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
 /* --- 8. 手機版專屬響應式設定 (RWD) 終極整合版 --- */
 @media screen and (max-width: 768px) {
     /* 1. 保留原本的隱藏設定 */
@@ -980,50 +1019,61 @@ function updateSystem(index) {
     currentIndex = index;
     const data = categories[currentIndex];
 
+    // 1. 更新主題顏色
     root.style.setProperty('--current-theme', data.color);
     
+    // 2. 更新立方體紋理
     const cubeElement = document.getElementById('cube');
     if (cubeElement) {
         categories.forEach(cat => cubeElement.classList.remove(cat.texture));
         cubeElement.classList.add(data.texture);
     }
 
+    // 3. 更新導覽列狀態
     navItems.forEach((item, i) => { 
         item.classList.toggle('active', i === currentIndex); 
     });
     
+    // 4. 更新進度條
     if(progressBar) {
         const progress = ((currentIndex + 1) / categories.length) * 100;
         progressBar.style.width = `${progress}%`;
     }
 
-    // --- 核心修正：不使用 autoAlpha，確保 3D 不消失 ---
+    // --- 核心修正：解決穿透與點擊衝突 ---
     const allFaces = document.querySelectorAll('.cube-face');
-    allFaces.forEach(face => {
-        // 1. 全部設為不可點擊
+    const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
+    
+    allFaces.forEach((face, i) => {
+        // A. 立即關閉所有面的點擊，防止旋轉途中點到錯誤連結
         face.style.pointerEvents = 'none';
-        // 2. 為了保險，讓非當前的面稍微變淡(0.1)，目前的保持 1
-        face.style.opacity = "1"; 
+
+        // B. 視覺清理：非當前的面強制設為透明 (解決截圖 156-158 的重疊問題)
+        // 使用 transition 讓消失更平滑，不影響 3D 結構
+        if (face.classList.contains(facesClass[currentIndex].replace('.', ''))) {
+            face.style.opacity = "1";
+        } else {
+            face.style.opacity = "0"; // 隱藏非當前顯示的面
+        }
     });
 
-    // 延遲開啟點擊，確保旋轉定位完成
+    // 5. 延遲開啟點擊，確保旋轉定位完成
     setTimeout(() => {
-        const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
         const targetFace = document.querySelector(facesClass[currentIndex]);
         
         if(targetFace) {
-            // 3. 唯獨開啟當前面的點擊權
+            // C. 唯獨開啟「正對使用者」那個面的點擊權
             targetFace.style.pointerEvents = 'auto';
             
-            // 4. 強制打通內部的所有連結
-            const links = targetFace.querySelectorAll('a, button');
+            // D. 確保內部的按鈕與連結可以被點擊
+            const links = targetFace.querySelectorAll('a, button, .social-hex');
             links.forEach(link => {
                 link.style.pointerEvents = 'auto';
                 link.style.cursor = 'pointer';
             });
-            console.log("已開啟點擊權限面：" + facesClass[currentIndex]);
+            console.log("系統鎖定成功，已開啟：" + facesClass[currentIndex]);
         }
-    }, 1200); 
+    }, 1200); // 配合 CSS 1.2s 的旋轉時間
 }
 function rotateCube() {
     if (cube) {
