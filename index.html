@@ -304,9 +304,10 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 50;
-    /* 核心：將內容推離中心點 2px，徹底解決穿透與閃爍 */
-    transform: translateZ(2px); 
+    z-index: 100; /* 提高層級 */
+    /* 核心修正：將內容推離中心點更多，防止 3D 渲染時被方塊面吃掉 */
+    transform: translateZ(50px); 
+    pointer-events: auto !important; /* 強制啟動點擊監聽 */
 }
 
 /* 4. 標題與網格佈局 */
@@ -325,16 +326,6 @@ body {
     gap: 35px;
     justify-content: center;
 }
-
-/* 5. 六角形按鈕細節 */
-.social-hex {
-    position: relative;
-    width: 65px;
-    height: 65px;
-    text-decoration: none;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
 
 /* 1. 解決白塊問題 */
 .tech-icon {
@@ -363,8 +354,14 @@ body {
 /* --- 保留並優化你原本的懸停特效 --- */
 .social-hex {
     position: relative;
-    transition: 0.3s ease;
+    width: 65px;
+    height: 65px;
+    text-decoration: none;
+    z-index: 101; /* 比 wrapper 更高 */
+    pointer-events: auto !important; /* 確保滑鼠能偵測到它 */
+    display: inline-block; /* 確保超連結有實體大小 */
 }
+
 
 .social-hex::after {
     content: attr(data-label);
