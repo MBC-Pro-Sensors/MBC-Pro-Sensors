@@ -756,11 +756,10 @@ body {
         </div>
     </nav>
 
-<main class="lab-stage" style="position: relative; width: 100%; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-
-    <div class="robotic-arms-system" style="position: absolute; inset: 0; pointer-events: none; z-index: 5;">
-        <div id="arm-left-container" class="arm-wrapper" style="position: absolute; left: 0; bottom: 0; width: 400px; height: 100%;">
-            <svg viewBox="0 0 400 800" class="advanced-arm-svg" style="width: 100%; height: 100%;">
+<main class="lab-stage" style="position: relative; overflow: hidden;">
+    <div class="robotic-arms-system" style="pointer-events: none; position: absolute; width: 100%; height: 100%; z-index: 1;">
+        <div id="arm-left-container" class="arm-wrapper">
+            <svg viewBox="0 0 400 800" class="advanced-arm-svg">
                 <defs>
                     <linearGradient id="metal-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stop-color="#2a2a2a"/><stop offset="20%" stop-color="#555"/><stop offset="50%" stop-color="#777"/><stop offset="80%" stop-color="#555"/><stop offset="100%" stop-color="#2a2a2a"/>
@@ -796,8 +795,8 @@ body {
             </svg>
         </div>
 
-        <div id="arm-right-container" class="arm-wrapper" style="position: absolute; right: 0; bottom: 0; width: 400px; height: 100%;">
-            <svg viewBox="0 0 400 800" class="advanced-arm-svg" style="width: 100%; height: 100%; transform: scaleX(-1);">
+        <div id="arm-right-container" class="arm-wrapper">
+            <svg viewBox="0 0 400 800" class="advanced-arm-svg" style="transform: scaleX(-1);">
                 <defs>
                     <linearGradient id="metal-grad-r" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stop-color="#2a2a2a"/><stop offset="50%" stop-color="#777"/><stop offset="100%" stop-color="#2a2a2a"/>
@@ -829,45 +828,68 @@ body {
         </div>
     </div>
 
-    <div class="hero-title" style="position: absolute; top: 15%; pointer-events: none; z-index: 2;">
-        <h1 data-text="MBC-Pro-Sensors" style="margin: 0;">MBC-Pro-Sensors</h1>
+    <div class="hero-title" style="pointer-events: none; position: relative; z-index: 2;">
+        <h1 data-text="MBC-Pro-Sensors">MBC-Pro-Sensors</h1>
         <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
     </div>
 
-    <div class="scene" style="position: relative; z-index: 100; width: 400px; height: 400px; pointer-events: auto;">
-        <div class="cube" id="cube" style="transform-style: preserve-3d; pointer-events: none;"> <div class="cube-face cube-front" style="pointer-events: auto;">
+    <div class="scene" style="pointer-events: auto; position: relative; z-index: 10;">
+        <div class="cube" id="cube">
+            <div class="cube-face cube-front">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
                 <div class="product-content">
                     <h2 class="product-name">LAB FACILITY</h2>
+                    <p class="product-desc">READY FOR OPERATION</p>
                 </div>
             </div>
 
-            <div class="cube-face cube-right" style="pointer-events: auto;">
+            <div class="cube-face cube-right">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
                 <div class="product-content">
-                    <a href="sensor.html" target="_self" style="display: block; width: 100%; height: 100%; pointer-events: auto;">
-                         <img src="sensor_main.png" style="width: 250px;">
-                         <h2 class="product-name">MBC SENSOR</h2>
+                    <a href="sensor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="product-visual">
+                            <img src="sensor_main.png" alt="MBC Sensor" style="width: 250px; height: auto;">
+                        </div>
+                        <h2 class="product-name">MBC SENSOR</h2>
                     </a>
                 </div>
             </div>
 
-            <div class="cube-face cube-back" style="pointer-events: auto;">
+            <div class="cube-face cube-back">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
                 <div class="product-content">
-                    <a href="motor.html" target="_self" style="display: block; width: 100%; height: 100%; pointer-events: auto;">
-                         <img src="motor_main.png" style="width: 250px;">
-                         <h2 class="product-name">TECHNIC MOTOR</h2>
+                    <a href="motor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="product-visual">
+                            <img src="motor_main.png" alt="Technic Motor" style="width: 250px; height: auto;">
+                        </div>
+                        <h2 class="product-name">TECHNIC MOTOR</h2>
                     </a>
                 </div>
             </div>
 
-            <div class="cube-face cube-left" style="pointer-events: auto;">
+            <div class="cube-face cube-left">
+                <div class="corner tl"></div><div class="corner tr"></div>
+                <div class="corner bl"></div><div class="corner br"></div>
                 <div class="contact-wrapper">
                     <h3 class="module-title">SECURE COMMS</h3>
                     <div class="social-grid">
-                        <a href="你的FB連結" target="_blank" class="social-hex" style="pointer-events: auto;">
-                            <div class="hex-inner">FB</div>
+                        <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK" style="pointer-events: auto;">
+                            <div class="hex-inner">
+                                <img src="path-to-your-fb-icon.png" class="tech-icon" alt="FB">
+                            </div>
                         </a>
-                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com" target="_blank" class="social-hex" style="pointer-events: auto;">
-                            <div class="hex-inner">MAIL</div>
+                        <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM" style="pointer-events: auto;">
+                            <div class="hex-inner">
+                                <img src="path-to-your-ig-icon.png" class="tech-icon" alt="IG">
+                            </div>
+                        </a>
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com" target="_blank" class="social-hex" data-label="G-MAIL" style="pointer-events: auto;">
+                            <div class="hex-inner">
+                                <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
+                            </div>
                         </a>
                     </div>
                 </div>
@@ -875,11 +897,10 @@ body {
         </div>
     </div>
 
-    <div class="controls" style="position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); z-index: 200; display: flex; gap: 20px;">
-        <button class="ctrl-btn prev-btn" style="pointer-events: auto;">❮ PREV</button>
-        <button class="ctrl-btn next-btn" style="pointer-events: auto;">NEXT ❯</button>
+    <div class="controls" style="pointer-events: auto; position: relative; z-index: 20;">
+        <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
+        <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
     </div>
-
 </main>
     
 <script>
