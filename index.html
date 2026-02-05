@@ -971,33 +971,45 @@ const categories = [
         }
 
 function updateSystem(index) {
-    // 防止索引超出範圍 (現在只有 4 個面，所以 index 是 0, 1, 2, 3)
     if (index < 0) index = categories.length - 1;
     if (index >= categories.length) index = 0;
     
     currentIndex = index;
     const data = categories[currentIndex];
 
-    // 1. 更新主題顏色 (使用 :root 定義的變數)
     root.style.setProperty('--current-theme', data.color);
     
-    // 2. 更新紋理
     const cubeElement = document.getElementById('cube');
     if (cubeElement) {
         categories.forEach(cat => cubeElement.classList.remove(cat.texture));
         cubeElement.classList.add(data.texture);
     }
 
-    // 3. 更新導覽列狀態
     navItems.forEach((item, i) => { 
         item.classList.toggle('active', i === currentIndex); 
     });
     
-    // 4. 更新進度條
     if(progressBar) {
         const progress = ((currentIndex + 1) / categories.length) * 100;
         progressBar.style.width = `${progress}%`;
     }
+
+    // --- 關鍵新增：強制重新啟動當前面的點擊權 ---
+    // 先關閉所有面的攔截
+    document.querySelectorAll('.cube-face').forEach(face => {
+        face.style.pointerEvents = 'none';
+    });
+    // 延遲一點點時間（等動畫快結束時），開啟目標面的 wrapper 點擊
+    setTimeout(() => {
+        const faces = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
+        // 根據 currentIndex 找到當前對準玩家的那一面
+        const activeFaceSelector = faces[currentIndex % 4];
+        const activeFace = document.querySelector(activeFaceSelector);
+        if(activeFace) {
+            const wrapper = activeFace.querySelector('.contact-wrapper') || activeFace.querySelector('.product-content');
+            if(wrapper) wrapper.style.pointerEvents = 'auto';
+        }
+    }, 1000);
 }
 
 function rotateCube() {
@@ -1070,23 +1082,27 @@ function rotateCube() {
         if(nextBtn) nextBtn.addEventListener('click', goNext);
         if(prevBtn) prevBtn.addEventListener('click', goPrev);
 
-        navItems.forEach((item, index) => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                if(currentArmTL && currentArmTL.isActive()) return;
-                if (index !== 6) {
-                    currentRotation -= (90 * (index - (currentIndex === 6 ? 0 : currentIndex)));
-                }
-                index > currentIndex ? animateComplexArm('left') : animateComplexArm('right');
-                updateSystem(index);
-                rotateCube();
-            });
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') goNext();
-            if (e.key === 'ArrowLeft') goPrev();
-        });
+       /* --- 修正後的導覽列點擊邏輯：精確對應 4 個面 --- */
+navItems.forEach((item, index) => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // 1. 如果機械臂正在動，則不執行切換，避免動畫衝突
+        if(currentArmTL && currentArmTL.isActive()) return;
+        
+        // 2. 計算旋轉差值：目前的 index 減掉點擊的 index
+        // 不再需要判斷 index !== 6，直接用 90度 * 差值
+        const diff = index - currentIndex;
+        currentRotation -= (90 * diff);
+        
+        // 3. 根據方向決定哪支機械臂動
+        index > currentIndex ? animateComplexArm('left') : animateComplexArm('right');
+        
+        // 4. 更新系統狀態與旋轉方塊
+        updateSystem(index);
+        rotateCube();
+    });
+});
 
         // --- 5. 感測器互動特效 (這是你剛才漏掉的部分) ---
         document.addEventListener('mouseover', (e) => {
