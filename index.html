@@ -530,22 +530,6 @@ body {
     transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 2. 統一面的屬性，徹底解決「鏡像穿透」 */
-.cube-face {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    backface-visibility: hidden !important; /* 強制隱藏背面 */
-    -webkit-backface-visibility: hidden !important;
-    transform-style: preserve-3d;
-    pointer-events: none; /* 預設關閉 */
-}
-
-/* 3. 精確位移 (400/2=200) */
-.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
-.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
-.cube-back   { transform: rotateY(180deg) translateZ(200px); }
-.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
 /* --- 8. 手機版專屬響應式設定 (RWD) 終極整合版 --- */
 @media screen and (max-width: 768px) {
     /* 1. 保留原本的隱藏設定 */
@@ -615,31 +599,7 @@ body {
     transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
     pointer-events: none; /* 由內部的面來控制點擊 */
 }
-
-/* 統一所有的面設定 */
-.cube-face {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    backface-visibility: visible; /* 讓 3D 感更強 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* 預設禁止點擊，由 JS 在 updateSystem 裡動態開啟 */
-    pointer-events: none; 
-}
-
-/* --- 精確四面位移：(400 / 2 = 200) --- */
-.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
-.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
-.cube-back   { transform: rotateY(180deg) translateZ(200px); }
-.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
-
-/* 針對內容容器的點擊補強 */
-.product-content, .contact-wrapper {
-    pointer-events: auto; /* 只有內容區塊才恢復點擊 */
-}
-
+    
     /* 解決截圖中圖片被裁切的問題：將內容垂直置中 */
     .product-content {
         padding: 10px;
@@ -682,65 +642,67 @@ body {
         overflow: hidden; 
     }
 }
-/* --- 修正後的 .cube-face --- */
+      /* --- 1. 重新建立 3D 面的基本物理屬性 --- */
 .cube-face {
-    position: absolute; 
-    width: 400px; 
+    position: absolute;
+    width: 400px;
     height: 400px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px); 
+    backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    backface-visibility: hidden; 
-    -webkit-backface-visibility: hidden;
-    display: flex; 
-    align-items: center; 
+    
+    /* 核心 3D 設定 */
+    backface-visibility: hidden !important; 
+    -webkit-backface-visibility: hidden !important;
+    display: flex;
+    align-items: center;
     justify-content: center;
     overflow: hidden;
-    transform-style: preserve-3d; /* 確保內部子元素能做 3D 位移 */
-    /* 核心關鍵：徹底關閉玻璃面的攔截 */
-    pointer-events: none !important; 
+    transform-style: preserve-3d;
+    
+    /* 點擊關鍵：玻璃面本身不攔截，讓滑鼠直接穿透到裡面的內容 */
+    pointer-events: none; 
 }
-      /* --- 1. 強制按鈕位置鎖死，防止亂飛 --- */
+
+/* --- 2. 精確四面位移：(立方體寬 400px / 2 = 200px) --- */
+.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
+.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
+.cube-back   { transform: rotateY(180deg) translateZ(200px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
+
+/* --- 3. 點擊權限鎖定：解決 G-MAIL 點不到的死穴 --- */
+
+/* 確保按鈕在最頂層且可點擊 */
 .controls {
-    position: fixed !important; /* 強制覆蓋所有可能的定位 */
-    bottom: 40px !important;
+    position: fixed !important;
+    bottom: 50px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    width: auto !important;
-    height: auto !important;
-    z-index: 999999 !important; /* 提到最高層級 */
+    z-index: 999999 !important;
     pointer-events: auto !important;
-    margin: 0 !important; /* 清除任何可能扯動位置的 margin */
 }
 
-/* --- 2. 解決點擊不到 G-MAIL 的問題 --- */
-/* 確保場景不攔截，但內容必須強制開啟點擊 */
-.scene, .cube {
-    pointer-events: none !important;
-}
-
-/* 針對聯絡面（左面）的點擊穿透修正 */
-.cube-left {
-    pointer-events: auto !important; /* 聯絡面必須開啟點擊，否則內容點不到 */
-}
-
-.contact-wrapper, .social-hex, .social-hex * {
+/* 強制開啟所有產品內容、連結、按鈕的感應權限 */
+.product-content, 
+.contact-wrapper, 
+.social-hex, 
+.social-hex *, 
+.ctrl-btn {
     pointer-events: auto !important;
     cursor: pointer !important;
 }
 
-/* 修正 3D 穿透導致的點擊偏移：讓內容更貼近視窗 */
-.contact-wrapper {
-    transform: translateZ(100px) !important; 
+/* 特別針對聯絡面 (G-MAIL 所在面) 的 3D 層級補強 */
+.cube-left .contact-wrapper {
+    /* 讓內容在 3D 空間中稍微「浮」出玻璃面 1px，避免被玻璃層物理遮擋 */
+    transform: translateZ(1px); 
 }
 
-/* --- 3. 修正截圖 160 中手臂可能遮擋的問題 --- */
+/* --- 4. 確保手臂隱形牆不干擾 --- */
 .robotic-arms-system {
-    z-index: 0 !important; /* 確保手臂永遠在所有 UI 下方 */
+    z-index: 0 !important;
+    pointer-events: none !important;
 }
 </style>
 </head>
