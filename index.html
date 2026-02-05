@@ -994,34 +994,34 @@ function updateSystem(index) {
         progressBar.style.width = `${progress}%`;
     }
 
-    // --- 核心修正：強制執行「物理空間清理」 ---
+    // --- 核心修正：不使用 autoAlpha，確保 3D 不消失 ---
     const allFaces = document.querySelectorAll('.cube-face');
     allFaces.forEach(face => {
-        // 先將所有面隱藏並禁止點擊
-        gsap.set(face, { autoAlpha: 0, pointerEvents: 'none' });
+        // 1. 全部設為不可點擊
+        face.style.pointerEvents = 'none';
+        // 2. 為了保險，讓非當前的面稍微變淡(0.1)，目前的保持 1
+        face.style.opacity = "1"; 
     });
 
-    // 延遲執行，確保在方塊旋轉到一半後才顯現新的一面，防止穿模
+    // 延遲開啟點擊，確保旋轉定位完成
     setTimeout(() => {
-        // 根據 currentIndex 決定哪一面該出現 (這對應 HTML 的順序)
         const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
         const targetFace = document.querySelector(facesClass[currentIndex]);
         
         if(targetFace) {
-            // 只開啟這一面的顯示與點擊權
-            gsap.set(targetFace, { autoAlpha: 1, pointerEvents: 'auto' });
+            // 3. 唯獨開啟當前面的點擊權
+            targetFace.style.pointerEvents = 'auto';
             
-            // 針對內容容器加強點擊開啟
-            const wrapper = targetFace.querySelector('.contact-wrapper') || targetFace.querySelector('.product-content');
-            if(wrapper) {
-                wrapper.style.pointerEvents = 'auto';
-                // 針對聯絡資訊內的所有連結強制開啟
-                wrapper.querySelectorAll('a').forEach(link => link.style.pointerEvents = 'auto');
-            }
+            // 4. 強制打通內部的所有連結
+            const links = targetFace.querySelectorAll('a, button');
+            links.forEach(link => {
+                link.style.pointerEvents = 'auto';
+                link.style.cursor = 'pointer';
+            });
+            console.log("已開啟點擊權限面：" + facesClass[currentIndex]);
         }
-    }, 600); 
+    }, 1200); 
 }
-
 function rotateCube() {
     if (cube) {
         gsap.to(cube, {
