@@ -659,6 +659,31 @@ body {
         overflow: hidden; 
     }
 }
+      /* 1. 強制讓 3D 方塊面不攔截滑鼠，只讓裡面的按鈕攔截 */
+.cube-face {
+    pointer-events: none !important;
+}
+
+/* 2. 讓聯絡我們與產品內容強制重新獲得點擊權 */
+.contact-wrapper, .product-content {
+    pointer-events: auto !important;
+    /* 將內容推離玻璃面，避免 3D 渲染層級衝突 */
+    transform: translateZ(50px) !important; 
+}
+
+/* 3. 確保圖標連結本身是可點擊的實體 */
+.social-hex {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+    z-index: 999;
+}
+
+/* 4. 解決 404 破圖導致的佈局崩潰（這會影響點擊判定） */
+.tech-icon, .product-visual img {
+    min-width: 1px;
+    min-height: 1px;
+}
 </style>
 </head>
 <body>
