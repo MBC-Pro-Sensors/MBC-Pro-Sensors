@@ -701,6 +701,47 @@ body {
     /* 核心關鍵：徹底關閉玻璃面的攔截 */
     pointer-events: none !important; 
 }
+      /* --- 1. 強制按鈕位置鎖死，防止亂飛 --- */
+.controls {
+    position: fixed !important; /* 強制覆蓋所有可能的定位 */
+    bottom: 40px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    width: auto !important;
+    height: auto !important;
+    z-index: 999999 !important; /* 提到最高層級 */
+    pointer-events: auto !important;
+    margin: 0 !important; /* 清除任何可能扯動位置的 margin */
+}
+
+/* --- 2. 解決點擊不到 G-MAIL 的問題 --- */
+/* 確保場景不攔截，但內容必須強制開啟點擊 */
+.scene, .cube {
+    pointer-events: none !important;
+}
+
+/* 針對聯絡面（左面）的點擊穿透修正 */
+.cube-left {
+    pointer-events: auto !important; /* 聯絡面必須開啟點擊，否則內容點不到 */
+}
+
+.contact-wrapper, .social-hex, .social-hex * {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+/* 修正 3D 穿透導致的點擊偏移：讓內容更貼近視窗 */
+.contact-wrapper {
+    transform: translateZ(100px) !important; 
+}
+
+/* --- 3. 修正截圖 160 中手臂可能遮擋的問題 --- */
+.robotic-arms-system {
+    z-index: 0 !important; /* 確保手臂永遠在所有 UI 下方 */
+}
 </style>
 </head>
 <body>
