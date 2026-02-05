@@ -188,37 +188,7 @@ body {
 .id-tag { text-align: right; font-size: 10px; color: #555; border-left: 2px solid var(--current-theme); padding-left: 10px; }
 .id-tag .code { display: block; color: var(--current-theme); }
 
-/* --- 5. 核心實驗平台 (3D Cube) 完美校準版 --- */
-.lab-stage {
-    position: relative;
-    z-index: 100;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    flex-direction: column; /* 讓標題跟舞台垂直排列 */
-    align-items: center;    
-    justify-content: center; 
-    pointer-events: none;
-    overflow: hidden;
-}
 
-
-/* 標題定位：使用 fixed 脫離 flex 串流，確保它永遠在最上方 */
-.hero-title {
-    position: fixed; /* 改用 fixed 確保定位不受其他元素影響 */
-    top: 8%; 
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    width: 100%;
-    z-index: 200; /* 高於 lab-stage */
-    pointer-events: none;
-}
-.hero-title h1 {
-    font-size: 4rem; margin: 0; color: white; text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(255,255,255,0.5);
-    position: relative; animation: glitch 3s infinite;
-}
 .subtitle { letter-spacing: 5px; color: var(--current-theme); font-size: 0.9rem; margin-top: 10px; }
     
     /* --- 核心修正：加入 Webkit 前綴確保所有瀏覽器都不閃爍 --- */
@@ -520,14 +490,46 @@ body {
     pointer-events: none;
     z-index: 10;
 }
+/* 1. 確保地基開啟 */
+.lab-stage {
+    position: relative;
+    z-index: 100;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;    
+    justify-content: center; 
+    pointer-events: auto !important; /* 開啟地基感應 */
+}
 
+/* 2. 讓容器穿透，不擋路 */
 .cube {
     width: 400px; 
     height: 400px; 
     position: relative;
     transform-style: preserve-3d;
-    transform-origin: center center; 
     transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none; /* 讓容器外框不攔截點擊 */
+}
+
+/* 3. 讓面（Face）重新獲得生命 */
+.cube-face {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    backface-visibility: hidden !important; 
+    -webkit-backface-visibility: hidden !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-style: preserve-3d;
+    
+    /* 改成 auto！這樣裡面的 <a> 標籤和 .social-hex 才能被點到 */
+    pointer-events: auto !important; 
 }
 
 /* --- 8. 手機版專屬響應式設定 (RWD) 終極整合版 --- */
@@ -560,22 +562,23 @@ body {
         padding: 4px 6px;
     }
 
-    /* 3. 標題區域優化：壓縮高度，防止與下方方塊打架 */
-    .hero-title {
-        top: 70px; /* 確保在導覽列下方，且與方塊有適當距離 */
-    }
-    .hero-title h1 {
-        font-size: 1.5rem !important; /* 稍微調降一點，確保 white-space 不會撐開螢幕 */
-        white-space: nowrap; 
-        letter-spacing: 2px;
-        margin: 0;
-    }
-    .hero-title .subtitle {
-        font-size: 0.6rem !important;
-        margin-top: 3px;
-    }
+ /* --- 修正後的標題與場景結構 --- */
+.hero-title {
+    position: fixed;
+    top: 8%; 
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    width: 100%;
+    z-index: 200;
+    pointer-events: none;
+}
 
-  /* --- 唯一的場景設定：確保 3D 空間與點擊穿透平衡 --- */
+.hero-title h1 {
+    font-size: 4rem; margin: 0; color: white; text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
+}
+
 .scene { 
     width: 400px; 
     height: 400px; 
@@ -584,8 +587,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto; /* 置中 */
-    pointer-events: none; /* 重要：場景本身不攔截點擊 */
+    margin: 120px auto 0;
+    pointer-events: none; /* 場景本身不擋滑鼠 */
+    z-index: 10;
 }
 
 /* 立方體主體 */
@@ -641,17 +645,7 @@ body {
     body {
         overflow: hidden; 
     }
-}
-      /* --- 1. 重新建立 3D 面的基本物理屬性 --- */
-.cube-face {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    
+}  
     /* 核心 3D 設定 */
     backface-visibility: hidden !important; 
     -webkit-backface-visibility: hidden !important;
@@ -759,7 +753,8 @@ body {
         </div>
     </nav>
 
-<main class="lab-stage" style="position: relative; overflow: hidden; display: block;">
+<main class="lab-stage" style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
+    
     <div class="robotic-arms-system" style="pointer-events: none !important; position: absolute; inset: 0; z-index: 0;">
         <div id="arm-left-container" class="arm-wrapper">
             <svg viewBox="0 0 400 800" class="advanced-arm-svg">
@@ -1028,40 +1023,43 @@ function updateSystem(index) {
     // 1. 更新主題顏色
     root.style.setProperty('--current-theme', data.color);
     
-    // 2. 更新立方體紋理
+    // 2. 更新立方體紋理 (保留你原本的功能)
     const cubeElement = document.getElementById('cube');
     if (cubeElement) {
         categories.forEach(cat => cubeElement.classList.remove(cat.texture));
         cubeElement.classList.add(data.texture);
     }
 
-    // 3. 更新導覽列狀態
-    navItems.forEach((item, i) => { 
-        item.classList.toggle('active', i === currentIndex); 
-    });
-    
-    // 4. 更新進度條
+    // 3. 更新導覽列與進度條
+    navItems.forEach((item, i) => item.classList.toggle('active', i === currentIndex));
     if(progressBar) {
         const progress = ((currentIndex + 1) / categories.length) * 100;
         progressBar.style.width = `${progress}%`;
     }
 
-    // --- 核心修正：解決穿透與點擊衝突 ---
+    // 4. 【核心解鎖】解除點擊限制並強化 3D 層級
     const allFaces = document.querySelectorAll('.cube-face');
     const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
     
-    allFaces.forEach((face, i) => {
-        // A. 立即關閉所有面的點擊，防止旋轉途中點到錯誤連結
-        face.style.pointerEvents = 'none';
-
-        // B. 視覺清理：非當前的面強制設為透明 (解決截圖 156-158 的重疊問題)
-        // 使用 transition 讓消失更平滑，不影響 3D 結構
-        if (face.classList.contains(facesClass[currentIndex].replace('.', ''))) {
-            face.style.opacity = "1";
-        } else {
-            face.style.opacity = "0"; // 隱藏非當前顯示的面
-        }
+    allFaces.forEach((face) => {
+        // 全面解鎖，讓 backface-visibility: hidden 自然處理背面不可見的問題
+        face.style.pointerEvents = 'auto'; 
+        face.style.opacity = "1"; 
+        
+        // 重設所有面的位移，避免層級堆疊
+        const wrapper = face.querySelector('.product-content, .contact-wrapper');
+        if(wrapper) wrapper.style.transform = 'translateZ(0px)';
     });
+
+    // 5. 確保「目前這一面」的內容浮在最上方
+    const targetFace = document.querySelector(facesClass[currentIndex]);
+    if(targetFace) {
+        const activeWrapper = targetFace.querySelector('.product-content, .contact-wrapper');
+        if(activeWrapper) {
+            activeWrapper.style.transform = 'translateZ(15px)'; // 稍微浮起，確保點擊權
+        }
+    }
+}
 
     // 5. 延遲開啟點擊，確保旋轉定位完成
     setTimeout(() => {
