@@ -702,31 +702,29 @@ body {
 </head>
 <body>
     <div id="start-overlay" style="position:fixed; inset:0; background:#000; z-index:10005; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-    <div style="color:var(--tiffany-green); font-family:monospace; letter-spacing:5px; border:1px solid var(--tiffany-green); padding:20px 40px;">
-        CLICK TO INITIALIZE SYSTEM
+        <div style="color:var(--tiffany-green); font-family:monospace; letter-spacing:5px; border:1px solid var(--tiffany-green); padding:20px 40px;">
+            CLICK TO INITIALIZE SYSTEM
+        </div>
     </div>
-</div>
-  <div id="cursor-light"></div>
+    <div id="cursor-light"></div>
     <div id="cursor-ring"></div>
 
-  <div id="bio-layer">
-    <div class="bio-scanner-line"></div>
-    
-    <div id="data-stream-left" class="data-stream"></div>
-    <div id="data-stream-right" class="data-stream"></div>
-    
-    <div class="bio-center">
-        <div class="fingerprint-scan" id="main-scanner"></div>
-        <div class="bio-text" id="bio-status-text">INITIALIZING BIO-SCAN...</div>
-        <div class="bio-id-info" id="bio-id-info">SUBJECT: UNKNOWN</div>
-        <div id="auto-check-btn"><span class="check-icon"></span>ACCESS GRANTED</div>
+    <div id="bio-layer">
+        <div class="bio-scanner-line"></div>
+        <div id="data-stream-left" class="data-stream"></div>
+        <div id="data-stream-right" class="data-stream"></div>
+        <div class="bio-center">
+            <div class="fingerprint-scan" id="main-scanner"></div>
+            <div class="bio-text" id="bio-status-text">INITIALIZING BIO-SCAN...</div>
+            <div class="bio-id-info" id="bio-id-info">SUBJECT: UNKNOWN</div>
+            <div id="auto-check-btn"><span class="check-icon"></span>ACCESS GRANTED</div>
+        </div>
     </div>
-</div>
 
-<div id="lab-door-container">
-    <div class="door-panel left-door"></div>
-    <div class="door-panel right-door"></div>
-</div>
+    <div id="lab-door-container">
+        <div class="door-panel left-door"></div>
+        <div class="door-panel right-door"></div>
+    </div>
 
     <div class="video-wrapper">
         <video autoplay muted loop playsinline id="bg-video">
@@ -738,12 +736,12 @@ body {
 
     <nav id="tactical-nav">
         <div class="nav-brand">MBC-PRO-SENSORS</div>
-       <div class="nav-menu">
-    <a href="#" class="nav-item active" data-cat="0" data-color="var(--color-home)">HOME</a>
-    <a href="#" class="nav-item" data-cat="1" data-color="var(--color-sensor)">MBC SENSOR</a>
-    <a href="#" class="nav-item" data-cat="2" data-color="var(--color-motor)">MOTOR</a>
-    <a href="#" class="nav-item" data-cat="3" data-color="var(--color-contact)">CONTACT</a>
-</div>
+        <div class="nav-menu">
+            <a href="#" class="nav-item active" data-cat="0" data-color="var(--color-home)">HOME</a>
+            <a href="#" class="nav-item" data-cat="1" data-color="var(--color-sensor)">MBC SENSOR</a>
+            <a href="#" class="nav-item" data-cat="2" data-color="var(--color-motor)">MOTOR</a>
+            <a href="#" class="nav-item" data-cat="3" data-color="var(--color-contact)">CONTACT</a>
+        </div>
         <div class="nav-progress-container">
             <div class="nav-progress-bar"></div>
         </div>
@@ -753,153 +751,154 @@ body {
         </div>
     </nav>
 
-<main class="lab-stage" style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; pointer-events: auto;">
-    
-    <div class="robotic-arms-system" style="pointer-events: none !important; position: absolute; inset: 0; z-index: 0;">
-        <div id="arm-left-container" class="arm-wrapper">
-            <svg viewBox="0 0 400 800" class="advanced-arm-svg">
-                <defs>
-                    <linearGradient id="metal-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#2a2a2a"/><stop offset="20%" stop-color="#555"/><stop offset="50%" stop-color="#777"/><stop offset="80%" stop-color="#555"/><stop offset="100%" stop-color="#2a2a2a"/>
-                    </linearGradient>
-                    <radialGradient id="joint-grad" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stop-color="#444"/><stop offset="100%" stop-color="#111"/>
-                    </radialGradient>
-                    <filter id="glow-filter" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                    </filter>
-                </defs>
-                <g class="arm-base">
-                    <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad)" stroke="#111" stroke-width="2"/>
-                </g>
-                <g id="left-shoulder-group" class="rotatable-joint">
-                    <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
-                    <g id="left-upper-arm">
-                        <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad)" stroke="#111"/>
-                        <path class="energy-flow-path" d="M150 650 L150 350" stroke="var(--current-theme)" stroke-width="6" fill="none" stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
-                        <g id="left-elbow-group" class="rotatable-joint">
-                            <circle cx="150" cy="350" r="30" fill="url(#joint-grad)"/>
-                            <g id="left-forearm">
-                                <rect x="120" y="150" width="60" height="200" rx="10" fill="url(#metal-grad)" stroke="#111"/>
-                                <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
-                                <g id="left-claw-mechanism">
-                                    <path d="M130 130 L100 80 L140 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M170 130 L200 80 L160 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                                </g>
+    <main class="lab-stage" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; pointer-events: auto; z-index: 5;">
+        
+        <div class="robotic-arms-system" style="pointer-events: none !important; position: absolute; inset: 0; z-index: 0;">
+            <div id="arm-left-container" class="arm-wrapper">
+                <svg viewBox="0 0 400 800" class="advanced-arm-svg">
+                    <defs>
+                        <linearGradient id="metal-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#2a2a2a"/><stop offset="20%" stop-color="#555"/><stop offset="50%" stop-color="#777"/><stop offset="80%" stop-color="#555"/><stop offset="100%" stop-color="#2a2a2a"/>
+                        </linearGradient>
+                        <radialGradient id="joint-grad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#444"/><stop offset="100%" stop-color="#111"/>
+                        </radialGradient>
+                        <filter id="glow-filter" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="4" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <g class="arm-base">
+                        <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad)" stroke="#111" stroke-width="2"/>
+                    </g>
+                    <g id="left-shoulder-group" class="rotatable-joint">
+                        <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
+                        <g id="left-upper-arm">
+                            <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad)" stroke="#111"/>
+                            <path class="energy-flow-path" d="M150 650 L150 350" stroke="var(--current-theme)" stroke-width="6" fill="none" stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
+                            <g id="left-elbow-group" class="rotatable-joint">
+                                <circle cx="150" cy="350" r="30" fill="url(#joint-grad)"/>
+                                <g id="left-forearm">
+                                    <rect x="120" y="150" width="60" height="200" rx="10" fill="url(#metal-grad)" stroke="#111"/>
+                                    <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
+                                    <g id="left-claw-mechanism">
+                                        <path d="M130 130 L100 80 L140 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M170 130 L200 80 L160 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </g>
+                                </g> 
                             </g> 
                         </g> 
                     </g> 
-                </g> 
-            </svg>
-        </div>
+                </svg>
+            </div>
 
-        <div id="arm-right-container" class="arm-wrapper">
-            <svg viewBox="0 0 400 800" class="advanced-arm-svg" style="transform: scaleX(-1);">
-                <defs>
-                    <linearGradient id="metal-grad-r" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#2a2a2a"/><stop offset="50%" stop-color="#777"/><stop offset="100%" stop-color="#2a2a2a"/>
-                    </linearGradient>
-                </defs>
-                <g class="arm-base">
-                    <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad-r)" stroke="#111" stroke-width="2"/>
-                </g>
-                <g id="right-shoulder-group" class="rotatable-joint">
-                    <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
-                    <g id="right-upper-arm">
-                        <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad-r)" stroke="#111"/>
-                        <path class="energy-flow-path" d="M150 650 L150 350" stroke="var(--current-theme)" stroke-width="6" fill="none" stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
-                        <g id="right-elbow-group" class="rotatable-joint">
-                            <circle cx="150" cy="350" r="30" fill="url(#joint-grad)"/>
-                            <g id="right-forearm">
-                                <rect x="125" y="150" width="50" height="200" rx="10" fill="url(#metal-grad-r)" stroke="#111"/>
-                                <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
-                                <g id="right-claw-mechanism">
-                                    <path d="M150 125 L150 60" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
-                                    <path d="M130 135 L90 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
-                                    <path d="M170 135 L210 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+            <div id="arm-right-container" class="arm-wrapper">
+                <svg viewBox="0 0 400 800" class="advanced-arm-svg" style="transform: scaleX(-1);">
+                    <defs>
+                        <linearGradient id="metal-grad-r" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#2a2a2a"/><stop offset="50%" stop-color="#777"/><stop offset="100%" stop-color="#2a2a2a"/>
+                        </linearGradient>
+                    </defs>
+                    <g class="arm-base">
+                        <rect x="50" y="700" width="200" height="80" rx="10" fill="url(#metal-grad-r)" stroke="#111" stroke-width="2"/>
+                    </g>
+                    <g id="right-shoulder-group" class="rotatable-joint">
+                        <circle cx="150" cy="650" r="40" fill="url(#joint-grad)" stroke="#222" stroke-width="3"/>
+                        <g id="right-upper-arm">
+                            <rect x="110" y="350" width="80" height="300" rx="15" fill="url(#metal-grad-r)" stroke="#111"/>
+                            <path class="energy-flow-path" d="M150 650 L150 350" stroke="var(--current-theme)" stroke-width="6" fill="none" stroke-dasharray="20, 10" filter="url(#glow-filter)"/>
+                            <g id="right-elbow-group" class="rotatable-joint">
+                                <circle cx="150" cy="350" r="30" fill="url(#joint-grad)"/>
+                                <g id="right-forearm">
+                                    <rect x="125" y="150" width="50" height="200" rx="10" fill="url(#metal-grad-r)" stroke="#111"/>
+                                    <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
+                                    <g id="right-claw-mechanism">
+                                        <path d="M150 125 L150 60" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+                                        <path d="M130 135 L90 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+                                        <path d="M170 135 L210 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+                                    </g>
                                 </g>
                             </g>
                         </g>
-                    </g>
-                </g> 
-            </svg>
+                    </g> 
+                </svg>
+            </div>
         </div>
-    </div>
 
-    <div class="hero-title" style="pointer-events: none; position: relative; z-index: 2;">
-        <h1 data-text="MBC-Pro-Sensors">MBC-Pro-Sensors</h1>
-        <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
-    </div>
+        <div class="hero-title" style="pointer-events: none; position: absolute; left: 8%; top: 40%; transform: translateY(-50%); z-index: 2; width: 350px;">
+            <h1 data-text="MBC-Pro-Sensors">MBC-Pro-Sensors</h1>
+            <p class="subtitle">ADVANCED ROBOTICS RESEARCH FACILITY</p>
+        </div>
 
-    <div class="scene" style="pointer-events: auto; position: relative; z-index: 10;">
-        <div class="cube" id="cube">
-            <div class="cube-face cube-front">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-                <div class="product-content">
-                    <h2 class="product-name">LAB FACILITY</h2>
-                    <p class="product-desc">READY FOR OPERATION</p>
+        <div class="scene" style="pointer-events: auto; position: relative; z-index: 10; width: 400px; height: 400px; display: flex; justify-content: center; align-items: center; perspective: 2000px;">
+            <div class="cube" id="cube">
+                <div class="cube-face cube-front">
+                    <div class="corner tl"></div><div class="corner tr"></div>
+                    <div class="corner bl"></div><div class="corner br"></div>
+                    <div class="product-content">
+                        <h2 class="product-name">LAB FACILITY</h2>
+                        <p class="product-desc">READY FOR OPERATION</p>
+                    </div>
                 </div>
-            </div>
 
-            <div class="cube-face cube-right">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-                <div class="product-content">
-                    <a href="sensor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
-                        <div class="product-visual">
-                            <img src="sensor_main.png" alt="MBC Sensor" style="width: 250px; height: auto;">
+                <div class="cube-face cube-right">
+                    <div class="corner tl"></div><div class="corner tr"></div>
+                    <div class="corner bl"></div><div class="corner br"></div>
+                    <div class="product-content">
+                        <a href="sensor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
+                            <div class="product-visual">
+                                <img src="sensor_main.png" alt="MBC Sensor" style="width: 250px; height: auto;">
+                            </div>
+                            <h2 class="product-name">MBC SENSOR</h2>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="cube-face cube-back">
+                    <div class="corner tl"></div><div class="corner tr"></div>
+                    <div class="corner bl"></div><div class="corner br"></div>
+                    <div class="product-content">
+                        <a href="motor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
+                            <div class="product-visual">
+                                <img src="motor_main.png" alt="Technic Motor" style="width: 250px; height: auto;">
+                            </div>
+                            <h2 class="product-name">TECHNIC MOTOR</h2>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="cube-face cube-left">
+                    <div class="corner tl"></div><div class="corner tr"></div>
+                    <div class="corner bl"></div><div class="corner br"></div>
+                    <div class="contact-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateZ(30px); pointer-events: none;">
+                        <h3 class="module-title" style="margin-bottom: 20px;">SECURE COMMS</h3>
+                        <div class="social-grid" style="pointer-events: auto;">
+                            <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK" style="pointer-events: auto;">
+                                <div class="hex-inner">
+                                    <img src="path-to-your-fb-icon.png" class="tech-icon" alt="FB">
+                                </div>
+                            </a>
+                            <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM" style="pointer-events: auto;">
+                                <div class="hex-inner">
+                                    <img src="path-to-your-ig-icon.png" class="tech-icon" alt="IG">
+                                </div>
+                            </a>
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com" target="_blank" class="social-hex" data-label="G-MAIL" style="pointer-events: auto;">
+                                <div class="hex-inner">
+                                    <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
+                                </div>
+                            </a>
                         </div>
-                        <h2 class="product-name">MBC SENSOR</h2>
-                    </a>
-                </div>
-            </div>
-
-            <div class="cube-face cube-back">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-                <div class="product-content">
-                    <a href="motor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
-                        <div class="product-visual">
-                            <img src="motor_main.png" alt="Technic Motor" style="width: 250px; height: auto;">
-                        </div>
-                        <h2 class="product-name">TECHNIC MOTOR</h2>
-                    </a>
-                </div>
-            </div>
-
-            <div class="cube-face cube-left">
-                <div class="corner tl"></div><div class="corner tr"></div>
-                <div class="corner bl"></div><div class="corner br"></div>
-                <div class="contact-wrapper">
-                    <h3 class="module-title">SECURE COMMS</h3>
-                    <div class="social-grid">
-                        <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK" style="pointer-events: auto;">
-                            <div class="hex-inner">
-                                <img src="path-to-your-fb-icon.png" class="tech-icon" alt="FB">
-                            </div>
-                        </a>
-                        <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM" style="pointer-events: auto;">
-                            <div class="hex-inner">
-                                <img src="path-to-your-ig-icon.png" class="tech-icon" alt="IG">
-                            </div>
-                        </a>
-                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com" target="_blank" class="social-hex" data-label="G-MAIL" style="pointer-events: auto;">
-                            <div class="hex-inner">
-                                <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
-                            </div>
-                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="controls" style="pointer-events: auto; position: relative; z-index: 20;">
-        <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
-        <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
-    </div>
-</main>
+        <div class="controls" style="pointer-events: auto; position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%); z-index: 20; width: 100%; text-align: center;">
+            <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
+            <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
+        </div>
+    </main>
+</body>
     
 <script>
   document.addEventListener('DOMContentLoaded', () => {
