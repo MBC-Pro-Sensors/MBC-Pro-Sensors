@@ -202,34 +202,6 @@ body {
     overflow: hidden;
 }
 
-/* 場景設定：這是 3D 投影的核心，必須是個乾淨的容器 */
-.scene { 
-    width: 400px; 
-    height: 400px; 
-    perspective: 1200px; 
-    pointer-events: auto; /* 只有這裡開放點擊，滑鼠才能轉動方塊 */
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* 立方體主體：移除 top/left，改用自然置中 */
-.cube {
-    width: 400px; 
-    height: 400px; 
-    position: relative; /* 從 absolute 改為 relative */
-    transform-style: preserve-3d;
-    transform-origin: center center 0px; 
-    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1); /* 更平滑的動力學曲線 */
-}
-
-
-/* --- 精確四面位移 --- */
-.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
-.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
-.cube-back   { transform: rotateY(180deg) translateZ(200px); }
-.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
 
 /* 標題定位：使用 fixed 脫離 flex 串流，確保它永遠在最上方 */
 .hero-title {
@@ -580,23 +552,54 @@ body {
         margin-top: 3px;
     }
 
-    /* 4. 保留 260px 方塊縮放邏輯，新增垂直置中解決裁切 */
-    .scene {
-        width: 260px;
-        height: 260px;
-        perspective: 1000px;
-        margin-top: 120px !important;
-    }
-    .cube, .cube-face {
-        width: 260px;
-        height: 260px;
-    }
-    
-    /* 核心位移修正 (260/2 = 130) */
-    .cube-front  { transform: rotateY(  0deg) translateZ(130px); }
-    .cube-right  { transform: rotateY( 90deg) translateZ(130px); }
-    .cube-back   { transform: rotateY(180deg) translateZ(130px); }
-    .cube-left   { transform: rotateY(-90deg) translateZ(130px); }
+  /* --- 唯一的場景設定：確保 3D 空間與點擊穿透平衡 --- */
+.scene { 
+    width: 400px; 
+    height: 400px; 
+    perspective: 1200px; 
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto; /* 置中 */
+    pointer-events: none; /* 重要：場景本身不攔截點擊 */
+}
+
+/* 立方體主體 */
+.cube {
+    width: 400px; 
+    height: 400px; 
+    position: relative;
+    transform-style: preserve-3d;
+    /* 確保旋轉中心點在 Z 軸中心 */
+    transform-origin: center center; 
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none; /* 由內部的面來控制點擊 */
+}
+
+/* 統一所有的面設定 */
+.cube-face {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    backface-visibility: visible; /* 讓 3D 感更強 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 預設禁止點擊，由 JS 在 updateSystem 裡動態開啟 */
+    pointer-events: none; 
+}
+
+/* --- 精確四面位移：(400 / 2 = 200) --- */
+.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
+.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
+.cube-back   { transform: rotateY(180deg) translateZ(200px); }
+.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
+
+/* 針對內容容器的點擊補強 */
+.product-content, .contact-wrapper {
+    pointer-events: auto; /* 只有內容區塊才恢復點擊 */
+}
 
     /* 解決截圖中圖片被裁切的問題：將內容垂直置中 */
     .product-content {
