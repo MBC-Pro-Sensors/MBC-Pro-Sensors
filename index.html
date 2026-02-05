@@ -532,7 +532,6 @@ body {
     pointer-events: auto !important; 
 }
 
-/* --- 8. 手機版專屬響應式設定 (RWD) 終極整合版 --- */
 @media screen and (max-width: 768px) {
     /* 1. 保留原本的隱藏設定 */
     #bio-layer, #lab-door-container, .scan-overlay,
@@ -540,112 +539,122 @@ body {
         display: none !important;
     }
 
-    /* 2. 導覽列優化：簡化 Logo 為 MBC 並調整選項字體 */
+    /* 2. 導覽列優化：保持你原本的簡化設計 */
     #tactical-nav {
         padding: 5px 10px;
         height: 50px;
     }
     .nav-brand {
-        font-size: 0 !important; /* 隱藏原本長文字 */
+        font-size: 0 !important; 
     }
     .nav-brand::before {
-        content: "MBC"; /* 簡化 Logo 文字 */
+        content: "MBC"; 
         font-size: 1.2rem;
         color: var(--tiffany-green);
         font-weight: bold;
     }
     .nav-menu {
-        gap: 8px; /* 縮小按鈕間距 */
+        gap: 8px;
     }
     .nav-item {
-        font-size: 0.7rem !important; /* 縮小文字確保能塞進寬度 */
+        font-size: 0.7rem !important;
         padding: 4px 6px;
     }
 
- /* --- 修正後的標題與場景結構 --- */
-.hero-title {
-    position: fixed;
-    top: 8%; 
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    width: 100%;
-    z-index: 200;
-    pointer-events: none;
-}
+    /* 3. 【修正重點】標題：縮小字體並確保不重疊 */
+    .hero-title {
+        position: fixed;
+        top: 12% !important; /* 從 8% 調到 12%，避開頂部 */
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        width: 100%;
+        z-index: 200;
+        pointer-events: none;
+    }
 
-.hero-title h1 {
-    font-size: 4rem; margin: 0; color: white; text-transform: uppercase;
-    text-shadow: 0 0 20px rgba(255,255,255,0.5);
-}
-
-.scene { 
-    width: 400px; 
-    height: 400px; 
-    perspective: 1200px; 
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 120px auto 0;
-    pointer-events: none; /* 場景本身不擋滑鼠 */
-    z-index: 10;
-}
-
-/* 立方體主體 */
-.cube {
-    width: 400px; 
-    height: 400px; 
-    position: relative;
-    transform-style: preserve-3d;
-    /* 確保旋轉中心點在 Z 軸中心 */
-    transform-origin: center center; 
-    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none; /* 由內部的面來控制點擊 */
-}
+    .hero-title h1 {
+        font-size: 1.8rem !important; /* 從 4rem 縮小到 1.8rem，解決重疊關鍵 */
+        margin: 0; 
+        color: white; 
+        text-transform: uppercase;
+        text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
     
-    /* 解決截圖中圖片被裁切的問題：將內容垂直置中 */
+    .hero-title .subtitle {
+        font-size: 0.5rem !important; /* 副標題同步縮小 */
+    }
+
+    /* 4. 【修正重點】場景與方塊：縮小寬度以適應手機 */
+    .scene { 
+        width: 280px !important; /* 從 400px 縮小到 280px，手機才塞得下 */
+        height: 280px !important; 
+        perspective: 1000px; 
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 80px auto 0 !important; /* 減少間距讓畫面往上提 */
+        pointer-events: none; 
+        z-index: 10;
+        transform: scale(0.9); /* 最後的小微調 */
+    }
+
+    .cube {
+        width: 280px !important; /* 同步縮小 */
+        height: 280px !important; 
+        position: relative;
+        transform-style: preserve-3d;
+        transform-origin: center center; 
+        transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+    }
+
+    /* 5. 產品圖片與名稱：確保在縮小的方塊內不擠壓 */
     .product-content {
         padding: 10px;
         display: flex;
         flex-direction: column;
-        justify-content: center; /* 重要：讓圖片在方塊中央，不被頂部文字往下擠 */
+        justify-content: center;
         align-items: center;
         height: 100%;
     }
 
-    /* 5. 產品圖片與名稱自適應微調 */
     .product-visual img {
-        width: 140px !important; /* 再縮小一點點，確保安全邊距 */
+        width: 100px !important; /* 縮小圖片 */
         height: auto;
-        max-height: 110px;
+        max-height: 80px;
         object-fit: contain;
     }
     .product-name {
-        font-size: 0.95rem !important; /* 配合方塊尺寸縮小字體 */
-        margin-top: 8px;
+        font-size: 0.8rem !important; 
+        margin-top: 5px;
     }
 
-    /* 6. 保留並優化按鈕區域 */
+    /* 6. 按鈕區域：優化點擊感 */
     .controls {
-        bottom: 30px; /* 稍微往上調，避免被手機導航條擋住 */
-        width: 95%;
+        bottom: 40px !important; /* 避開手機底部手勢條 */
+        width: 90%;
         display: flex;
         gap: 10px;
         justify-content: center;
+        left: 50%;
+        transform: translateX(-50%);
     }
     .ctrl-btn {
         padding: 12px 5px !important;
-        font-size: 9px !important;
+        font-size: 10px !important; /* 稍微加大一點字體方便閱讀 */
         flex: 1; 
         white-space: nowrap;
     }
 
-    /* 7. 保留捲動設定 */
+    /* 7. 禁止手機版捲動 */
     body {
         overflow: hidden; 
+        position: fixed; /* 防止手機版拉動彈跳 */
+        width: 100%;
     }
-}  
+}
     /* 核心 3D 設定 */
     backface-visibility: hidden !important; 
     -webkit-backface-visibility: hidden !important;
