@@ -585,30 +585,34 @@ body {
         font-size: 0.5rem !important; /* 副標題同步縮小 */
     }
 
-    /* 4. 【修正重點】場景與方塊：縮小寬度以適應手機 */
-    .scene { 
-        width: 280px !important; /* 從 400px 縮小到 280px，手機才塞得下 */
-        height: 280px !important; 
-        perspective: 1000px; 
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 80px auto 0 !important; /* 減少間距讓畫面往上提 */
-        pointer-events: none; 
-        z-index: 10;
-        transform: scale(0.9); /* 最後的小微調 */
-    }
+   /* 尋找原本 RWD 內的 .scene 並完全替換 */
+.scene { 
+    position: absolute !important; /* 改為絕對定位 */
+    top: 50% !important;           /* 垂直居中 */
+    left: 50% !important;          /* 水平居中 */
+    transform: translate(-50%, -50%) scale(0.65) !important; /* 關鍵：利用 translate 回拉一半，達成物理置中，並等比例縮小 */
+    
+    width: 300px !important;       /* 手機版固定寬度 */
+    height: 300px !important;      /* 手機版固定高度 */
+    perspective: 1000px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;          /* 清除原本可能干擾的 margin */
+    z-index: 10;
+    pointer-events: none; 
+}
 
-    .cube {
-        width: 280px !important; /* 同步縮小 */
-        height: 280px !important; 
-        position: relative;
-        transform-style: preserve-3d;
-        transform-origin: center center; 
-        transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: none;
-    }
+/* 同步確保 cube 本身也在中心 */
+.cube {
+    width: 100% !important; 
+    height: 100% !important; 
+    position: relative;
+    transform-style: preserve-3d;
+    transform-origin: center center; 
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
 
     /* 5. 產品圖片與名稱：確保在縮小的方塊內不擠壓 */
     .product-content {
