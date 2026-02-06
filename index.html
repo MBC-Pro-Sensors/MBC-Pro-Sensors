@@ -1047,17 +1047,22 @@ body {
     }
 
     // --- 3. 核心初始化與更新 ---
-    function initLab() {
-        gsap.set(".lab-stage", { opacity: 1, display: "flex" });
-        gsap.from(".hero-title", { y: 50, opacity: 0, duration: 1, delay: 0.5 });
-        gsap.from(".cube", {
-            scale: 0, rotationY: 180, duration: 1.5, ease: "back.out(1.7)",
-            onComplete: () => {
-                updateSystem(0);
-                gsap.from(".controls", { opacity: 0, y: 20, duration: 0.5 });
-            }
-        });
-    }
+   function initLab() {
+    gsap.set(".lab-stage", { opacity: 1, display: "flex" });
+    gsap.from(".hero-title", { y: 50, opacity: 0, duration: 1, delay: 0.5 });
+    
+    // 修改這裡：使用 from，只針對旋轉和透明度做動畫
+    gsap.from(cube, {
+        opacity: 0,
+        rotationY: 180,
+        duration: 1.5,
+        ease: "back.out(1.7)",
+        onComplete: () => {
+            updateSystem(0);
+            gsap.from(".controls", { opacity: 0, y: 20, duration: 0.5 });
+        }
+    });
+}
 
     function updateSystem(index) {
         if (index < 0) index = categories.length - 1;
@@ -1105,18 +1110,18 @@ body {
         }
     }
 
-    function rotateCube() {
-        if (cube) {
-            gsap.to(cube, {
-                rotationY: currentRotation,
-                rotationX: 0,
-                x: 0, y: 0, z: 0,
-                duration: 1.2,
-                ease: "expo.out",
-                overwrite: true
-            });
-        }
+   function rotateCube() {
+    if (cube) {
+        // 只針對旋轉角度做動畫，不要去動到 x, y, z
+        gsap.to(cube, {
+            rotationY: currentRotation,
+            // 刪除了 x:0, y:0, z:0，這樣就不會覆蓋 CSS 的置中設定
+            duration: 1.2,
+            ease: "expo.out",
+            overwrite: "auto" // 讓新的旋轉動畫平滑覆蓋舊的
+        });
     }
+}
 
     // --- 4. 機械臂動畫邏輯 ---
     function animateComplexArm(side) {
