@@ -533,145 +533,83 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-    /* 1. 保留原本的隱藏設定 */
+    /* 1. 隱藏不必要元素 */
     #bio-layer, #lab-door-container, .scan-overlay,
     .robotic-arms-system, .arm-hud, .id-tag {
         display: none !important;
     }
 
-    /* 2. 導覽列優化：保持你原本的簡化設計 */
-    #tactical-nav {
-        padding: 5px 10px;
-        height: 50px;
-    }
-    .nav-brand {
-        font-size: 0 !important; 
-    }
-    .nav-brand::before {
-        content: "MBC"; 
-        font-size: 1.2rem;
-        color: var(--tiffany-green);
-        font-weight: bold;
-    }
-    .nav-menu {
-        gap: 8px;
-    }
-    .nav-item {
-        font-size: 0.7rem !important;
-        padding: 4px 6px;
-    }
+    /* 2. 導覽列 */
+    #tactical-nav { padding: 5px 10px; height: 50px; }
+    .nav-brand { font-size: 0 !important; }
+    .nav-brand::before { content: "MBC"; font-size: 1.2rem; color: var(--tiffany-green); font-weight: bold; }
+    .nav-menu { gap: 8px; }
+    .nav-item { font-size: 0.7rem !important; padding: 4px 6px; }
 
-    /* 3. 【修正重點】標題：縮小字體並確保不重疊 */
+    /* 3. 標題鎖定 */
     .hero-title {
-        position: fixed;
-        top: 12% !important; /* 從 8% 調到 12%，避開頂部 */
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        width: 100%;
+        position: fixed !important;
+        top: 12% !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 100% !important;
         z-index: 200;
-        pointer-events: none;
+        text-align: center;
     }
+    .hero-title h1 { font-size: 1.6rem !important; }
 
-    .hero-title h1 {
-        font-size: 1.8rem !important; /* 從 4rem 縮小到 1.8rem，解決重疊關鍵 */
-        margin: 0; 
-        color: white; 
-        text-transform: uppercase;
-        text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-    
-    .hero-title .subtitle {
-        font-size: 0.5rem !important; /* 副標題同步縮小 */
-    }
-
-/* 1. 外層場景：強制鎖定在螢幕物理中心，不隨內容滾動 */
+    /* 4. 方塊場景：終極鎖定 */
     .scene { 
-        position: fixed !important;  /* 改為 fixed，徹底脫離文檔流 */
-        top: 50% !important;        /* 垂直置中基準點 */
-        left: 50% !important;       /* 水平置中基準點 */
-        /* 關鍵修正：translate(-50%, -50%) 負責定位，
-           不要把這個寫在 JS 會動到的 .cube 上 */
-        transform: translate(-50%, -50%) scale(0.65) !important; 
-        
-        width: 300px !important;    /* 固定寬度，防止產品內容撐開 */
-        height: 300px !important;   /* 固定高度 */
-        margin: 0 !important;       /* 清除所有 margin，防止偏移 */
-        perspective: 1000px; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 5 !important;      /* 確保在標題下方，按鈕上方 */
-        pointer-events: none; 
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        /* 強制將位移寫在場景上，縮小到 0.6 確保手機空間 */
+        transform: translate(-50%, -55%) scale(0.6) !important; 
+        width: 300px !important;
+        height: 300px !important;
+        margin: 0 !important;
+        z-index: 10 !important;
     }
 
-    /* 2. 內層立方體：只負責旋轉，不負責位移 */
     .cube {
-        width: 100% !important; 
-        height: 100% !important; 
-        position: relative;
+        width: 100% !important;
+        height: 100% !important;
         transform-style: preserve-3d;
-        /* 確保旋轉中心就在自己的幾何中心 */
-        transform-origin: center center; 
-        transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        pointer-events: auto !important; /* 恢復點擊權，確保面上的按鈕可按 */
-        /* 注意：這裡不要寫任何 translate，讓 JS 只控制 rotateY */
+        transform-origin: center center !important; /* 確保繞中心轉 */
     }
 
-    /* 3. 修正產品容器：確保內容在方框內垂直置中，不撐開父層 */
+    /* 5. 內容物置中 */
     .product-content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%); /* 內容在面裡面也要置中 */
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
         width: 100%;
-        height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
-        padding: 15px;
-        box-sizing: border-box;
     }
 
-    /* 4. 防止圖片或文字過大擠歪方框 */
-    .product-visual {
-        flex: 0 0 auto;
-        height: 100px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .product-name {
-        margin-top: 10px;
-        font-size: 0.8rem !important;
-        text-align: center;
-    }
-}
-
-    /* 6. 按鈕區域：優化點擊感 */
+    /* 6. 按鈕區域：改為 fixed 確保不位移 */
     .controls {
-        bottom: 40px !important; /* 避開手機底部手勢條 */
-        width: 90%;
-        display: flex;
+        position: fixed !important;
+        bottom: 40px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        display: flex !important;
         gap: 10px;
-        justify-content: center;
-        left: 50%;
-        transform: translateX(-50%);
+        z-index: 200;
     }
     .ctrl-btn {
         padding: 12px 5px !important;
-        font-size: 10px !important; /* 稍微加大一點字體方便閱讀 */
-        flex: 1; 
+        font-size: 10px !important;
+        flex: 1;
         white-space: nowrap;
     }
 
-    /* 7. 禁止手機版捲動 */
-    body {
-        overflow: hidden; 
-        position: fixed; /* 防止手機版拉動彈跳 */
-        width: 100%;
-    }
+    /* 7. 禁止捲動 */
+    body { overflow: hidden !important; position: fixed; width: 100%; height: 100%; }
 }
     /* 核心 3D 設定 */
     backface-visibility: hidden !important; 
@@ -1046,12 +984,12 @@ body {
         }, 1500);
     }
 
-    // --- 3. 核心初始化與更新 ---
-   function initLab() {
+  // --- 修改 initLab ---
+function initLab() {
     gsap.set(".lab-stage", { opacity: 1, display: "flex" });
-    gsap.from(".hero-title", { y: 50, opacity: 0, duration: 1, delay: 0.5 });
+    gsap.from(".hero-title", { y: 30, opacity: 0, duration: 1 });
     
-    // 修改這裡：使用 from，只針對旋轉和透明度做動畫
+    // 只做旋轉與縮放動畫，不碰座標
     gsap.from(cube, {
         opacity: 0,
         rotationY: 180,
@@ -1110,15 +1048,15 @@ body {
         }
     }
 
-   function rotateCube() {
+// --- 修改 rotateCube ---
+function rotateCube() {
     if (cube) {
-        // 只針對旋轉角度做動畫，不要去動到 x, y, z
         gsap.to(cube, {
             rotationY: currentRotation,
-            // 刪除了 x:0, y:0, z:0，這樣就不會覆蓋 CSS 的置中設定
+            // 絕對不要在這裡寫 x:0, y:0，保持純淨的旋轉
             duration: 1.2,
             ease: "expo.out",
-            overwrite: "auto" // 讓新的旋轉動畫平滑覆蓋舊的
+            overwrite: "auto"
         });
     }
 }
