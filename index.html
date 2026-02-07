@@ -558,36 +558,49 @@ body {
     }
     .hero-title h1 { font-size: 1.6rem !important; }
 
-    /* 4. 方塊場景：終極鎖定 */
+   /* 4. 方塊場景：終極鎖定 (修正旋轉中心與透視) */
     .scene { 
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
-        /* 強制將位移寫在場景上，縮小到 0.6 確保手機空間 */
-        transform: translate(-50%, -55%) scale(0.6) !important; 
+        /* 改為 -50%, -50% 確保絕對幾何中心 */
+        transform: translate(-50%, -50%) scale(0.6) !important; 
         width: 300px !important;
         height: 300px !important;
         margin: 0 !important;
         z-index: 10 !important;
+        perspective: 1000px !important; /* 降低透視值讓旋轉更穩 */
     }
 
     .cube {
         width: 100% !important;
         height: 100% !important;
         transform-style: preserve-3d;
-        transform-origin: center center !important; /* 確保繞中心轉 */
+        /* 強制旋轉中心點鎖死在立方體中心 */
+        transform-origin: center center 0 !important; 
     }
 
-    /* 5. 內容物置中 */
-    .product-content {
+    /* 5. 內容物置中：同時鎖定「產品」與「聯絡資訊」 */
+    .product-content, .contact-wrapper {
         position: absolute !important;
         top: 50% !important;
         left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        /* 強制覆蓋所有 JS 位移，將內容死鎖在玻璃板中央，並推前 20px 避免閃爍 */
+        transform: translate(-50%, -50%) translateZ(20px) !important;
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        pointer-events: auto !important;
+    }
+
+    /* 確保所有面本身也是置中的 */
+    .cube-face {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     /* 6. 按鈕區域：改為 fixed 確保不位移 */
