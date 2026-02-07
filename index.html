@@ -1026,16 +1026,21 @@ function initLab() {
             progressBar.style.width = `${progress}%`;
         }
 
-        // 4. 【核心修復】解除點擊限制並處理 Z 軸空間
+       // 4. 【核心修復】解除點擊限制並處理 Z 軸空間，同時保留水平垂直置中
         const allFaces = document.querySelectorAll('.cube-face');
         const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
 
         allFaces.forEach((face) => {
             face.style.pointerEvents = 'auto'; // 開啟點擊感應
             face.style.opacity = "1";
-            // 先重設所有面的內容位移
+            
+            // 尋找內容容器 (包含產品或聯絡資訊)
             const wrapper = face.querySelector('.product-content, .contact-wrapper');
-            if (wrapper) wrapper.style.transform = 'translateZ(0px)';
+            
+            if (wrapper) {
+                // 【關鍵修正】：加上 translate(-50%, -50%) 確保在 absolute 狀態下依然置中
+                wrapper.style.transform = 'translate(-50%, -50%) translateZ(0px)';
+            }
         });
 
         // 5. 確保「當前對準玩家的那一面」內容浮在最表層
@@ -1043,11 +1048,10 @@ function initLab() {
         if (targetFace) {
             const activeWrapper = targetFace.querySelector('.product-content, .contact-wrapper');
             if (activeWrapper) {
-                activeWrapper.style.transform = 'translateZ(20px)'; // 往前推 20px 確保點擊權
+                // 【關鍵修正】：同樣必須保留 translate(-50%, -50%)，否則內容會因 Z 軸推擠而偏離原位
+                activeWrapper.style.transform = 'translate(-50%, -50%) translateZ(20px)';
             }
         }
-    }
-
 // --- 修改 rotateCube ---
 function rotateCube() {
     if (cube) {
