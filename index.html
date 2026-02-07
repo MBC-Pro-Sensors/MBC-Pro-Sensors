@@ -945,7 +945,7 @@ body {
         }, 80);
 
         setTimeout(() => {
-            bioLayer.classList.add('scanning-active');
+            if (bioLayer) bioLayer.classList.add('scanning-active');
             const yellow = "#ffcc00";
             if (statusText) { statusText.innerText = "WARNING: ANALYZING BIOMETRIC PATTERNS..."; statusText.style.color = yellow; }
             if (idInfo) { idInfo.innerText = "SENSING NEURAL FREQUENCY..."; idInfo.style.color = yellow; }
@@ -953,8 +953,10 @@ body {
             if (scannerLine) { scannerLine.style.background = yellow; scannerLine.style.boxShadow = `0 0 20px ${yellow}`; }
 
             setTimeout(() => {
-                bioLayer.classList.remove('scanning-active');
-                bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
+                if (bioLayer) {
+                    bioLayer.classList.remove('scanning-active');
+                    bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
+                }
                 const green = "#33ff33";
                 if (statusText) { statusText.innerText = "IDENTITY VERIFIED: CHIEF ENGINEER"; statusText.style.color = green; }
                 if (idInfo) { idInfo.innerText = "ACCESS GRANTED // WELCOME SPARK-031"; idInfo.style.color = green; }
@@ -984,23 +986,22 @@ body {
         }, 1500);
     }
 
-  // --- 修改 initLab ---
-function initLab() {
-    gsap.set(".lab-stage", { opacity: 1, display: "flex" });
-    gsap.from(".hero-title", { y: 30, opacity: 0, duration: 1 });
-    
-    // 只做旋轉與縮放動畫，不碰座標
-    gsap.from(cube, {
-        opacity: 0,
-        rotationY: 180,
-        duration: 1.5,
-        ease: "back.out(1.7)",
-        onComplete: () => {
-            updateSystem(0);
-            gsap.from(".controls", { opacity: 0, y: 20, duration: 0.5 });
-        }
-    });
-}
+    // --- 3. 實驗室初始化 ---
+    function initLab() {
+        gsap.set(".lab-stage", { opacity: 1, display: "flex" });
+        gsap.from(".hero-title", { y: 30, opacity: 0, duration: 1 });
+        
+        gsap.from(cube, {
+            opacity: 0,
+            rotationY: 180,
+            duration: 1.5,
+            ease: "back.out(1.7)",
+            onComplete: () => {
+                updateSystem(0);
+                gsap.from(".controls", { opacity: 0, y: 20, duration: 0.5 });
+            }
+        });
+    }
 
     function updateSystem(index) {
         if (index < 0) index = categories.length - 1;
@@ -1009,61 +1010,52 @@ function initLab() {
         currentIndex = index;
         const data = categories[currentIndex];
 
-        // 1. 更新主題顏色
         root.style.setProperty('--current-theme', data.color);
 
-        // 2. 更新立方體紋理
-        const cubeElement = document.getElementById('cube');
-        if (cubeElement) {
-            categories.forEach(cat => cubeElement.classList.remove(cat.texture));
-            cubeElement.classList.add(data.texture);
+        if (cube) {
+            categories.forEach(cat => cube.classList.remove(cat.texture));
+            cube.classList.add(data.texture);
         }
 
-        // 3. 更新導覽列與進度條
         navItems.forEach((item, i) => item.classList.toggle('active', i === currentIndex));
         if (progressBar) {
             const progress = ((currentIndex + 1) / categories.length) * 100;
             progressBar.style.width = `${progress}%`;
         }
 
-       // 4. 【核心修復】解除點擊限制並處理 Z 軸空間，同時保留水平垂直置中
         const allFaces = document.querySelectorAll('.cube-face');
         const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
 
         allFaces.forEach((face) => {
-            face.style.pointerEvents = 'auto'; // 開啟點擊感應
+            face.style.pointerEvents = 'auto';
             face.style.opacity = "1";
-            
-            // 尋找內容容器 (包含產品或聯絡資訊)
             const wrapper = face.querySelector('.product-content, .contact-wrapper');
-            
             if (wrapper) {
-                // 【關鍵修正】：加上 translate(-50%, -50%) 確保在 absolute 狀態下依然置中
+                // 保留置中，重設 Z 軸
                 wrapper.style.transform = 'translate(-50%, -50%) translateZ(0px)';
             }
         });
 
-        // 5. 確保「當前對準玩家的那一面」內容浮在最表層
         const targetFace = document.querySelector(facesClass[currentIndex]);
         if (targetFace) {
             const activeWrapper = targetFace.querySelector('.product-content, .contact-wrapper');
             if (activeWrapper) {
-                // 【關鍵修正】：同樣必須保留 translate(-50%, -50%)，否則內容會因 Z 軸推擠而偏離原位
+                // 核心修復：保留置中並推前 Z 軸
                 activeWrapper.style.transform = 'translate(-50%, -50%) translateZ(20px)';
             }
         }
-// --- 修改 rotateCube ---
-function rotateCube() {
-    if (cube) {
-        gsap.to(cube, {
-            rotationY: currentRotation,
-            // 絕對不要在這裡寫 x:0, y:0，保持純淨的旋轉
-            duration: 1.2,
-            ease: "expo.out",
-            overwrite: "auto"
-        });
+    } // <-- 之前漏掉的這個右大括號補上了
+
+    function rotateCube() {
+        if (cube) {
+            gsap.to(cube, {
+                rotationY: currentRotation,
+                duration: 1.2,
+                ease: "expo.out",
+                overwrite: "auto"
+            });
+        }
     }
-}
 
     // --- 4. 機械臂動畫邏輯 ---
     function animateComplexArm(side) {
@@ -1092,7 +1084,7 @@ function rotateCube() {
             .to(container, { y: 0, x: 0, duration: 0.6 }, "-=0.2");
     }
 
-    // --- 5. 事件監聽 (按鈕、導覽列、感測器) ---
+    // --- 5. 事件監聽 ---
     const nextBtn = document.querySelector('.next-btn');
     const prevBtn = document.querySelector('.prev-btn');
 
@@ -1127,16 +1119,15 @@ function rotateCube() {
         });
     });
 
-    // 感測器互動特效 (Mouse Over)
+    // 感測器互動特效
     document.addEventListener('mouseover', (e) => {
         const visual = e.target.closest('.product-visual');
         if (visual) {
             gsap.to(visual.querySelectorAll('.pin'), {
                 opacity: 1, scale: 1, stagger: 0.05, duration: 0.4, ease: "back.out(2)"
             });
-            gsap.to(visual.querySelector('.sensor-mockup'), {
-                x: 10, y: -10, duration: 0.5, ease: "power2.out"
-            });
+            const mockup = visual.querySelector('.sensor-mockup');
+            if (mockup) gsap.to(mockup, { x: 10, y: -10, duration: 0.5, ease: "power2.out" });
         }
     });
 
@@ -1144,10 +1135,11 @@ function rotateCube() {
         const visual = e.target.closest('.product-visual');
         if (visual) {
             gsap.to(visual.querySelectorAll('.pin'), { opacity: 0, scale: 0.5, duration: 0.3 });
-            gsap.to(visual.querySelector('.sensor-mockup'), { x: 0, y: 0, duration: 0.5 });
+            const mockup = visual.querySelector('.sensor-mockup');
+            if (mockup) gsap.to(mockup, { x: 0, y: 0, duration: 0.5 });
         }
     });
-});
+  });
 </script>
 </body>
 </html>
