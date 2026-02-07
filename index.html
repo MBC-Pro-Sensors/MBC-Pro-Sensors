@@ -558,51 +558,64 @@ body {
     }
     .hero-title h1 { font-size: 1.6rem !important; }
 
-   /* 4. 方塊場景：終極鎖定 (修正旋轉中心與透視) */
+  /* 4. 方塊場景：校準 3D 旋轉中軸 */
     .scene { 
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
-        /* 改為 -50%, -50% 確保絕對幾何中心 */
+        /* 1. 確保位移中心絕對精準 */
         transform: translate(-50%, -50%) scale(0.6) !important; 
         width: 300px !important;
         height: 300px !important;
         margin: 0 !important;
         z-index: 10 !important;
-        perspective: 1000px !important; /* 降低透視值讓旋轉更穩 */
+        perspective: 1200px !important; 
     }
 
     .cube {
         width: 100% !important;
         height: 100% !important;
-        transform-style: preserve-3d;
-        /* 強制旋轉中心點鎖死在立方體中心 */
-        transform-origin: center center 0 !important; 
+        position: relative !important;
+        transform-style: preserve-3d !important;
+        /* 2. 強制旋轉支點在正中央，防止 180 度旋轉後偏移 */
+        transform-origin: center center -150px !important; 
     }
 
-    /* 5. 內容物置中：同時鎖定「產品」與「聯絡資訊」 */
+    /* 3. 強制校準立方體每一面的物理位置，消除奇偶頁偏移 */
+    .cube-face {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 300px !important;
+        height: 300px !important;
+        /* 消除所有桌面版可能殘留的 margin 或 flex 偏移 */
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        backface-visibility: hidden !important;
+    }
+
+    /* 4. 重設每一面的 3D 座標 (以此為準，防止 JS 擾亂) */
+    .cube-front  { transform: rotateY(0deg) translateZ(150px) !important; }
+    .cube-right  { transform: rotateY(90deg) translateZ(150px) !important; }
+    .cube-back   { transform: rotateY(180deg) translateZ(150px) !important; }
+    .cube-left   { transform: rotateY(-90deg) translateZ(150px) !important; }
+
+    /* 5. 內容物：終極置中鎖定 */
     .product-content, .contact-wrapper {
         position: absolute !important;
-        top: 50% !important;
+        /* 使用固定寬度，避免 flex 擠壓導致的左右不均 */
+        width: 280px !important;
         left: 50% !important;
-        /* 強制覆蓋所有 JS 位移，將內容死鎖在玻璃板中央，並推前 20px 避免閃爍 */
+        top: 50% !important;
+        /* translateZ(20px) 確保浮在玻璃上，其餘座標死鎖在 50% */
         transform: translate(-50%, -50%) translateZ(20px) !important;
-        width: 100% !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
-        justify-content: center !important;
-        margin: 0 !important;
-        pointer-events: auto !important;
+        text-align: center !important;
     }
-
-    /* 確保所有面本身也是置中的 */
-    .cube-face {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-    }
-
     /* 6. 按鈕區域：改為 fixed 確保不位移 */
     .controls {
         position: fixed !important;
