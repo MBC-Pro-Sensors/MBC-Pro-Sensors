@@ -1190,32 +1190,35 @@ function initLab() {
             progressBar.style.width = `${progress}%`;
         }
 
-        // 4. 【精準修正】確保 3D 空間與點擊權限
+      // 4. 【強化修復】確保 3D 空間與點擊權限，並加入防錯機制
         const allFaces = document.querySelectorAll('.cube-face');
         const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
 
         allFaces.forEach((face) => {
-            // 修正點：確保 face 本身可以被點擊，但裡面的圖片不會攔截拖拽
             face.style.pointerEvents = 'auto'; 
             
-            const wrapper = face.querySelector('.product-content, .contact-wrapper');
+            // 使用 querySelector 分開抓取，確保相容性
+            const wrapper = face.querySelector('.product-content') || face.querySelector('.contact-wrapper');
             if (wrapper) {
-                // 為了不破壞 3D 旋轉，我們不隨便動 translateZ，只處理當前活動面
-                wrapper.style.pointerEvents = 'none'; // 讓滑鼠點擊可以穿透圖片
+                // 非當前面時，讓滑鼠點擊穿透，避免干擾旋轉
+                wrapper.style.pointerEvents = 'none'; 
             }
         });
 
         // 5. 確保「當前對準玩家的那一面」內容可以接收互動
         const targetFace = document.querySelector(facesClass[currentIndex]);
         if (targetFace) {
-            const activeWrapper = targetFace.querySelector('.product-content, .contact-wrapper');
+            const activeWrapper = targetFace.querySelector('.product-content') || targetFace.querySelector('.contact-wrapper');
             if (activeWrapper) {
-                activeWrapper.style.pointerEvents = 'auto'; // 只有當前面的內容可以點擊
-                // 加入一個微小的延遲確保 GSAP 旋轉完成後才置頂內容
-                gsap.to(activeWrapper, { translateZ: 25, duration: 0.3 });
+                activeWrapper.style.pointerEvents = 'auto'; 
+                // 加入 overwrite: true 確保多次點擊時不會動畫衝突
+                gsap.to(activeWrapper, { 
+                    translateZ: 25, 
+                    duration: 0.3, 
+                    overwrite: true 
+                });
             }
         }
-    }
 
 
 // --- 修改 rotateCube ---
@@ -1368,47 +1371,43 @@ function rotateCube() {
 
 
 
-    // 感測器互動特效 (Mouse Over)
-
+  // 感測器互動特效 (Mouse Over) - 強化防錯版
     document.addEventListener('mouseover', (e) => {
-
         const visual = e.target.closest('.product-visual');
-
         if (visual) {
+            const pins = visual.querySelectorAll('.pin');
+            const mockup = visual.querySelector('.sensor-mockup');
 
-            gsap.to(visual.querySelectorAll('.pin'), {
-
-                opacity: 1, scale: 1, stagger: 0.05, duration: 0.4, ease: "back.out(2)"
-
-            });
-
-            gsap.to(visual.querySelector('.sensor-mockup'), {
-
-                x: 10, y: -10, duration: 0.5, ease: "power2.out"
-
-            });
-
+            // 加上 if 判斷：只有當元件存在時才執行動畫
+            if (pins.length > 0) {
+                gsap.to(pins, {
+                    opacity: 1, scale: 1, stagger: 0.05, duration: 0.4, ease: "back.out(2)"
+                });
+            }
+            if (mockup) {
+                gsap.to(mockup, {
+                    x: 10, y: -10, duration: 0.5, ease: "power2.out"
+                });
+            }
         }
-
     });
 
-
-
+    // 感測器互動特效 (Mouse Out) - 強化防錯版
     document.addEventListener('mouseout', (e) => {
-
         const visual = e.target.closest('.product-visual');
-
         if (visual) {
+            const pins = visual.querySelectorAll('.pin');
+            const mockup = visual.querySelector('.sensor-mockup');
 
-            gsap.to(visual.querySelectorAll('.pin'), { opacity: 0, scale: 0.5, duration: 0.3 });
-
-            gsap.to(visual.querySelector('.sensor-mockup'), { x: 0, y: 0, duration: 0.5 });
-
+            // 同樣加上 if 判斷
+            if (pins.length > 0) {
+                gsap.to(pins, { opacity: 0, scale: 0.5, duration: 0.3 });
+            }
+            if (mockup) {
+                gsap.to(mockup, { x: 0, y: 0, duration: 0.5 });
+            }
         }
-
     });
-
-});
 
 </script>
 </body>
