@@ -726,7 +726,7 @@ body {
 <body>
     <div id="start-overlay" style="position:fixed; inset:0; background:#000; z-index:10005; display:flex; align-items:center; justify-content:center; cursor:pointer;">
         <div style="color:var(--tiffany-green); font-family:monospace; letter-spacing:5px; border:1px solid var(--tiffany-green); padding:20px 40px;">
-            CLICK TO INITIALIZE SYSTEM
+            點擊後啟動程式
         </div>
     </div>
 
@@ -739,9 +739,9 @@ body {
         <div id="data-stream-right" class="data-stream"></div>
         <div class="bio-center">
             <div class="fingerprint-scan" id="main-scanner"></div>
-            <div class="bio-text" id="bio-status-text">INITIALIZING BIO-SCAN...</div>
-            <div class="bio-id-info" id="bio-id-info">SUBJECT: UNKNOWN</div>
-            <div id="auto-check-btn"><span class="check-icon"></span>ACCESS GRANTED</div>
+            <div class="bio-text" id="bio-status-text">初始化系統掃描.....</div>
+            <div class="bio-id-info" id="bio-id-info">辨識對象：未知單位</div>
+            <div id="auto-check-btn"><span class="check-icon"></span>授權存取</div>
         </div>
     </div>
 
@@ -968,72 +968,88 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cursorRing) gsap.to(cursorRing, { x: e.clientX, y: e.clientY, duration: 0.2 });
     });
 
-    // --- 2. 自動化生物辨識系統 ---
-    function startAutomatedBioScan() {
-        const bioLayer = document.getElementById('bio-layer');
-        const statusText = document.getElementById('bio-status-text');
-        const idInfo = document.getElementById('bio-id-info');
-        const mainScanner = document.getElementById('main-scanner');
-        const checkBtn = document.getElementById('auto-check-btn');
-        const leftStream = document.getElementById('data-stream-left');
-        const rightStream = document.getElementById('data-stream-right');
-        const scannerLine = document.querySelector('.bio-scanner-line');
-        const doorSfx = document.getElementById('sfx-door');
-        const accessSfx = document.getElementById('sfx-access');
+  // --- 2. 自動化生物辨識系統 (中文化修正版) ---
+function startAutomatedBioScan() {
+    const bioLayer = document.getElementById('bio-layer');
+    const statusText = document.getElementById('bio-status-text');
+    const idInfo = document.getElementById('bio-id-info');
+    const mainScanner = document.getElementById('main-scanner');
+    const checkBtn = document.getElementById('auto-check-btn');
+    const leftStream = document.getElementById('data-stream-left');
+    const rightStream = document.getElementById('data-stream-right');
+    const scannerLine = document.querySelector('.bio-scanner-line');
+    const doorSfx = document.getElementById('sfx-door');
+    const accessSfx = document.getElementById('sfx-access');
 
-        const generateCode = () => {
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]{}_+=-*&^%$#@!Ω≈ç";
-            let str = "";
-            for (let i = 0; i < 20; i++) str += chars.charAt(Math.floor(Math.random() * chars.length)) + (i % 2 === 0 ? " " : "<br>");
-            return str;
-        };
+    const generateCode = () => {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]{}_+=-*&^%$#@!Ω≈ç";
+        let str = "";
+        for (let i = 0; i < 20; i++) str += chars.charAt(Math.floor(Math.random() * chars.length)) + (i % 2 === 0 ? " " : "<br>");
+        return str;
+    };
 
-        const streamInterval = setInterval(() => {
-            if (leftStream) leftStream.innerHTML = generateCode();
-            if (rightStream) rightStream.innerHTML = generateCode();
-        }, 80);
+    const streamInterval = setInterval(() => {
+        if (leftStream) leftStream.innerHTML = generateCode();
+        if (rightStream) rightStream.innerHTML = generateCode();
+    }, 80);
 
+    // --- 第一階段：掃描中 (黃色) ---
+    setTimeout(() => {
+        if (bioLayer) bioLayer.classList.add('scanning-active');
+        const yellow = "#ffcc00";
+        if (statusText) { 
+            statusText.innerText = "警報：正在分析生物辨識特徵..."; // 原: WARNING: ANALYZING BIOMETRIC PATTERNS...
+            statusText.style.color = yellow; 
+        }
+        if (idInfo) { 
+            idInfo.innerText = "偵測神經脈衝頻率中..."; // 原: SENSING NEURAL FREQUENCY...
+            idInfo.style.color = yellow; 
+        }
+        if (mainScanner) mainScanner.style.borderColor = yellow;
+        if (scannerLine) { scannerLine.style.background = yellow; scannerLine.style.boxShadow = `0 0 20px ${yellow}`; }
+
+        // --- 第二階段：通過 (綠色) ---
         setTimeout(() => {
-            if (bioLayer) bioLayer.classList.add('scanning-active');
-            const yellow = "#ffcc00";
-            if (statusText) { statusText.innerText = "WARNING: ANALYZING BIOMETRIC PATTERNS..."; statusText.style.color = yellow; }
-            if (idInfo) { idInfo.innerText = "SENSING NEURAL FREQUENCY..."; idInfo.style.color = yellow; }
-            if (mainScanner) mainScanner.style.borderColor = yellow;
-            if (scannerLine) { scannerLine.style.background = yellow; scannerLine.style.boxShadow = `0 0 20px ${yellow}`; }
+            if (bioLayer) {
+                bioLayer.classList.remove('scanning-active');
+                bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
+            }
+            const green = "#33ff33";
+            if (statusText) { 
+                statusText.innerText = "身分驗證成功：首席工程師"; // 原: IDENTITY VERIFIED: CHIEF ENGINEER
+                statusText.style.color = green; 
+            }
+            if (idInfo) { 
+                idInfo.innerText = "授權存取 // 歡迎回來 SPARK-031"; // 原: ACCESS GRANTED // WELCOME SPARK-031
+                idInfo.style.color = green; 
+            }
+            if (mainScanner) mainScanner.style.borderColor = green;
+            if (scannerLine) { scannerLine.style.background = green; scannerLine.style.boxShadow = `0 0 20px ${green}`; }
 
+            if (accessSfx) { accessSfx.volume = 0.6; accessSfx.play().catch(e => { }); }
+            if (checkBtn) {
+                checkBtn.innerHTML = '<span class="check-icon"></span>存取授權成功'; // 修改按鈕文字
+                checkBtn.style.display = "block";
+                gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
+            }
+
+            // --- 第三階段：開門 ---
             setTimeout(() => {
-                if (bioLayer) {
-                    bioLayer.classList.remove('scanning-active');
-                    bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
-                }
-                const green = "#33ff33";
-                if (statusText) { statusText.innerText = "IDENTITY VERIFIED: CHIEF ENGINEER"; statusText.style.color = green; }
-                if (idInfo) { idInfo.innerText = "ACCESS GRANTED // WELCOME SPARK-031"; idInfo.style.color = green; }
-                if (mainScanner) mainScanner.style.borderColor = green;
-                if (scannerLine) { scannerLine.style.background = green; scannerLine.style.boxShadow = `0 0 20px ${green}`; }
+                clearInterval(streamInterval);
+                if (bioLayer) gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
+                if (doorSfx) { doorSfx.volume = 0.7; doorSfx.play().catch(e => { }); }
 
-                if (accessSfx) { accessSfx.volume = 0.6; accessSfx.play().catch(e => { }); }
-                if (checkBtn) {
-                    checkBtn.style.display = "block";
-                    gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
-                }
-
-                setTimeout(() => {
-                    clearInterval(streamInterval);
-                    if (bioLayer) gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
-                    if (doorSfx) { doorSfx.volume = 0.7; doorSfx.play().catch(e => { }); }
-
-                    gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
-                    gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
-                        const doorCont = document.getElementById('lab-door-container');
-                        if (doorCont) doorCont.remove();
-                        if (bioLayer) bioLayer.remove();
-                        initLab();
-                    }});
-                }, 3000);
-            }, 2500);
-        }, 1500);
-    }
+                gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
+                gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
+                    const doorCont = document.getElementById('lab-door-container');
+                    if (doorCont) doorCont.remove();
+                    if (bioLayer) bioLayer.remove();
+                    initLab();
+                }});
+            }, 3000);
+        }, 2500);
+    }, 1500);
+}
 
     function initLab() {
         gsap.set(".lab-stage", { opacity: 1, display: "flex" });
