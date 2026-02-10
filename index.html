@@ -1167,95 +1167,55 @@ function initLab() {
 
 
     function updateSystem(index) {
-
         if (index < 0) index = categories.length - 1;
-
         if (index >= categories.length) index = 0;
 
-
-
         currentIndex = index;
-
         const data = categories[currentIndex];
 
-
-
         // 1. 更新主題顏色
-
         root.style.setProperty('--current-theme', data.color);
 
-
-
-        // 2. 更新立方體紋理
-
+        // 2. 更新立方體紋理 (保持原樣)
         const cubeElement = document.getElementById('cube');
-
         if (cubeElement) {
-
             categories.forEach(cat => cubeElement.classList.remove(cat.texture));
-
             cubeElement.classList.add(data.texture);
-
         }
 
-
-
-        // 3. 更新導覽列與進度條
-
+        // 3. 更新導覽列與進度條 (保持原樣)
         navItems.forEach((item, i) => item.classList.toggle('active', i === currentIndex));
-
         if (progressBar) {
-
             const progress = ((currentIndex + 1) / categories.length) * 100;
-
             progressBar.style.width = `${progress}%`;
-
         }
 
-
-
-        // 4. 【核心修復】解除點擊限制並處理 Z 軸空間
-
+        // 4. 【精準修正】確保 3D 空間與點擊權限
         const allFaces = document.querySelectorAll('.cube-face');
-
         const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
 
-
-
         allFaces.forEach((face) => {
-
-            face.style.pointerEvents = 'auto'; // 開啟點擊感應
-
-            face.style.opacity = "1";
-
-            // 先重設所有面的內容位移
-
+            // 修正點：確保 face 本身可以被點擊，但裡面的圖片不會攔截拖拽
+            face.style.pointerEvents = 'auto'; 
+            
             const wrapper = face.querySelector('.product-content, .contact-wrapper');
-
-            if (wrapper) wrapper.style.transform = 'translateZ(0px)';
-
+            if (wrapper) {
+                // 為了不破壞 3D 旋轉，我們不隨便動 translateZ，只處理當前活動面
+                wrapper.style.pointerEvents = 'none'; // 讓滑鼠點擊可以穿透圖片
+            }
         });
 
-
-
-        // 5. 確保「當前對準玩家的那一面」內容浮在最表層
-
+        // 5. 確保「當前對準玩家的那一面」內容可以接收互動
         const targetFace = document.querySelector(facesClass[currentIndex]);
-
         if (targetFace) {
-
             const activeWrapper = targetFace.querySelector('.product-content, .contact-wrapper');
-
             if (activeWrapper) {
-
-                activeWrapper.style.transform = 'translateZ(20px)'; // 往前推 20px 確保點擊權
-
+                activeWrapper.style.pointerEvents = 'auto'; // 只有當前面的內容可以點擊
+                // 加入一個微小的延遲確保 GSAP 旋轉完成後才置頂內容
+                gsap.to(activeWrapper, { translateZ: 25, duration: 0.3 });
             }
-
         }
-
     }
-
 
 
 // --- 修改 rotateCube ---
