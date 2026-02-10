@@ -696,6 +696,39 @@ body {
     z-index: 0 !important;
     pointer-events: none !important;
 }
+      /* 導覽列品牌區塊佈局 */
+.nav-brand {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Logo 圖片大小控制 */
+.brand-logo {
+    height: 35px; /* 根據你的導覽列高度微調 */
+    width: auto;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.3));
+    transition: transform 0.3s ease;
+}
+
+/* 品牌文字樣式（繼承你原本的樣式並微調） */
+.brand-text {
+    font-family: 'Orbitron', sans-serif; /* 假設你使用科技感字體 */
+    letter-spacing: 2px;
+    font-weight: bold;
+    color: var(--tiffany-green); /* 或者你原本設定的顏色 */
+    white-space: nowrap;
+}
+
+/* 懸停時的整體聯動效果 */
+.nav-brand:hover .brand-logo {
+    transform: scale(1.1) rotate(-5deg); /* 輕微旋轉增加動感 */
+    filter: drop-shadow(0 0 12px var(--tiffany-green));
+}
+
+.nav-brand:hover .brand-text {
+    text-shadow: 0 0 15px var(--tiffany-green);
+    letter-spacing: 3px; /* 稍微展開的呼吸感 */
+}
 </style>
 </head>
 <body>
@@ -733,7 +766,10 @@ body {
     </div>
 
     <nav id="tactical-nav">
-        <div class="nav-brand">MBC-PRO-SENSORS</div>
+       <div class="nav-brand" style="display: flex; align-items: center; gap: 15px;">
+    <img src="mbc-pro-logo (1).png" alt="MBC Logo" class="brand-logo">
+    <span class="brand-text">MBC-PRO-SENSORS</span>
+</div>
         <div class="nav-menu">
             <a href="#" class="nav-item active" data-cat="0" data-color="var(--color-home)">HOME</a>
             <a href="#" class="nav-item" data-cat="1" data-color="var(--color-sensor)">MBC SENSOR</a>
