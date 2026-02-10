@@ -697,6 +697,30 @@ body {
 /* 核心 Keyframes */
 @keyframes scanDown { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+     /* --- 修正圖片排版崩潰 --- */
+.product-visual {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden; /* 確保圖片不溢出邊框 */
+}
+
+.product-visual img {
+    /* 這裡覆蓋掉行內樣式的 250px，確保不超過父容器 */
+    max-width: 90% !important; 
+    max-height: 90% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain; /* 保持圖片比例不變形 */
+    pointer-events: none; /* 防止圖片被滑鼠點擊拖動影響 3D 旋轉 */
+}
+
+/* 為了讓文字不被擠壓，固定標題位置 */
+.product-name {
+    margin-top: 15px !important;
+    font-size: 1.2rem;
+    white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -833,15 +857,19 @@ body {
         </div>
 
         <div class="scene" style="pointer-events: auto; position: relative; z-index: 10; width: 400px; height: 400px; display: flex; justify-content: center; align-items: center; perspective: 2000px;">
-            <div class="cube" id="cube">
-                <div class="cube-face cube-front">
-                    <div class="corner tl"></div><div class="corner tr"></div>
-                    <div class="corner bl"></div><div class="corner br"></div>
-                    <div class="product-content">
-                        <h2 class="product-name">LAB FACILITY</h2>
-                        <p class="product-desc">READY FOR OPERATION</p>
-                    </div>
-                </div>
+           <div class="cube-face cube-front">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    
+    <div class="product-content">
+        <div class="product-visual">
+            <img src="mbc-pro-logo (1).png" alt="Main Logo">
+        </div>
+        
+        <h2 class="product-name">LAB FACILITY</h2>
+        <p class="product-desc">READY FOR OPERATION</p>
+    </div>
+</div>
 
                 <div class="cube-face cube-right">
                     <div class="corner tl"></div><div class="corner tr"></div>
@@ -849,7 +877,7 @@ body {
                     <div class="product-content">
                         <a href="sensor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
                             <div class="product-visual">
-                                <img src="sensor_main.png" alt="MBC Sensor" style="width: 250px; height: auto;">
+                                <img src="sensor_main.png" alt="MBC Sensor">
                             </div>
                             <h2 class="product-name">MBC SENSOR</h2>
                         </a>
@@ -862,7 +890,7 @@ body {
                     <div class="product-content">
                         <a href="motor.html" target="_self" style="text-decoration: none; color: inherit; display: block;">
                             <div class="product-visual">
-                                <img src="motor_main.png" alt="Technic Motor" style="width: 250px; height: auto;">
+                                <img src="motor_main.png" alt="Technic Motor">
                             </div>
                             <h2 class="product-name">TECHNIC MOTOR</h2>
                         </a>
