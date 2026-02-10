@@ -931,240 +931,125 @@ body {
     </main>
     
 <script>
-
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 
     // --- A. 啟動層邏輯 ---
-
     const startOverlay = document.getElementById('start-overlay');
-
     if (startOverlay) {
-
         startOverlay.addEventListener('click', () => {
-
             gsap.to(startOverlay, { opacity: 0, duration: 0.5, onComplete: () => startOverlay.remove() });
-
             startAutomatedBioScan();
-
         });
-
     }
-
-
 
     // --- 0. 資料庫定義 ---
-
     const categories = [
-
         { name: "LAB FACILITY", desc: "READY FOR OPERATION", color: "var(--color-home)", texture: "texture-lab" },
-
         { name: "MBC SENSOR", desc: "Precision Tracking / Cyan Core", color: "var(--color-sensor)", texture: "texture-circuit" },
-
         { name: "TECHNIC MOTOR", desc: "High Torque / Power Red", color: "var(--color-motor)", texture: "texture-power" },
-
         { name: "CONTACT US", desc: "Secure Channel", color: "var(--color-contact)", texture: "texture-circuit" }
-
     ];
 
-
-
     let currentIndex = 0;
-
     let currentRotation = 0;
-
     const root = document.documentElement;
-
     const cube = document.getElementById('cube');
-
     const navItems = document.querySelectorAll('.nav-item');
-
     const progressBar = document.querySelector('.nav-progress-bar');
-
     let currentArmTL = null;
 
-
-
     // --- 1. 鼠標引力燈系統 ---
-
     const cursorLight = document.getElementById('cursor-light');
-
     const cursorRing = document.getElementById('cursor-ring');
-
     document.addEventListener('mousemove', (e) => {
-
-        gsap.to(cursorLight, { x: e.clientX, y: e.clientY, duration: 0.1 });
-
-        gsap.to(cursorRing, { x: e.clientX, y: e.clientY, duration: 0.2 });
-
+        if (cursorLight) gsap.to(cursorLight, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        if (cursorRing) gsap.to(cursorRing, { x: e.clientX, y: e.clientY, duration: 0.2 });
     });
-
-
 
     // --- 2. 自動化生物辨識系統 ---
-
     function startAutomatedBioScan() {
-
         const bioLayer = document.getElementById('bio-layer');
-
         const statusText = document.getElementById('bio-status-text');
-
         const idInfo = document.getElementById('bio-id-info');
-
         const mainScanner = document.getElementById('main-scanner');
-
         const checkBtn = document.getElementById('auto-check-btn');
-
         const leftStream = document.getElementById('data-stream-left');
-
         const rightStream = document.getElementById('data-stream-right');
-
         const scannerLine = document.querySelector('.bio-scanner-line');
-
         const doorSfx = document.getElementById('sfx-door');
-
         const accessSfx = document.getElementById('sfx-access');
 
-
-
         const generateCode = () => {
-
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>[]{}_+=-*&^%$#@!Ω≈ç";
-
             let str = "";
-
             for (let i = 0; i < 20; i++) str += chars.charAt(Math.floor(Math.random() * chars.length)) + (i % 2 === 0 ? " " : "<br>");
-
             return str;
-
         };
 
-
-
         const streamInterval = setInterval(() => {
-
             if (leftStream) leftStream.innerHTML = generateCode();
-
             if (rightStream) rightStream.innerHTML = generateCode();
-
         }, 80);
 
-
-
         setTimeout(() => {
-
-            bioLayer.classList.add('scanning-active');
-
+            if (bioLayer) bioLayer.classList.add('scanning-active');
             const yellow = "#ffcc00";
-
             if (statusText) { statusText.innerText = "WARNING: ANALYZING BIOMETRIC PATTERNS..."; statusText.style.color = yellow; }
-
             if (idInfo) { idInfo.innerText = "SENSING NEURAL FREQUENCY..."; idInfo.style.color = yellow; }
-
             if (mainScanner) mainScanner.style.borderColor = yellow;
-
             if (scannerLine) { scannerLine.style.background = yellow; scannerLine.style.boxShadow = `0 0 20px ${yellow}`; }
 
-
-
             setTimeout(() => {
-
-                bioLayer.classList.remove('scanning-active');
-
-                bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
-
+                if (bioLayer) {
+                    bioLayer.classList.remove('scanning-active');
+                    bioLayer.style.backgroundColor = "rgba(51, 255, 51, 0.05)";
+                }
                 const green = "#33ff33";
-
                 if (statusText) { statusText.innerText = "IDENTITY VERIFIED: CHIEF ENGINEER"; statusText.style.color = green; }
-
                 if (idInfo) { idInfo.innerText = "ACCESS GRANTED // WELCOME SPARK-031"; idInfo.style.color = green; }
-
                 if (mainScanner) mainScanner.style.borderColor = green;
-
                 if (scannerLine) { scannerLine.style.background = green; scannerLine.style.boxShadow = `0 0 20px ${green}`; }
 
-
-
                 if (accessSfx) { accessSfx.volume = 0.6; accessSfx.play().catch(e => { }); }
-
                 if (checkBtn) {
-
                     checkBtn.style.display = "block";
-
                     gsap.from(checkBtn, { scale: 0, opacity: 0, duration: 0.5, ease: "back.out" });
-
                 }
 
-
-
                 setTimeout(() => {
-
                     clearInterval(streamInterval);
-
-                    gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
-
+                    if (bioLayer) gsap.to(bioLayer, { opacity: 0, duration: 1.2 });
                     if (doorSfx) { doorSfx.volume = 0.7; doorSfx.play().catch(e => { }); }
 
-
-
                     gsap.to(".left-door", { x: "-100%", duration: 3.0, ease: "power2.inOut" });
-
                     gsap.to(".right-door", { x: "100%", duration: 3.0, ease: "power2.inOut", onComplete: () => {
-
                         const doorCont = document.getElementById('lab-door-container');
-
                         if (doorCont) doorCont.remove();
-
                         if (bioLayer) bioLayer.remove();
-
                         initLab();
-
                     }});
-
                 }, 3000);
-
             }, 2500);
-
         }, 1500);
-
     }
 
-
-
-  // --- 修改 initLab ---
-
-function initLab() {
-
-    gsap.set(".lab-stage", { opacity: 1, display: "flex" });
-
-    gsap.from(".hero-title", { y: 30, opacity: 0, duration: 1 });
-
-    
-
-    // 只做旋轉與縮放動畫，不碰座標
-
-    gsap.from(cube, {
-
-        opacity: 0,
-
-        rotationY: 180,
-
-        duration: 1.5,
-
-        ease: "back.out(1.7)",
-
-        onComplete: () => {
-
-            updateSystem(0);
-
-            gsap.from(".controls", { opacity: 0, y: 20, duration: 0.5 });
-
+    function initLab() {
+        gsap.set(".lab-stage", { opacity: 1, display: "flex" });
+        gsap.from(".hero-title", { y: 30, opacity: 0, duration: 1 });
+        
+        if (cube) {
+            gsap.from(cube, {
+                opacity: 0,
+                rotationY: 180,
+                duration: 1.5,
+                ease: "back.out(1.7)",
+                onComplete: () => {
+                    updateSystem(0);
+                    gsap.from(".controls", { opacity: 0, y: 20, duration: 0.5 });
+                }
+            });
         }
-
-    });
-
-}
-
-
+    }
 
     function updateSystem(index) {
         if (index < 0) index = categories.length - 1;
@@ -1172,243 +1057,129 @@ function initLab() {
 
         currentIndex = index;
         const data = categories[currentIndex];
-
-        // 1. 更新主題顏色
         root.style.setProperty('--current-theme', data.color);
 
-        // 2. 更新立方體紋理 (保持原樣)
-        const cubeElement = document.getElementById('cube');
-        if (cubeElement) {
-            categories.forEach(cat => cubeElement.classList.remove(cat.texture));
-            cubeElement.classList.add(data.texture);
+        if (cube) {
+            categories.forEach(cat => cube.classList.remove(cat.texture));
+            cube.classList.add(data.texture);
         }
 
-        // 3. 更新導覽列與進度條 (保持原樣)
         navItems.forEach((item, i) => item.classList.toggle('active', i === currentIndex));
         if (progressBar) {
             const progress = ((currentIndex + 1) / categories.length) * 100;
             progressBar.style.width = `${progress}%`;
         }
 
-      // 4. 【強化修復】確保 3D 空間與點擊權限，並加入防錯機制
         const allFaces = document.querySelectorAll('.cube-face');
         const facesClass = ['.cube-front', '.cube-right', '.cube-back', '.cube-left'];
 
         allFaces.forEach((face) => {
             face.style.pointerEvents = 'auto'; 
-            
-            // 使用 querySelector 分開抓取，確保相容性
             const wrapper = face.querySelector('.product-content') || face.querySelector('.contact-wrapper');
-            if (wrapper) {
-                // 非當前面時，讓滑鼠點擊穿透，避免干擾旋轉
-                wrapper.style.pointerEvents = 'none'; 
-            }
+            if (wrapper) wrapper.style.pointerEvents = 'none';
         });
 
-        // 5. 確保「當前對準玩家的那一面」內容可以接收互動
         const targetFace = document.querySelector(facesClass[currentIndex]);
         if (targetFace) {
             const activeWrapper = targetFace.querySelector('.product-content') || targetFace.querySelector('.contact-wrapper');
             if (activeWrapper) {
                 activeWrapper.style.pointerEvents = 'auto'; 
-                // 加入 overwrite: true 確保多次點擊時不會動畫衝突
-                gsap.to(activeWrapper, { 
-                    translateZ: 25, 
-                    duration: 0.3, 
-                    overwrite: true 
-                });
+                gsap.to(activeWrapper, { translateZ: 25, duration: 0.3, overwrite: true });
             }
         }
+    } // <-- 補上這個大括號！
 
-
-// --- 修改 rotateCube ---
-
-function rotateCube() {
-
-    if (cube) {
-
-        gsap.to(cube, {
-
-            rotationY: currentRotation,
-
-            // 絕對不要在這裡寫 x:0, y:0，保持純淨的旋轉
-
-            duration: 1.2,
-
-            ease: "expo.out",
-
-            overwrite: "auto"
-
-        });
-
+    function rotateCube() {
+        if (cube) {
+            gsap.to(cube, {
+                rotationY: currentRotation,
+                duration: 1.2,
+                ease: "expo.out",
+                overwrite: "auto"
+            });
+        }
     }
-
-}
-
-
-
-    // --- 4. 機械臂動畫邏輯 ---
 
     function animateComplexArm(side) {
-
         const container = side === 'left' ? '#arm-left-container' : '#arm-right-container';
-
         const shoulder = side === 'left' ? '#left-shoulder-group' : '#right-shoulder-group';
-
         const elbow = side === 'left' ? '#left-elbow-group' : '#right-elbow-group';
-
         const claw = side === 'left' ? '#left-claw-mechanism' : '#right-claw-mechanism';
 
-
-
         let shoulderRot = side === 'left' ? 40 : 45;
-
         let elbowRot = side === 'left' ? 50 : 60;
-
         let containerMoveX = side === 'left' ? 80 : 40;
-
         let containerMoveY = side === 'left' ? -350 : -480;
 
-
-
         currentArmTL = gsap.timeline({
-
             onComplete: () => { currentArmTL = null; },
-
             defaults: { ease: "power2.inOut" }
-
         });
-
-
 
         currentArmTL
-
             .to(container, { y: containerMoveY, x: containerMoveX, duration: 0.6 })
-
             .to(shoulder, { rotation: shoulderRot, duration: 0.5 }, "-=0.3")
-
             .to(elbow, { rotation: elbowRot, duration: 0.5 }, "<")
-
             .to(claw, { scale: 0.6, duration: 0.2 })
-
             .to(claw, { scale: 1.0, duration: 0.3, ease: "back.out(2)" })
-
             .to([shoulder, elbow], { rotation: 0, duration: 0.5, delay: 0.2 })
-
             .to(container, { y: 0, x: 0, duration: 0.6 }, "-=0.2");
-
     }
 
-
-
-    // --- 5. 事件監聽 (按鈕、導覽列、感測器) ---
-
     const nextBtn = document.querySelector('.next-btn');
-
     const prevBtn = document.querySelector('.prev-btn');
 
-
-
     if (nextBtn) nextBtn.addEventListener('click', () => {
-
         if (currentArmTL && currentArmTL.isActive()) return;
-
         let nextIndex = (currentIndex + 1) % categories.length;
-
         currentRotation -= 90;
-
         updateSystem(nextIndex);
-
         rotateCube();
-
         animateComplexArm('left');
-
     });
-
-
 
     if (prevBtn) prevBtn.addEventListener('click', () => {
-
         if (currentArmTL && currentArmTL.isActive()) return;
-
         let prevIndex = (currentIndex - 1 + categories.length) % categories.length;
-
         currentRotation += 90;
-
         updateSystem(prevIndex);
-
         rotateCube();
-
         animateComplexArm('right');
-
     });
-
-
 
     navItems.forEach((item, index) => {
-
         item.addEventListener('click', (e) => {
-
             e.preventDefault();
-
             if (currentArmTL && currentArmTL.isActive()) return;
-
             const diff = index - currentIndex;
-
             if (diff === 0) return;
-
             currentRotation -= (90 * diff);
-
             index > currentIndex ? animateComplexArm('left') : animateComplexArm('right');
-
             updateSystem(index);
-
             rotateCube();
-
         });
-
     });
 
-
-
-  // 感測器互動特效 (Mouse Over) - 強化防錯版
     document.addEventListener('mouseover', (e) => {
         const visual = e.target.closest('.product-visual');
         if (visual) {
             const pins = visual.querySelectorAll('.pin');
             const mockup = visual.querySelector('.sensor-mockup');
-
-            // 加上 if 判斷：只有當元件存在時才執行動畫
-            if (pins.length > 0) {
-                gsap.to(pins, {
-                    opacity: 1, scale: 1, stagger: 0.05, duration: 0.4, ease: "back.out(2)"
-                });
-            }
-            if (mockup) {
-                gsap.to(mockup, {
-                    x: 10, y: -10, duration: 0.5, ease: "power2.out"
-                });
-            }
+            if (pins.length > 0) gsap.to(pins, { opacity: 1, scale: 1, stagger: 0.05, duration: 0.4, ease: "back.out(2)" });
+            if (mockup) gsap.to(mockup, { x: 10, y: -10, duration: 0.5, ease: "power2.out" });
         }
     });
 
-    // 感測器互動特效 (Mouse Out) - 強化防錯版
     document.addEventListener('mouseout', (e) => {
         const visual = e.target.closest('.product-visual');
         if (visual) {
             const pins = visual.querySelectorAll('.pin');
             const mockup = visual.querySelector('.sensor-mockup');
-
-            // 同樣加上 if 判斷
-            if (pins.length > 0) {
-                gsap.to(pins, { opacity: 0, scale: 0.5, duration: 0.3 });
-            }
-            if (mockup) {
-                gsap.to(mockup, { x: 0, y: 0, duration: 0.5 });
-            }
+            if (pins.length > 0) gsap.to(pins, { opacity: 0, scale: 0.5, duration: 0.3 });
+            if (mockup) gsap.to(mockup, { x: 0, y: 0, duration: 0.5 });
         }
     });
-
+});
 </script>
 </body>
 </html>
