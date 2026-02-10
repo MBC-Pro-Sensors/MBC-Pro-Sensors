@@ -7,66 +7,94 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>   
 
-  <style>
-  /* --- 0. 全局變數與基礎設定 --- */
-/* --- 修改後的 :root --- */
+ <style>
+/* --- 0. 全局變數與基礎設定 --- */
 :root {
-    /* 1. 核心底色與漸層 (保留原樣) */
+    /* 1. 核心底色與漸層 */
     --bg-dark: #050a10;
     --bg-gradient: linear-gradient(135deg, #0f1720 0%, #000000 100%);
     --glass-bg: rgba(20, 30, 40, 0.4);
     --glass-border: rgba(255, 255, 255, 0.1);
-    --tiffany-green: #0ABAB5; /* 鼠標引力燈顏色保持不變 */
+    --tiffany-green: #0ABAB5;
 
-    /* 2. 重新定義的四個面主題色 (對應你的新要求) */
-    --color-home: #00d2ff;    /* 首頁：青藍色 */
-    --color-sensor: #ffff00;  /* 感應器：黃色 */
-    --color-motor: #ff4500;   /* 馬達：紅色 (沿用你原本的 neon-orange 較有科技感，或改純紅 #ff0000) */
-    --color-contact: #b026ff; /* 聯絡我們：紫色 */
+    /* 2. 重新定義的四個面主題色 */
+    --color-home: #00d2ff;
+    --color-sensor: #ffff00;
+    --color-motor: #ff4500;
+    --color-contact: #b026ff;
 
-    /* 3. 動態變更的主題色 (初始化為首頁顏色) */
-    --current-theme: var(--color-home); 
+    /* 3. 動態變更的主題色 */
+    --current-theme: var(--color-home);
 }
 
-* { box-sizing: border-box; cursor: none; /* 隱藏原生鼠標 */ }
+* {
+    box-sizing: border-box;
+    cursor: none;
+}
+
 body {
-    margin: 0; padding: 0;
+    margin: 0;
+    padding: 0;
     background: var(--bg-dark);
     font-family: 'Segoe UI', 'Orbitron', sans-serif;
-    color: white; overflow: hidden; height: 100vh;
+    color: white;
+    overflow: hidden;
+    height: 100vh;
 }
 
 /* --- 1. 鼠標引力燈特效 (Tiffany Green) --- */
 #cursor-light {
-    position: fixed; top: 0; left: 0; width: 400px; height: 400px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 400px;
+    height: 400px;
     background: radial-gradient(circle, rgba(10,186,181,0.15) 0%, transparent 70%);
-    transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
     transition: width 0.1s, height 0.1s;
     mix-blend-mode: screen;
 }
+
 #cursor-ring {
-    position: fixed; top: 0; left: 0; width: 20px; height: 20px;
-    border: 2px solid var(--tiffany-green); border-radius: 50%;
-    transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--tiffany-green);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 9999;
     box-shadow: 0 0 10px var(--tiffany-green);
     transition: all 0.1s ease-out;
 }
+
 .click-active #cursor-ring {
     transform: translate(-50%, -50%) scale(0.8);
     background: var(--tiffany-green);
     box-shadow: 0 0 30px var(--tiffany-green);
 }
 
-/* --- 2. 生物辨識開場 (Biometric: 自動化三段式) --- */
+/* --- 2. 生物辨識開場 --- */
 #bio-layer {
-    position: fixed; inset: 0; background: #000; z-index: 10000;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     transition: background-color 0.5s ease;
 }
 
-/* 掃描線顏色跟隨當前狀態 */
 .bio-scanner-line {
-    position: absolute; width: 100%; height: 5px; 
+    position: absolute;
+    width: 100%;
+    height: 5px;
     background: var(--tiffany-green);
     box-shadow: 0 0 20px var(--tiffany-green);
     animation: scanDown 2s infinite linear;
@@ -74,34 +102,45 @@ body {
     transition: background 0.3s, box-shadow 0.3s;
 }
 
-.bio-center { text-align: center; z-index: 10002; }
+.bio-center {
+    text-align: center;
+    z-index: 10002;
+}
 
-/* 核心掃描圈 */
 .fingerprint-scan {
-    width: 120px; height: 120px; 
+    width: 120px;
+    height: 120px;
     border: 3px solid var(--tiffany-green);
-    border-radius: 50%; margin: 0 auto 20px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
     animation: spin 4s infinite linear;
     transition: all 0.3s ease;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* 狀態文字與 ID 資訊 */
-.bio-text { 
-    font-family: 'Orbitron', monospace; color: var(--tiffany-green); 
-    letter-spacing: 3px; font-size: 1.2rem; margin-bottom: 5px;
+.bio-text {
+    font-family: 'Orbitron', monospace;
+    color: var(--tiffany-green);
+    letter-spacing: 3px;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
     transition: color 0.3s;
 }
-.bio-id-info { 
-    font-family: monospace; color: rgba(255,255,255,0.5); 
-    font-size: 0.8rem; letter-spacing: 2px;
+
+.bio-id-info {
+    font-family: monospace;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
 }
 
-/* --- 新增：黃色震動階段 --- */
 .scanning-active {
     background-color: rgba(255, 204, 0, 0.1) !important;
     animation: screenShake 0.1s infinite !important;
 }
+
 @keyframes screenShake {
     0% { transform: translate(1px, 1px); }
     25% { transform: translate(-1px, -2px); }
@@ -109,120 +148,226 @@ body {
     100% { transform: translate(1px, -1px); }
 }
 
-/* --- 新增：數據流 (Data Stream) --- */
 .data-stream {
-    position: absolute; top: 10%; width: 150px; height: 80%;
-    font-family: monospace; font-size: 10px; color: var(--tiffany-green);
-    overflow: hidden; opacity: 0.3; pointer-events: none;
+    position: absolute;
+    top: 10%;
+    width: 150px;
+    height: 80%;
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--tiffany-green);
+    overflow: hidden;
+    opacity: 0.3;
+    pointer-events: none;
 }
+
 #data-stream-left { left: 5%; }
 #data-stream-right { right: 5%; }
 
-/* --- 新增：打勾確認圖標 --- */
 #auto-check-btn {
-    display: none; margin-top: 25px; padding: 10px 30px;
-    border: 1px solid #33ff33; color: #33ff33;
-    font-family: 'Orbitron', sans-serif; font-size: 14px;
+    display: none;
+    margin-top: 25px;
+    padding: 10px 30px;
+    border: 1px solid #33ff33;
+    color: #33ff33;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
     background: rgba(51, 255, 51, 0.1);
 }
 
-/* --- 新增：實驗室大門層 --- */
+/* --- 實驗室大門層 --- */
 #lab-door-container {
-    position: fixed; inset: 0; z-index: 9999;
-    display: flex; pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    pointer-events: none;
 }
+
 .door-panel {
-    width: 50%; height: 100%; background: #050a10;
+    width: 50%;
+    height: 100%;
+    background: #050a10;
     border: 1px solid rgba(255,255,255,0.1);
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
 .left-door { border-right: 4px solid #1a1a1a; }
 .right-door { border-left: 4px solid #1a1a1a; }
 
 /* --- 3. 影片背景與掃描線 --- */
 .video-wrapper {
-    position: fixed; inset: 0; z-index: -1;
+    position: fixed;
+    inset: 0;
+    z-index: -1;
     overflow: hidden;
 }
+
 #bg-video {
-    width: 100%; height: 100%; object-fit: cover;
-    opacity: 0.5; /* 降低透明度 */
-    transform: scale(1.05); /* 裁切邊緣浮水印 */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+    transform: scale(1.05);
 }
+
 .scan-overlay {
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     background: repeating-linear-gradient(
         0deg, transparent, transparent 1px, rgba(0, 255, 255, 0.03) 2px, rgba(0, 255, 255, 0.03) 3px
     );
     pointer-events: none;
 }
+
 .vignette-overlay {
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     background: radial-gradient(circle, transparent 40%, #050a10 100%);
 }
 
 /* --- 4. 戰術導覽列 --- */
 #tactical-nav {
-    position: fixed; top: 0; width: 100%; height: 80px;
-    display: flex; align-items: center; justify-content: space-between;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 0 40px;
     background: linear-gradient(to bottom, rgba(5,10,16,0.9), rgba(5,10,16,0));
-    backdrop-filter: blur(5px); z-index: 500;
+    backdrop-filter: blur(5px);
+    z-index: 500;
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.nav-brand { font-size: 24px; font-weight: bold; letter-spacing: 2px; color: white; }
+
+.nav-brand {
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
 .nav-menu { display: flex; gap: 30px; }
+
 .nav-item {
-    text-decoration: none; color: #888; font-size: 14px; letter-spacing: 1px;
-    transition: color 0.5s, text-shadow 0.5s; position: relative;
+    text-decoration: none;
+    color: #888;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: color 0.5s, text-shadow 0.5s;
+    position: relative;
 }
-.nav-item.active { color: var(--current-theme); text-shadow: 0 0 10px var(--current-theme); }
+
+.nav-item.active {
+    color: var(--current-theme);
+    text-shadow: 0 0 10px var(--current-theme);
+}
+
 .nav-progress-container {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: rgba(255,255,255,0.1);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
 }
+
 .nav-progress-bar {
-    height: 100%; width: 0%; background: var(--current-theme);
+    height: 100%;
+    width: 0%;
+    background: var(--current-theme);
     transition: width 0.5s ease, background 0.5s ease;
     box-shadow: 0 0 10px var(--current-theme);
 }
-.id-tag { text-align: right; font-size: 10px; color: #555; border-left: 2px solid var(--current-theme); padding-left: 10px; }
-.id-tag .code { display: block; color: var(--current-theme); }
 
-
-.subtitle { letter-spacing: 5px; color: var(--current-theme); font-size: 0.9rem; margin-top: 10px; }
-    
-    /* --- 核心修正：加入 Webkit 前綴確保所有瀏覽器都不閃爍 --- */
-    backface-visibility: hidden; 
-    -webkit-backface-visibility: hidden; 
-    
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    overflow: hidden;
-    
-    /* 增加這行：防止 3D 空間中的內容被錯誤裁切 */
-    transform-style: preserve-3d; 
+.id-tag {
+    text-align: right;
+    font-size: 10px;
+    color: #555;
+    border-left: 2px solid var(--current-theme);
+    padding-left: 10px;
 }
-      /* L型聚焦框：放在每個 cube-face 的四角 */
+
+.id-tag .code {
+    display: block;
+    color: var(--current-theme);
+}
+
+.subtitle {
+    letter-spacing: 5px;
+    color: var(--current-theme);
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* --- 5. 立方體與內容 --- */
+.scene {
+    width: 400px;
+    height: 400px;
+    perspective: 1200px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 120px auto 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.cube {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.cube-face {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-style: preserve-3d;
+    pointer-events: auto !important;
+}
+
+/* 四面座標 */
+.cube-front { transform: rotateY(0deg) translateZ(200px); }
+.cube-right { transform: rotateY(90deg) translateZ(200px); }
+.cube-back  { transform: rotateY(180deg) translateZ(200px); }
+.cube-left  { transform: rotateY(-90deg) translateZ(200px); }
+
+/* L型對焦框 */
 .corner {
     position: absolute;
     width: 20px;
     height: 20px;
-    border: 2px solid var(--current-theme); /* 自動跟隨主題變色 */
+    border: 2px solid var(--current-theme);
     transition: 0.5s ease;
 }
+.tl { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+.tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+.bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+.br { bottom: -1px; right: -1px; border-left: none; border-top: none; }
 
-.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
-.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
-.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
-.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
-/* 2. 專屬底部面樣式：加深背景以突顯圖標 */
-.cube-bottom {
-    transform: rotateX(-90deg) translateZ(200px);
-    background: rgba(5, 15, 25, 0.95) !important; /* 深色底，防止看到背景影片 */
-}
-
-/* --- 強化內容點擊層 --- */
+/* 聯絡面補強 */
 .contact-wrapper {
     position: relative;
     width: 100%;
@@ -230,12 +375,15 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1000; /* 大幅提升 z-index */
-    /* 核心修正：讓內容在 3D 空間中浮到玻璃表面上方 60px，這能解決 99% 的點不到問題 */
-    transform: translateZ(60px) !important; 
-    pointer-events: auto !important; 
+    z-index: 1000;
+    transform: translateZ(60px) !important;
+    pointer-events: auto !important;
 }
-/* 4. 標題與網格佈局 */
+
+.cube-left .contact-wrapper {
+    transform: translateZ(1px);
+}
+
 .module-title {
     color: var(--current-theme);
     font-family: 'Orbitron', sans-serif;
@@ -247,36 +395,11 @@ body {
 
 .social-grid {
     display: flex !important;
-    flex-direction: row !important; /* 強制橫向，不准亂跳 */
+    flex-direction: row !important;
     gap: 35px;
     justify-content: center;
 }
 
-/* 1. 解決白塊問題 */
-.tech-icon {
-    width: 35px !important; /* 縮小一點，更像科技 UI */
-    height: 35px !important;
-    object-fit: contain;
-    z-index: 5;
-    /* 移除強制的 brightness(0) invert(1)，讓圖片原始顏色出來 */
-    filter: drop-shadow(0 0 8px var(--current-theme)); 
-    transition: all 0.3s ease;
-    opacity: 1 !important;
-    display: block;
-}
-      /* 2. 修正六角形容器，確保不會吃掉圖標 */
-.hex-inner {
-    background: rgba(0, 0, 0, 0.6) !important; /* 深色背景確保對比 */
-    width: 65px;
-    height: 65px;
-    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--current-theme);
-}
-
-/* --- 保留並優化你原本的懸停特效：精確修正版 --- */
 .social-hex {
     position: relative;
     width: 65px;
@@ -284,11 +407,15 @@ body {
     text-decoration: none;
     z-index: 1001;
     pointer-events: auto !important;
-    cursor: pointer !important; /* 電腦版必須看到手指 */
+    cursor: pointer !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    transform: translateZ(1px); /* 微幅浮起 */
+    transform: translateZ(1px);
+}
+
+.social-hex:hover {
+    transform: translateY(-12px) scale(1.1);
 }
 
 .social-hex::after {
@@ -303,115 +430,76 @@ body {
     opacity: 0;
     transition: 0.3s;
     letter-spacing: 1px;
-    white-space: nowrap; /* 確保標籤文字不換行 */
+    white-space: nowrap;
     pointer-events: none;
 }
 
-/* 觸發你的原本特效 */
-.social-hex:hover { 
-    transform: translateY(-12px) scale(1.1); 
+.social-hex:hover::after { opacity: 1; }
+
+.hex-inner {
+    background: rgba(0, 0, 0, 0.6) !important;
+    width: 65px;
+    height: 65px;
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--current-theme);
 }
 
-.social-hex:hover::after { 
-    opacity: 1; 
+.tech-icon {
+    width: 35px !important;
+    height: 35px !important;
+    object-fit: contain;
+    z-index: 5;
+    filter: drop-shadow(0 0 8px var(--current-theme));
+    transition: all 0.3s ease;
+    opacity: 1 !important;
+    display: block;
 }
 
-/* 額外加強：懸停時讓圖標更亮 */
 .social-hex:hover .tech-icon {
     filter: drop-shadow(0 0 12px var(--current-theme)) brightness(1.2);
 }
-/* L型對焦框 */
-.corner { position: absolute; width: 20px; height: 20px; border-color: var(--current-theme); transition: border-color 0.5s; }
-.tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
-.tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
-.bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
-.br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
 
-/* 產品與紋理系統 */
-/* --- 修正中間框框內容排版 --- */
+/* 產品內容樣式 */
 .product-content {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
     text-align: center;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
-    transform: translateZ(30px); /* 讓內容浮起來 */
+    transform: translateZ(20px);
+    pointer-events: auto !important;
 }
+
 .product-visual {
-    width: 200px; height: 200px; background: rgba(0,0,0,0.5);
-    margin: 0 auto 20px; position: relative;
+    width: 200px;
+    height: 200px;
+    background: rgba(0,0,0,0.5);
+    margin: 0 auto 20px;
+    position: relative;
     border: 1px solid var(--current-theme);
     box-shadow: 0 0 30px rgba(0,0,0,0.5);
     transition: transform 0.3s;
 }
-.product-visual:hover { transform: perspective(500px) rotateX(-5deg) rotateY(5deg) scale(1.05); }
 
-/* Pin 腳標註 (Hover 顯示) */
-.pin-overlays { opacity: 0; transition: opacity 0.3s; }
-.product-visual:hover .pin-overlays { opacity: 1; }
-.pin {
-    position: absolute; font-size: 10px; color: var(--current-theme);
-    background: rgba(0,0,0,0.8); padding: 2px 5px; border: 1px solid var(--current-theme);
-}
-.pin::before { /* 指示線 */
-    content: ''; position: absolute; width: 10px; height: 1px; background: var(--current-theme);
-    top: 50%; left: -10px;
+.product-visual:hover {
+    transform: perspective(500px) rotateX(-5deg) rotateY(5deg) scale(1.05);
 }
 
-/* --- 6. 紋理主題 (動態切換 Class) --- */
-.texture-circuit { background-image: radial-gradient(circle, transparent 20%, #000 120%), repeating-linear-gradient(45deg, rgba(0,255,255,0.05) 0px, transparent 2px, transparent 10px); }
-.texture-power   { background-image: repeating-linear-gradient(0deg, rgba(255,69,0,0.1) 0px, transparent 2px, transparent 20px); }
-.texture-track   { background-image: repeating-linear-gradient(90deg, rgba(255,215,0,0.1) 0px, rgba(255,215,0,0.1) 20px, transparent 20px, transparent 40px); }
-.texture-nebula  { background-image: url('data:image/svg+xml;base64,...'); /* 模擬星雲或用 CSS Gradient */ background: radial-gradient(circle at center, rgba(176,38,255,0.2), transparent); }
-
-/* --- 7. 機械臂 HUD 與控制 --- */
-.arm-hud {
-    position: absolute; bottom: 10%; width: 200px; padding: 10px;
-    border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.6);
-    font-size: 10px; color: #888; transition: all 0.3s;
-}
-.left-arm-hud { left: 5%; border-left: 3px solid #888; }
-.right-arm-hud { right: 5%; border-right: 3px solid #888; }
-
-/* 機械臂激活狀態 */
-.arm-active { border-color: var(--current-theme); color: var(--current-theme); box-shadow: 0 0 15px var(--current-theme); }
-.arm-active .target-reticle { animation: rotateReticle 1s infinite linear; border-color: var(--current-theme); }
-
-.ctrl-btn {
-    background: transparent; border: 1px solid var(--current-theme); color: white;
-    padding: 10px 20px; font-family: inherit; transition: 0.3s;
-}
-.ctrl-btn:hover { background: var(--current-theme); color: black; }
-
-/* 動畫 Keyframes */
-@keyframes scanDown { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes rotateReticle { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes glitch {
-    0% { clip-path: inset(10% 0 80% 0); } 20% { clip-path: inset(80% 0 10% 0); }
-    40% { clip-path: inset(40% 0 50% 0); } 100% { clip-path: inset(0 0 0 0); }
-}
-    /* === 全新融合版：重裝甲機械臂系統 2.0 CSS === */
-
-/* 手臂總容器：確保在背景之上，UI 之下 */
+/* --- 6. 機械臂系統 --- */
 .robotic-arms-system {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    pointer-events: none; 
-    z-index: 1; /* 降到最低層，只作為背景裝飾 */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none !important;
+    z-index: 0 !important;
 }
 
-/* 手臂外部容器：負責整體進出場位置 */
 .arm-wrapper {
     position: absolute;
-    bottom: -350px; /* 初始藏在畫面下方更深處 */
-    width: 400px; 
+    bottom: -350px;
+    width: 400px;
     height: 800px;
-    /* 強化你喜歡的重型陰影感 */
     filter: drop-shadow(0 30px 50px rgba(0,0,0,1));
     transition: filter 0.5s ease;
 }
@@ -419,135 +507,113 @@ body {
 #arm-left-container {
     left: -120px;
     transform-origin: bottom left;
-    transform: rotate(15deg); /* 初始稍微斜放 */
+    transform: rotate(15deg);
 }
 
 #arm-right-container {
     right: -120px;
     transform-origin: bottom right;
-    transform: rotate(-15deg); /* 初始稍微斜放 */
+    transform: rotate(-15deg);
 }
 
-/* SVG 本體：繼承你原本對金屬亮度的要求 */
 .advanced-arm-svg {
-    width: 100%; 
+    width: 100%;
     height: 100%;
     overflow: visible;
-    filter: contrast(1.1) brightness(0.9); /* 保留你喜歡的對比度 */
+    filter: contrast(1.1) brightness(0.9);
 }
 
-/* --- 核心：多關節旋轉點定義 (這部分不能改，否則關節會脫臼) --- */
 #left-shoulder-group, #right-shoulder-group { transform-origin: 150px 650px; }
-#left-elbow-group, #right-elbow-group       { transform-origin: 150px 350px; }
+#left-elbow-group, #right-elbow-group { transform-origin: 150px 350px; }
 #left-claw-mechanism, #right-claw-mechanism { transform-origin: 150px 150px; }
 
-/* --- ★ 流水燈與能源線動畫 ★ --- */
-
-/* 模擬你原本的能源線呼吸感，但升級為「流動」效果 */
 .energy-flow-path {
     stroke-dashoffset: 0;
     animation: flowAnimation 1.2s linear infinite;
     opacity: 0.9;
-    filter: drop-shadow(0 0 8px var(--current-theme)); /* 隨主題變色 */
+    filter: drop-shadow(0 0 8px var(--current-theme));
 }
 
 @keyframes flowAnimation {
-    to {
-        stroke-dashoffset: -100; /* 製造向上流動的能量感 */
-    }
+    to { stroke-dashoffset: -100; }
 }
 
-/* 夾爪核心發光：保留你原本的 core-light 呼吸感 */
 .claw-core-light {
     animation: energyPulse 2s infinite ease-in-out;
     filter: blur(2px) brightness(1.5);
 }
-      
+
 @keyframes energyPulse {
     0%, 100% { opacity: 0.6; filter: brightness(1) blur(2px); }
     50% { opacity: 1; filter: brightness(2) blur(3px); }
 }
 
-/* 機械臂活動時的亮度強化 */
-.arm-active-visual {
-    filter: brightness(1.3) drop-shadow(0 0 20px var(--current-theme));
-}
-
-/* 模擬油壓桿反光 */
-.arm-piston-highlight {
-    mix-blend-mode: overlay;
-    opacity: 0.6;
-}
-      /* 1. 確保電腦版基礎場景 */
-.scene { 
-    width: 400px; 
-    height: 400px; 
-    perspective: 1200px; 
-    position: relative;
+/* --- 7. 控制與導覽互動 --- */
+.controls {
+    position: fixed !important;
+    bottom: 50px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 120px auto 0; /* 這裡補回你需要的 margin-top */
-    pointer-events: none;
-    z-index: 10;
-}
-/* 1. 確保地基開啟 */
-.lab-stage {
-    position: relative;
-    z-index: 100;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    align-items: center;    
-    justify-content: center; 
-    pointer-events: auto !important; /* 開啟地基感應 */
+    gap: 30px;
+    z-index: 999999 !important;
+    pointer-events: auto !important;
 }
 
-/* 2. 讓容器穿透，不擋路 */
-.cube {
-    width: 400px; 
-    height: 400px; 
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none; /* 讓容器外框不攔截點擊 */
+.ctrl-btn {
+    background: transparent;
+    border: 1px solid var(--current-theme);
+    color: white;
+    padding: 10px 20px;
+    font-family: inherit;
+    transition: 0.3s;
+    pointer-events: auto !important;
+    cursor: pointer !important;
 }
 
-/* 3. 讓面（Face）重新獲得生命 */
-.cube-face {
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    backface-visibility: hidden !important; 
-    -webkit-backface-visibility: hidden !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform-style: preserve-3d;
-    
-    /* 改成 auto！這樣裡面的 <a> 標籤和 .social-hex 才能被點到 */
-    pointer-events: auto !important; 
+.ctrl-btn:hover {
+    background: var(--current-theme);
+    color: black;
 }
 
+.brand-logo {
+    height: 35px;
+    width: auto;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.brand-text {
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+    font-weight: bold;
+    color: var(--tiffany-green);
+    white-space: nowrap;
+}
+
+.nav-brand:hover .brand-logo {
+    transform: scale(1.1) rotate(-5deg);
+    filter: drop-shadow(0 0 12px var(--tiffany-green));
+}
+
+.nav-brand:hover .brand-text {
+    text-shadow: 0 0 15px var(--tiffany-green);
+    letter-spacing: 3px;
+}
+
+/* --- 手機版樣式 --- */
 @media screen and (max-width: 768px) {
-    /* 1. 隱藏不必要元素 */
     #bio-layer, #lab-door-container, .scan-overlay,
     .robotic-arms-system, .arm-hud, .id-tag {
         display: none !important;
     }
 
-    /* 2. 導覽列 */
     #tactical-nav { padding: 5px 10px; height: 50px; }
     .nav-brand { font-size: 0 !important; }
     .nav-brand::before { content: "MBC"; font-size: 1.2rem; color: var(--tiffany-green); font-weight: bold; }
     .nav-menu { gap: 8px; }
     .nav-item { font-size: 0.7rem !important; padding: 4px 6px; }
 
-    /* 3. 標題鎖定 */
     .hero-title {
         position: fixed !important;
         top: 12% !important;
@@ -559,19 +625,16 @@ body {
     }
     .hero-title h1 { font-size: 1.6rem !important; }
 
-  /* 4. 方塊場景：校準旋轉軸心 */
-    .scene { 
+    .scene {
         position: fixed !important;
         top: 50% !important;
         left: 50% !important;
-        /* 縮放 0.6 並精確置中 */
-        transform: translate(-50%, -50%) scale(0.6) !important; 
+        transform: translate(-50%, -50%) scale(0.6) !important;
         width: 300px !important;
         height: 300px !important;
         margin: 0 !important;
         z-index: 10 !important;
         perspective: 1000px !important;
-        /* 移除任何可能干擾的 padding */
         padding: 0 !important;
     }
 
@@ -580,191 +643,60 @@ body {
         height: 100% !important;
         position: relative !important;
         transform-style: preserve-3d !important;
-        /* 核心修正：強制旋轉中心在正中央 0 點 */
-        transform-origin: center center 0 !important; 
+        transform-origin: center center 0 !important;
     }
 
-    /* 5. 每一面牆的物理座標強制重設 */
     .cube-face {
         position: absolute !important;
         width: 300px !important;
         height: 300px !important;
         top: 0 !important;
         left: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        backface-visibility: hidden !important;
-        background: rgba(255, 255, 255, 0.05) !important; /* 稍微給一點底色方便觀察 */
+        background: rgba(255, 255, 255, 0.05) !important;
     }
 
-    /* 強制定義每一面的位移量為寬度的一半 (150px) */
-    .cube-front  { transform: rotateY(0deg) translateZ(150px) !important; }
-    .cube-right  { transform: rotateY(90deg) translateZ(150px) !important; }
-    .cube-back   { transform: rotateY(180deg) translateZ(150px) !important; }
-    .cube-left   { transform: rotateY(-90deg) translateZ(150px) !important; }
+    .cube-front { transform: rotateY(0deg) translateZ(150px) !important; }
+    .cube-right { transform: rotateY(90deg) translateZ(150px) !important; }
+    .cube-back  { transform: rotateY(180deg) translateZ(150px) !important; }
+    .cube-left  { transform: rotateY(-90deg) translateZ(150px) !important; }
 
-    /* 6. 內容物：無視 JS 位移，強制鎖死在玻璃中心 */
     .product-content, .contact-wrapper {
         position: absolute !important;
         top: 50% !important;
         left: 50% !important;
-        /* 關鍵：translate(-50%, -50%) 確保絕對置中，translateZ 確保層級 */
         transform: translate(-50%, -50%) translateZ(5px) !important;
         width: 260px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-        margin: 0 !important;
     }
 
-    /* 修正圖片大小以免撐破方框 */
     .product-visual img {
         max-width: 160px !important;
         height: auto !important;
     }
-    /* 6. 按鈕區域：改為 fixed 確保不位移 */
-   .controls {
-        bottom: 20px !important;
-        gap: 10px !important;
-        width: 90% !important;
-    }
-    .ctrl-btn {
-        padding: 10px 5px !important;
-        font-size: 10px !important;
-    }
-}
 
-    /* 7. 禁止捲動 */
+    .controls {
+        position: fixed !important;
+        bottom: 40px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        display: flex !important;
+        gap: 10px;
+        z-index: 200;
+    }
+
+    .ctrl-btn {
+        padding: 12px 5px !important;
+        font-size: 10px !important;
+        flex: 1;
+        white-space: nowrap;
+    }
+
     body { overflow: hidden !important; position: fixed; width: 100%; height: 100%; }
 }
-    /* 核心 3D 設定 */
-    backface-visibility: hidden !important; 
-    -webkit-backface-visibility: hidden !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    transform-style: preserve-3d;
-    
-    /* 點擊關鍵：玻璃面本身不攔截，讓滑鼠直接穿透到裡面的內容 */
-    pointer-events: none; 
-}
 
-/* --- 2. 精確四面位移：(立方體寬 400px / 2 = 200px) --- */
-.cube-front  { transform: rotateY(  0deg) translateZ(200px); }
-.cube-right  { transform: rotateY( 90deg) translateZ(200px); }
-.cube-back   { transform: rotateY(180deg) translateZ(200px); }
-.cube-left   { transform: rotateY(-90deg) translateZ(200px); }
-
-/* --- 3. 點擊權限鎖定：解決 G-MAIL 點不到的死穴 --- */
-
-/* 確保按鈕在最頂層且可點擊 */
-.controls {
-    position: fixed !important;
-    bottom: 50px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    z-index: 999999 !important;
-    pointer-events: auto !important;
-}
-
-/* 強制開啟所有產品內容、連結、按鈕的感應權限 */
-.product-content, 
-.contact-wrapper, 
-.social-hex, 
-.social-hex *, 
-.ctrl-btn {
-    pointer-events: auto !important;
-    cursor: pointer !important;
-}
-
-/* 特別針對聯絡面 (G-MAIL 所在面) 的 3D 層級補強 */
-.cube-left .contact-wrapper {
-    /* 讓內容在 3D 空間中稍微「浮」出玻璃面 1px，避免被玻璃層物理遮擋 */
-    transform: translateZ(1px); 
-}
-
-/* --- 4. 確保手臂隱形牆不干擾 --- */
-.robotic-arms-system {
-    z-index: 0 !important;
-    pointer-events: none !important;
-}
-      /* 導覽列品牌區塊佈局 */
-.nav-brand {
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-/* Logo 圖片大小控制 */
-.brand-logo {
-    height: 35px; /* 根據你的導覽列高度微調 */
-    width: auto;
-    filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.3));
-    transition: transform 0.3s ease;
-}
-
-/* 品牌文字樣式（繼承你原本的樣式並微調） */
-.brand-text {
-    font-family: 'Orbitron', sans-serif; /* 假設你使用科技感字體 */
-    letter-spacing: 2px;
-    font-weight: bold;
-    color: var(--tiffany-green); /* 或者你原本設定的顏色 */
-    white-space: nowrap;
-}
-
-/* 懸停時的整體聯動效果 */
-.nav-brand:hover .brand-logo {
-    transform: scale(1.1) rotate(-5deg); /* 輕微旋轉增加動感 */
-    filter: drop-shadow(0 0 12px var(--tiffany-green));
-}
-
-.nav-brand:hover .brand-text {
-    text-shadow: 0 0 15px var(--tiffany-green);
-    letter-spacing: 3px; /* 稍微展開的呼吸感 */
-}
-/* --- 強制修正：按鈕固定於螢幕底部 --- */
-.controls {
-    position: fixed !important;
-    bottom: 5% !important; /* 距離底部 5% */
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    display: flex !important;
-    gap: 30px !important;
-    z-index: 999999 !important; /* 確保在所有 3D 物件前方 */
-    pointer-events: auto !important;
-    width: auto !important;
-}
-
-.ctrl-btn {
-    background: rgba(0, 0, 0, 0.6) !important;
-    backdrop-filter: blur(5px);
-    border: 1px solid var(--current-theme) !important;
-    color: white !important;
-    padding: 12px 25px !important;
-    font-family: 'Orbitron', sans-serif;
-    letter-spacing: 1px;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-}
-
-.ctrl-btn:hover {
-    background: var(--current-theme) !important;
-    color: black !important;
-    box-shadow: 0 0 20px var(--current-theme);
-}
-      /* 針對 Logo 的特別調整 */
-.lab-logo-main {
-    margin-bottom: 20px !important; /* 增加 Logo 與下方文字的間距 */
-    flex-shrink: 0; /* 防止圖片被縮小 */
-}
-
-.lab-logo-main img {
-    max-width: 180px;
-    height: auto;
-    filter: drop-shadow(0 0 15px var(--current-theme));
-}
+/* 核心 Keyframes */
+@keyframes scanDown { 0% { top: -10%; opacity: 0; } 50% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -773,6 +705,7 @@ body {
             CLICK TO INITIALIZE SYSTEM
         </div>
     </div>
+
     <div id="cursor-light"></div>
     <div id="cursor-ring"></div>
 
@@ -802,7 +735,7 @@ body {
     </div>
 
     <nav id="tactical-nav">
-       <div class="nav-brand" style="display: flex; align-items: center; gap: 15px;">
+        <div class="nav-brand" style="display: flex; align-items: center; gap: 15px;">
     <img src="mbc-pro-logo (1).png" alt="MBC Logo" class="brand-logo">
     <span class="brand-text">MBC-PRO-SENSORS</span>
 </div>
@@ -854,10 +787,10 @@ body {
                                         <path d="M130 130 L100 80 L140 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                                         <path d="M170 130 L200 80 L160 50" stroke="url(#metal-grad)" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                                     </g>
-                                </g> 
-                            </g> 
-                        </g> 
-                    </g> 
+                                </g>
+                            </g>
+                        </g>
+                    </g>
                 </svg>
             </div>
 
@@ -882,44 +815,33 @@ body {
                                     <rect x="125" y="150" width="50" height="200" rx="10" fill="url(#metal-grad-r)" stroke="#111"/>
                                     <circle class="claw-core-light" cx="150" cy="150" r="10" fill="var(--current-theme)"/>
                                     <g id="right-claw-mechanism">
-                                        <path d="M150 125 L150 60" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
-                                        <path d="M130 135 L90 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
-                                        <path d="M170 135 L210 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/> 
+                                        <path d="M150 125 L150 60" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/>
+                                        <path d="M130 135 L90 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/>
+                                        <path d="M170 135 L210 90" stroke="url(#metal-grad-r)" stroke-width="10" stroke-linecap="round"/>
                                     </g>
                                 </g>
                             </g>
                         </g>
-                    </g> 
+                    </g>
                 </svg>
             </div>
         </div>
 
-       <div class="hero-title" style="
-    pointer-events: none; 
-    position: absolute; 
-    left: 50%; 
-    top: 25%; /* 調整這個百分比可以控制標題在高處還是低處 */
-    transform: translateX(-50%); /* 關鍵：強制標題中心對準螢幕中線 */
-    z-index: 2; 
-    width: auto; 
-    text-align: center; /* 讓兩行文字自己也對齊中心 */
-">
-    <h1 data-text="MBC-Pro-Sensors" style="margin: 0;">MBC-Pro-Sensors</h1>
-    <p class="subtitle" style="margin: 0; white-space: nowrap;">ADVANCED ROBOTICS RESEARCH FACILITY</p>
-</div>
+        <div class="hero-title" style="pointer-events: none; position: absolute; left: 50%; top: 25%; transform: translateX(-50%); z-index: 2; width: auto; text-align: center;">
+            <h1 data-text="MBC-Pro-Sensors" style="margin: 0;">MBC-Pro-Sensors</h1>
+            <p class="subtitle" style="margin: 0; white-space: nowrap;">ADVANCED ROBOTICS RESEARCH FACILITY</p>
+        </div>
 
         <div class="scene" style="pointer-events: auto; position: relative; z-index: 10; width: 400px; height: 400px; display: flex; justify-content: center; align-items: center; perspective: 2000px;">
             <div class="cube" id="cube">
                 <div class="cube-face cube-front">
                     <div class="corner tl"></div><div class="corner tr"></div>
                     <div class="corner bl"></div><div class="corner br"></div>
-                   <div class="product-content">
-    <div class="lab-logo-main">
-        <img src="mbc-pro-logo (1).png" alt="MBC PRO" style="width: 180px; height: auto; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));">
-    </div>
-    <h2 class="product-name">LAB FACILITY</h2>
-    <p class="product-desc">READY FOR OPERATION</p>
-</div>
+                    <div class="product-content">
+                        <h2 class="product-name">LAB FACILITY</h2>
+                        <p class="product-desc">READY FOR OPERATION</p>
+                    </div>
+                </div>
 
                 <div class="cube-face cube-right">
                     <div class="corner tl"></div><div class="corner tr"></div>
@@ -953,17 +875,17 @@ body {
                     <div class="contact-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateZ(30px); pointer-events: none;">
                         <h3 class="module-title" style="margin-bottom: 20px;">SECURE COMMS</h3>
                         <div class="social-grid" style="pointer-events: auto;">
-                            <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK" style="pointer-events: auto;">
+                            <a href="你的FB連結" target="_blank" class="social-hex" data-label="FACEBOOK">
                                 <div class="hex-inner">
                                     <img src="path-to-your-fb-icon.png" class="tech-icon" alt="FB">
                                 </div>
                             </a>
-                            <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM" style="pointer-events: auto;">
+                            <a href="你的IG連結" target="_blank" class="social-hex" data-label="INSTAGRAM">
                                 <div class="hex-inner">
                                     <img src="path-to-your-ig-icon.png" class="tech-icon" alt="IG">
                                 </div>
                             </a>
-                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com" target="_blank" class="social-hex" data-label="G-MAIL" style="pointer-events: auto;">
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=mbc.robot89@gmail.com" target="_blank" class="social-hex" data-label="G-MAIL">
                                 <div class="hex-inner">
                                     <img src="path-to-your-gmail-icon.png" class="tech-icon" alt="Mail">
                                 </div>
@@ -974,21 +896,10 @@ body {
             </div>
         </div>
 
-     <div class="controls" style="
-    pointer-events: auto; 
-    position: absolute; 
-    bottom: 10%; /* 距離底部 10%，確保不會被瀏覽器列擋住 */
-    left: 50%; 
-    transform: translateX(-50%); /* 關鍵：強制按鈕中心對準螢幕中線 */
-    z-index: 20; 
-    width: auto; 
-    display: flex; 
-    gap: 20px;
-    justify-content: center;
-">
-    <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
-    <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
-</div>
+        <div class="controls" style="pointer-events: auto; position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%); z-index: 20; width: auto; display: flex; gap: 20px; justify-content: center;">
+            <button class="ctrl-btn prev-btn">❮ PREV (ACTIVATE RIGHT ARM)</button>
+            <button class="ctrl-btn next-btn">NEXT (ACTIVATE LEFT ARM) ❯</button>
+        </div>
     </main>
     
 <script>
