@@ -729,6 +729,15 @@ body {
     text-shadow: 0 0 15px var(--tiffany-green);
     letter-spacing: 3px; /* 稍微展開的呼吸感 */
 }
+      /* 立方體內 Logo 的呼吸燈效果 */
+.lab-logo-main img {
+    animation: logo-glow 3s infinite ease-in-out;
+}
+
+@keyframes logo-glow {
+    0%, 100% { filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.4)); transform: scale(1); }
+    50% { filter: drop-shadow(0 0 20px rgba(0, 255, 255, 0.7)); transform: scale(1.02); }
+}
 </style>
 </head>
 <body>
